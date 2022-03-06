@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+        "terminal.integrated.fontSize": 14,
+        "python.analysis.typeCheckingMode": "strict",
+        "python.analysis.extraPaths": [
+            "${workspaceFolder}/.lib/python/runtime",
+            "${workspaceFolder}/.lib/python/testing"
+        ]
+    }
+}

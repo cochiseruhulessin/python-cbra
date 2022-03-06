@@ -1,0 +1,13 @@
+---
+default:
+  interruptible: true
+
+variables:
+  PROJECT_KIND: library
+  CONTAINER_TAG: latest
+
+
+include:
+- /ops/gitlab/defaults.yml
+- /ops/gitlab/variables.yml
+- remote: https://gitlab.com/unimatrixone/gitlab-pipelines/-/raw/master/pipelines/app/python/pypi.yml

@@ -1,0 +1,67 @@
+#-------------------------------------------------------------------------------
+#
+#	UNIMAKE MAKEFILE (CBRA)
+#
+#-------------------------------------------------------------------------------
+COVERAGE_CONFIG ?= .coveragerc
+DEPLOYMENT_ENV ?= local
+PYTHON ?= python3
+PYTHON_PKG_NAME=
+PYTHON_SETTINGS_MODULE=$(project.symbolic-name)
+PYTHON_VENV_DIR=$(CURDIR)/.venv
+ifneq ("$(wildcard $(PYTHON_VENV_DIR))","")
+PYTHON_LIBDIR_RUNTIME=$(PYTHON_VENV_DIR)/lib/python*/site-packages
+PATH := $(PYTHON_VENV_DIR)/bin:$(PATH)
+PYTHONPATH := $(PYTHON_LIBDIR_RUNTIME):$(PYTHONPATH)
+endif
+TEST_MIN_COVERAGE=100
+export PATH
+export PYTHONPATH
+
+
+clean: testclean
+
+
+console:
+	@$(PYTHON)
+
+
+env:
+	@$(PYTHON) -m venv $(PYTHON_VENV_DIR)
+
+
+lint:
+
+
+runtests: testclean
+	@$(MAKE) -j test-unit test-integration
+	@$(MAKE) testcoverage\
+		PYTHONPATH=.venv/lib/python3.8/site-packages:$(PYTHONPATH)
+
+
+test-unit:
+	@$(MAKE) .test TEST_STAGE=unit\
+		COVERAGE_FILE=.coverage-unit
+
+
+test-integration:
+	@$(MAKE) .test TEST_STAGE=integration\
+		COVERAGE_FILE=.coverage-integration
+
+
+test-system:
+	@$(MAKE) .test TEST_STAGE=integration\
+		COVERAGE_FILE=.coverage-integration
+
+
+testclean:
+	@rm -rf .coverage
+	@rm -rf .coverage-*
+	@rm -rf .pytest_cache
+	@rm -rf htmlcov
+
+
+testcoverage:
+	@$(PYTHON) -m coverage combine .coverage-*
+	@$(PYTHON) -m coverage report -m --skip-covered --show-missing\
+		--fail-under $(TEST_MIN_COVERAGE)

@@ -1,0 +1,28 @@
+dl.attribute .sig-object {
+  font-family: monospace;
+}
+
+dl.attribute .sig-object .descname {
+  font-weight: bold;
+}
+
+dl.class .sig-object .descname {
+  font-weight: bold;
+}
+
+dl.class .sig-object em.sig-param {
+  white-space: pre;
+}
+
+dl.class .sig-object em.sig-param::before {
+  content: '\A';
+}
+
+dl.class .sig-object em.sig-param > span:first-child {
+  font-style: normal;
+  margin-left: 1.875em;
+}
+
+dl.class .sig-object em.sig-param:last-of-type::after {
+  content: '\A';
+}

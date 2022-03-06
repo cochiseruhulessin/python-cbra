@@ -1,0 +1,13 @@
+include VERSION
+include cbra/package.json
+include requirements.txt
+include README.md
+include VERSION
+recursive-include cbra VERSION
+recursive-include cbra **.html
+recursive-include cbra **.j2
+recursive-include cbra **.json
+recursive-include cbra **.key
+recursive-include cbra **.md
+recursive-include cbra **.yaml
+recursive-include cbra **.xml
