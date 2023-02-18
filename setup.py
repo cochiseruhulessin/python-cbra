@@ -24,9 +24,6 @@ from setuptools import setup
 curdir = os.path.abspath(os.path.dirname(__file__))
 version = str.strip(open('VERSION').read())
 opts = json.loads((open('cbra/package.json').read()))
-if os.path.exists('requirements.txt'):
-    opts['install_requires'] = [x for x in
-        str.splitlines(open('requirements.txt').read()) if x]
 
 if os.path.exists(os.path.join(curdir, 'README.md')):
     with open(os.path.join(curdir, 'README.md'), encoding='utf-8') as f:

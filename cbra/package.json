@@ -1,0 +1,53 @@
+{
+  "description": "Class-based REStful API Framework",
+  "author": "Cochise Ruhulessin",
+  "author_email": "cochise.ruhulessin@unimatrixone.io",
+  "url": "https://docs.unimatrixone.io/python/cbra/latest",
+  "licenses": "Proprietary",
+  "install_requires": [
+    "fastapi",
+    "headless",
+    "inflect",
+    "gunicorn",
+    "pydantic",
+    "uvicorn"
+  ],
+  "entry_points": {
+    "unimatrix.runtime.init": [
+      "cbra.ext.ioc = cbra.ext.ioc.runlevel:init",
+      "cbra.ext.service = cbra.ext.service.runlevel:init"
+    ]
+  },
+  "extras_require": {
+    "all": [
+      "aorta[all]>=2.19.0",
+      "gunicorn",
+      "httpx",
+      "jwcrypto",
+      "google.auth",
+      "pyjwt",
+      "unimatrix.ext.kms[all]"
+    ],
+    "google": [
+      "aorta[google]>=2.19.0",
+      "ckms[google]>=0.59"
+    ],
+    "gunicorn": [
+      "gunicorn"
+    ]
+  },
+  "classifiers": [
+     "Development Status :: 4 - Beta",
+     "Environment :: Console",
+     "Environment :: Web Environment",
+     "Intended Audience :: Developers",
+     "License :: Other/Proprietary License",
+     "Operating System :: POSIX",
+     "Operating System :: POSIX :: Linux",
+     "Programming Language :: Python :: 3.10",
+     "Programming Language :: Python :: 3 :: Only",
+     "Topic :: Internet",
+     "Topic :: Internet :: WWW/HTTP :: Session",
+     "Topic :: Software Development :: Libraries"
+  ]
+}
