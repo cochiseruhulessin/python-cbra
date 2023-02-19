@@ -34,7 +34,7 @@ class Book(cbra.ResourceModel):
         title: str = 'Foo'
 
 
-class BookResource(cbra.Resource, cbra.Create, cbra.Retrieve, cbra.Update, model=Book):
+class BookResource(cbra.Resource, cbra.Create, cbra.Delete, cbra.Retrieve, cbra.Update, model=Book):
     books: dict[int, Book] = {
         1: Book(
             id=1,
@@ -49,11 +49,16 @@ class BookResource(cbra.Resource, cbra.Create, cbra.Retrieve, cbra.Update, model
     async def can_create(self, resource: Book) -> bool:
         return not any([x.title == resource.title for x in self.books.values()])
 
+    async def delete(self, resource: Book):
+        assert resource.id is not None
+        self.books.pop(resource.id)
+
     async def get_object(self) -> Book | None:
-        return self.books.get(self.resource_id.book_id)
+        return self.books.get(int(self.request.path_params['book_id']))
 
     async def persist(self, resource: Book, create: bool = False) -> Book:
         if create:
+            assert resource.id is None
             resource.id = secrets.choice(range(1000, 9999))
         assert resource.id is not None
         self.books[resource.id] = resource

@@ -7,6 +7,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from .create import Create
+from .delete import Delete
 from .resource import Resource
 from .resourcemodel import ResourceModel
 from .resourcetype import ResourceType
@@ -16,6 +17,7 @@ from .update import Update
 
 __all__: list[str] = [
     'Create',
+    'Delete',
     'Resource',
     'ResourceModel',
     'ResourceType',
