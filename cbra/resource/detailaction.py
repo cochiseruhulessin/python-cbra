@@ -9,7 +9,9 @@
 from inspect import Parameter
 
 import fastapi
+import pydantic
 
+from ..types import IEndpoint
 from .resourceaction import ResourceAction
 
 
@@ -34,3 +36,13 @@ class DetailAction(ResourceAction):
                 default=fastapi.Path()
             )
         return super().preprocess_parameter(p)
+
+    async def process_response(
+        self,
+        endpoint: IEndpoint,
+        response: fastapi.Response | pydantic.BaseModel | None
+    ) -> fastapi.Response | pydantic.BaseModel | None:
+        if isinstance(response, pydantic.BaseModel)\
+        and not isinstance(response, self.response_model):
+            response = self.response_model.parse_obj(response.dict())
+        return await super().process_response(endpoint, response)

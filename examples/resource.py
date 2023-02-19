@@ -32,14 +32,14 @@ class BookResource(cbra.Resource, model=Book):
         resource.id = 1
         return resource
 
-    async def delete(self, book_id: int):
+    async def destroy(self, book_id: int):
         pass
 
     async def list(self):
         pass
 
-    async def retrieve(self, book_id: int):
-        return Book(id=book_id, title="Foo")
+    async def retrieve(self, book_id: int) -> None:
+        return Book(id=book_id, title="Foo", published=datetime.date.today())
 
     async def replace(self, book_id: int, resource: Book):
         pass

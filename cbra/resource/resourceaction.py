@@ -79,6 +79,7 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
             )
         })
         kwargs['responses'] = self.get_openapi_responses(kwargs.get('responses') or {})
+        print(kwargs)
         return super().add_to_router(router, **kwargs)
 
     def can_write(self) -> bool:

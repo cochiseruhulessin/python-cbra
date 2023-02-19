@@ -17,7 +17,7 @@ T = TypeVar('T', bound='DeleteAction')
 
 
 class DeleteAction(DetailAction):
-    action: str = 'retrieve'
+    action: str = 'destroy'
     name_template: str = 'Delete {article} {name}'
     response_description: str = 'The deleted **{name}**'
 

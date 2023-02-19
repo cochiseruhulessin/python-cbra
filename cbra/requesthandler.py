@@ -57,6 +57,7 @@ class RequestHandler(Generic[E]):
     }
     _signature: inspect.Signature | None
     include_in_schema: bool = True
+    status_code: int = 200
 
     @property
     def attname(self) -> str:
@@ -256,6 +257,13 @@ class RequestHandler(Generic[E]):
         **kwargs: Any
     ) -> None:
         assert self._class is not None
+        if self._handler_sig.return_annotation == None:
+            # Ensure that a proper response code is presented to
+            # FastAPI if the handler does not return anything.
+            kwargs.update({
+                'response_model': None,
+                'status_code': 204
+            })
         router.add_api_route(
             endpoint=self,
             methods=[self.method],
@@ -294,8 +302,19 @@ class RequestHandler(Generic[E]):
 
     async def process_response(
         self,
+        endpoint: IEndpoint,
         response: fastapi.Response | pydantic.BaseModel | None
     ) -> fastapi.Response | pydantic.BaseModel | None:
+        if response is None:
+            response = fastapi.Response(status_code=204)
+        elif isinstance(response, pydantic.BaseModel):
+            response = fastapi.responses.Response(
+                headers={'Content-Type': "application/json"},
+                status_code=self.status_code,
+                content=response.json(indent=2)
+            )
+        assert isinstance(response, fastapi.Response) # nosec
+        response.headers.update(endpoint.get_success_headers(response))
         return response
 
     async def __call__(self, **params: Any) -> Any:
@@ -335,4 +354,7 @@ class RequestHandler(Generic[E]):
         # to invoke the handler.
         endpoint: IEndpoint = self._class(**init)
         endpoint.__dict__.update(attrs)
-        return await self.process_response(await self._func(endpoint, **kwargs))
+        return await self.process_response(
+            endpoint,
+            await self._func(endpoint, **kwargs)
+        )

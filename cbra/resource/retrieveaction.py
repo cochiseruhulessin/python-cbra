@@ -9,9 +9,6 @@
 from typing import Any
 from typing import TypeVar
 
-import fastapi
-import pydantic
-
 from .detailaction import DetailAction
 
 
@@ -35,12 +32,3 @@ class RetrieveAction(DetailAction):
 
     def get_return_annotation(self) -> Any:
         return self.endpoint.model.__response_model__
-
-    async def process_response(
-        self,
-        response: fastapi.Response | pydantic.BaseModel | None
-    ) -> fastapi.Response | pydantic.BaseModel | None:
-        if isinstance(response, pydantic.BaseModel)\
-        and not isinstance(response, self.response_model):
-            response = self.response_model.parse_obj(response.dict())
-        return await super().process_response(response)

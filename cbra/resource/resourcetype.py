@@ -27,7 +27,7 @@ class ResourceType(type):
     __module__: str = 'cbra'
     actions: dict[str, type[ResourceAction]] = {
         'create'    : CreateAction,
-        'delete'    : DeleteAction,
+        'destroy'   : DeleteAction,
         'list'      : ListAction,
         'replace'   : ReplaceAction,
         'retrieve'  : RetrieveAction,

@@ -12,6 +12,7 @@ from typing import TypeVar
 import fastapi
 import pydantic
 
+from ..types import IEndpoint
 from .resourceaction import ResourceAction
 
 
@@ -62,8 +63,9 @@ class CreateAction(ResourceAction):
 
     async def process_response(
         self,
+        endpoint: IEndpoint,
         response: fastapi.Response | pydantic.BaseModel | None
     ) -> fastapi.Response | pydantic.BaseModel | None:
         if isinstance(response, pydantic.BaseModel):
             response = self.response_model.parse_obj(response.dict())
-        return await super().process_response(response)
+        return await super().process_response(endpoint, response)
