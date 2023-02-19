@@ -6,23 +6,11 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from pydantic import Field
+import datetime
 
-from .application import Application
-from .endpoint import Endpoint
-from .resource import *
+import pydantic
 
 
-__all__: list[str] = [
-    'Application',
-    'Create',
-    'Delete',
-    'Endpoint',
-    'Field',
-    'Replace',
-    'Resource',
-    'ResourceModel',
-    'ResourceType',
-    'Retrieve',
-    'Update'
-]
+class BookPublication(pydantic.BaseModel):
+    published: datetime.date
+    country_code: str

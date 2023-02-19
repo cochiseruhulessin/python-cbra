@@ -6,23 +6,16 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from .create import Create
-from .delete import Delete
-from .replace import Replace
-from .resource import Resource
+from typing import TypeVar
+
 from .resourcemodel import ResourceModel
-from .resourcetype import ResourceType
-from .retrieve import Retrieve
 from .update import Update
 
+T = TypeVar('T', bound=ResourceModel)
 
-__all__: list[str] = [
-    'Create',
-    'Delete',
-    'Replace',
-    'Resource',
-    'ResourceModel',
-    'ResourceType',
-    'Retrieve',
-    'Update',
-]
+
+class Replace(Update):
+    __module__: str = 'cbra.core'
+
+    async def replace(self, resource: T) -> T:
+        return await self.update(resource)

@@ -12,7 +12,7 @@ import pytest
 import pytest_asyncio
 from headless.core import httpx
 
-import cbra
+import cbra.core as cbra
 
 
 class TestEndpoint(cbra.Endpoint):

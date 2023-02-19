@@ -6,23 +6,11 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from .create import Create
-from .delete import Delete
-from .replace import Replace
-from .resource import Resource
-from .resourcemodel import ResourceModel
-from .resourcetype import ResourceType
-from .retrieve import Retrieve
-from .update import Update
+from .book import Book
+from .bookresource import BookResource
 
 
 __all__: list[str] = [
-    'Create',
-    'Delete',
-    'Replace',
-    'Resource',
-    'ResourceModel',
-    'ResourceType',
-    'Retrieve',
-    'Update',
+    'Book',
+    'BookResource'
 ]

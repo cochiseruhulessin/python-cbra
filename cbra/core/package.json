@@ -6,7 +6,7 @@
   "licenses": "Proprietary",
   "install_requires": [
     "fastapi",
-    "headless>=1.6.0",
+    "headless>=1.9.1",
     "inflect",
     "gunicorn",
     "pydantic",

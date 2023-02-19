@@ -9,30 +9,20 @@
 import datetime
 import secrets
 
-import fastapi
-import pydantic
-import uvicorn
-
 import cbra.core as cbra
+from .book import Book
+from .bookpublication import BookPublication
 
 
-class BookPublication(pydantic.BaseModel):
-    published: datetime.date
-    country_code: str
-
-
-class Book(cbra.ResourceModel):
-    id: int | None = cbra.Field(
-        default=None,
-        read_only=True,
-        path_alias='book_id',
-        primary_key=True
-    )
-    title: str
-    publications: list[BookPublication]
-
-
-class BookResource(cbra.Resource, cbra.Create, cbra.Delete, cbra.Retrieve, cbra.Update, model=Book):
+class BookResource(
+    cbra.Resource,
+    cbra.Create,
+    cbra.Delete,
+    cbra.Replace,
+    cbra.Retrieve,
+    cbra.Update,
+    model=Book
+):
     books: dict[int, Book] = {
         1: Book(
             id=1,
@@ -61,10 +51,3 @@ class BookResource(cbra.Resource, cbra.Create, cbra.Delete, cbra.Retrieve, cbra.
         assert resource.id is not None
         self.books[resource.id] = resource
         return resource
-
-
-app = fastapi.FastAPI(docs_url='/ui')
-BookResource.add_to_router(app, path='/')
-
-if __name__ == '__main__':
-    uvicorn.run('__main__:app', reload=True) # type: ignore
