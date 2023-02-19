@@ -8,8 +8,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from .abortable import Abortable
 from .iendpoint import IEndpoint
+from .integerpathparameter import IntegerPathParameter
+from .iroutable import IRoutable
 from .mutablesignature import MutableSignature
 from .notfound import NotFound
+from .operation import Operation
 from .pathparameter import PathParameter
 from .uuidpathparameter import UUIDPathParameter
 
@@ -17,8 +20,11 @@ from .uuidpathparameter import UUIDPathParameter
 __all__: list[str] = [
     'Abortable',
     'IEndpoint',
+    'IntegerPathParameter',
+    'IRoutable',
     'MutableSignature',
     'NotFound',
+    'Operation',
     'PathParameter',
     'UUIDPathParameter',
 ]

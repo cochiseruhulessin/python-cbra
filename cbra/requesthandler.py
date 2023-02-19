@@ -13,25 +13,33 @@ import uuid
 from typing import Awaitable
 from typing import Any
 from typing import Callable
+from typing import Generic
+from typing import TypeVar
 from inspect import Parameter
 
 import fastapi
 import fastapi.params
+import pydantic
 
 from cbra.types import Abortable
 from cbra.types import IEndpoint
+from cbra.types import IntegerPathParameter
 from cbra.types import MutableSignature
 from cbra.types import PathParameter
 from cbra.types import UUIDPathParameter
 
 
-class RequestHandler:
+E = TypeVar('E', bound='IEndpoint')
+
+
+class RequestHandler(Generic[E]):
     __module__: str = 'cbra'
     _is_coroutine = asyncio.coroutines._is_coroutine # type: ignore
     _annotations: tuple[type, ...] = (
         fastapi.Request,
         fastapi.Response
     )
+    _class: type[E] | None
     _class_params: set[str]
     _dependencies: dict[str, Parameter] = {}
     _func: Callable[..., Awaitable[Any] | Any]
@@ -44,8 +52,7 @@ class RequestHandler:
     )
     _method: str
     _path_types: dict[type, type] = {
-        int: NotImplemented,
-        str: NotImplemented,
+        int: IntegerPathParameter,
         uuid.UUID: UUIDPathParameter
     }
     _signature: inspect.Signature | None
@@ -54,6 +61,11 @@ class RequestHandler:
     @property
     def attname(self) -> str:
         return str.lower(self._method)
+
+    @property
+    def endpoint(self) -> type[E]:
+        assert self._class is not None
+        return self._class
 
     @property
     def method(self) -> str:
@@ -66,10 +78,12 @@ class RequestHandler:
 
     def __init__(
         self,
+        name: str,
         method: str,
         func: Callable[..., Awaitable[Any] | Any],
         include_in_schema: bool | None = None
     ):
+        self._endpoint_name = name
         self._class = None
         self._class_args = []
         self._class_params = set()
@@ -81,16 +95,27 @@ class RequestHandler:
         self._func = func
         if include_in_schema is not None:
             self.include_in_schema = include_in_schema
-
+        self._func, self._handler_sig = self.validate_handler(self._func, self._handler_sig)
         # Check if the asyncio.iscoroutinefunction() call returns
         # True for this object, since it depends on a private
         # symbol.
         assert asyncio.iscoroutinefunction(self) # nosec
 
+    def get_return_annotation(self) -> Any:
+        return self._handler_sig.return_annotation
+
+    def validate_handler(
+        self,
+        func: Callable[..., Awaitable[Any] | Any],
+        signature: MutableSignature
+    ) -> tuple[Callable[..., Awaitable[Any] | Any], MutableSignature]:
+        return func, signature
+
     def add_to_class(self, cls: type[IEndpoint]) -> None:
         """Construct an entrypoint for the router and add it to the
         endpoint class.
         """
+        self._class = cls # type: ignore
         self._class_sig = MutableSignature.fromfunction(cls)
 
         # Collect all dependencies and ensure that there are no clashing
@@ -190,6 +215,8 @@ class RequestHandler:
         self._class_params.add('response')
 
         parameters = list(dependencies.values())
+        for i, p in enumerate(parameters):
+            parameters[i] = self.preprocess_parameter(p) or p
         parameters = [
             *[
                 p for p in parameters
@@ -215,22 +242,26 @@ class RequestHandler:
         ]
 
         sig = inspect.signature(self.__call__)
-        self._class = cls
         self._dependencies = collections.OrderedDict([
             (param.name, param) for param in parameters
         ])
-        self._signature = sig.replace(parameters=parameters)
-        self.add_to_router(cls, cls.router)
+        self._signature = sig.replace(
+            parameters=parameters,
+            return_annotation=self.get_return_annotation()
+        )
 
     def add_to_router(
         self,
-        cls: type[IEndpoint],
-        router: fastapi.APIRouter
+        router: fastapi.APIRouter,
+        **kwargs: Any
     ) -> None:
+        assert self._class is not None
         router.add_api_route(
-            path='',
             endpoint=self,
-            include_in_schema=cls.include_in_schema and self.include_in_schema
+            methods=[self.method],
+            include_in_schema=self._class.include_in_schema\
+                and self.include_in_schema,
+            **kwargs
         )
 
     def can_inject(self, p: Parameter | Any, where: str) -> bool:
@@ -242,11 +273,30 @@ class RequestHandler:
                 and isinstance(p.default, self._injectables),
             isinstance(p, Parameter) and (where=='handler')\
                 and p.annotation in (self._path_types),
+            isinstance(p, Parameter) and (where=='handler')\
+                and inspect.isclass(p.annotation)\
+                and issubclass(p.annotation, pydantic.BaseModel),
             not isinstance(p, Parameter)\
                 and isinstance(p, self._injectables),
             not isinstance(p, Parameter)\
                 and p in self._annotations,
         ])
+
+    def preprocess_parameter(self, p: Parameter) -> Parameter | None:
+        """Hook to modify a parameter just before it is added to the
+        new signature. It is expected to return a modified
+        :class:`inspect.Parameter` instance.
+        """
+        return p
+
+    async def preprocess_value(self, name: str, value: Any) -> Any:
+        return value
+
+    async def process_response(
+        self,
+        response: fastapi.Response | pydantic.BaseModel | None
+    ) -> fastapi.Response | pydantic.BaseModel | None:
+        return response
 
     async def __call__(self, **params: Any) -> Any:
         try:
@@ -262,7 +312,7 @@ class RequestHandler:
         init: dict[str, Any] = {}
         kwargs: dict[str, Any] = {}
         for param in self._dependencies.values():
-            value = params.pop(param.name)
+            value = await self.preprocess_value(param.name, params.pop(param.name))
 
             # PathParameter instances expose a clean() method
             # that immetialy cause the endpoint to return 404
@@ -285,4 +335,4 @@ class RequestHandler:
         # to invoke the handler.
         endpoint: IEndpoint = self._class(**init)
         endpoint.__dict__.update(attrs)
-        return await self._func(endpoint, **kwargs)
+        return await self.process_response(await self._func(endpoint, **kwargs))

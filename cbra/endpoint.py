@@ -8,11 +8,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
+import fastapi
+
 from .endpointtype import EndpointType
 from .types import IEndpoint
+from .types import IRoutable
 
 
-class Endpoint(IEndpoint, metaclass=EndpointType):
+class Endpoint(IEndpoint, IRoutable, metaclass=EndpointType):
     __abstract__: bool = True
     __module__: str = 'cbra'
     allowed_http_methods: list[str]
@@ -26,3 +29,8 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
         # instance, or raise an error.
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+    @classmethod
+    def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:
+        for handler in cls.handlers:
+            handler.add_to_router(router, **kwargs)

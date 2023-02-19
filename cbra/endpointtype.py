@@ -8,8 +8,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
-import fastapi
-
 from .requesthandler import RequestHandler
 from .optionsrequesthandler import OptionsRequestHandler
 from .types import IEndpoint
@@ -18,6 +16,7 @@ from .types import IEndpoint
 class EndpointType(type):
     http_methods: list[str] = [
         'options',
+        'head',
         'get',
         'post',
         'patch',
@@ -34,7 +33,7 @@ class EndpointType(type):
         **params: Any
     ) -> type[IEndpoint]:
         is_abstract = namespace.pop('__abstract__', False)
-        handlers: list[RequestHandler] = []
+        handlers: list[RequestHandler[Any]] = []
         if not is_abstract:
             for attname, func in list(namespace.items()):
                 if attname not in cls.http_methods:
@@ -43,23 +42,21 @@ class EndpointType(type):
                     raise TypeError("A request handler must be callable.")
                 handlers.append(
                     RequestHandler(
+                        name=name,
                         method=attname,
                         func=func
                     )
                 )
 
             namespace.update({
-                'allowed_http_methods': [x.method for x in handlers]
+                'allowed_http_methods': [x.method for x in handlers],
+                'handlers': handlers
             })
-
             if 'OPTIONS' not in namespace['allowed_http_methods']:
                 # Create an options handler using the default CORS
                 # policy.
-                handlers.append(OptionsRequestHandler())
-
-            # Create a router to hold the handlers for
-            # this endpoint.
-            namespace['router'] = fastapi.APIRouter()
+                handlers.append(OptionsRequestHandler(name))
+                namespace['allowed_http_methods'].append('OPTIONS')
 
         Endpoint = super().__new__(cls, name, bases, namespace, **params)
         for handler in handlers:

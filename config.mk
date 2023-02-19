@@ -82,3 +82,7 @@ ifeq ($(BRANCH_NAME), stable)
 	@printf "to base path $(DOCS_BASE_PATH)/stable.\n"
 	@make deploy-docs-google-stable
 endif
+
+update-headless:
+	@cp -R ~/src/unimatrixone/libraries/python-unimatrix/headless/headless/*\
+		$(CURDIR)/.lib/python/runtime/headless/

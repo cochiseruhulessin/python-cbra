@@ -31,6 +31,10 @@ class MutableSignature:
         params = list(self.sig.parameters.values())
         return [x for x in params if x.name not in {'args', 'kwargs', 'self'}]
 
+    @property
+    def return_annotation(self) -> Any:
+        return self.sig.return_annotation
+
     def __init__(self, obj: Any, signature: Signature):
         self.obj = obj
         self.sig = signature
@@ -40,3 +44,9 @@ class MutableSignature:
         signature.
         """
         pass
+
+    def has_param(self, name: str) -> bool:
+        """Return a boolean indicating if the signature has the given
+        named parameter.
+        """
+        return name in self.sig.parameters

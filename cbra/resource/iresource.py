@@ -6,23 +6,15 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import uuid
-
-import fastapi
-import uvicorn
-
-import cbra
+from .resourcemodel import ResourceModel
 
 
-class BookEndpoint(cbra.Endpoint):
-
-    async def get(self, book_id: uuid.UUID):
-        print(self.response)
-
-
-app = fastapi.FastAPI(docs_url='/ui')
-BookEndpoint.add_to_router(app, path='/books/{book_id}')
-
-
-if __name__ == '__main__':
-    uvicorn.run('__main__:app', reload=True) # type: ignore
+class IResource:
+    model: type[ResourceModel]
+    path_name: str
+    resource_name: str
+    verbose_name: str
+    verbose_name_plural: str
+    __create_model__: type[ResourceModel]
+    __replace_model__: type[ResourceModel]
+    __update_model__: type[ResourceModel]

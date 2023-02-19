@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2023 Cochise Ruhulessin
+# Copyright (C) 2022 Cochise Ruhulessin
 #
 # All rights reserved. No warranty, explicit or implicit, provided. In
 # no event shall the author(s) be liable for any claim or damages.
@@ -6,16 +6,19 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import fastapi
+from typing import Any
 
-from .iroutable import IRoutable
+from .pathparameter import PathParameter
+from .notfound import NotFound
 
 
-class IEndpoint:
+class IntegerPathParameter(PathParameter):
     __module__: str = 'cbra.types'
-    allowed_http_methods: list[str]
-    handlers: list[IRoutable]
-    include_in_schema: bool = True
-    request: fastapi.Request
-    response: fastapi.Response
-    router: fastapi.APIRouter
+    type: str = 'integer'
+
+    @classmethod
+    def clean(cls, v: Any) -> int:
+        try:
+            return int(v)
+        except (TypeError, ValueError):
+            raise NotFound

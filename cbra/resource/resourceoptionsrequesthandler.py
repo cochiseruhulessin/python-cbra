@@ -10,18 +10,21 @@ from typing import Any
 
 import fastapi
 
-from .requesthandler import RequestHandler
-from .types import IEndpoint
+from ..requesthandler import RequestHandler
+from .iresource import IResource
 
 
-class OptionsRequestHandler(RequestHandler[IEndpoint]):
+class ResourceOptionsRequestHandler(RequestHandler[IResource]): # type: ignore
+    allow: set[str]
     include_in_schema: bool = False
 
     def __init__(
         self,
         name: str,
-        include_in_schema: bool | None = None
+        allow: set[str],
+        include_in_schema: bool | None = True
     ):
+        self.allow = allow
         super().__init__(
             name=name,
             method='OPTIONS',
@@ -30,13 +33,13 @@ class OptionsRequestHandler(RequestHandler[IEndpoint]):
 
     async def handle(
         self,
-        endpoint: IEndpoint,
+        endpoint: IResource,
         *args: Any,
         **kwargs: Any
     ) -> fastapi.Response:
         return fastapi.Response(
             status_code=200,
             headers={
-                'Allow': str.join(',', endpoint.allowed_http_methods)
+                'Allow': str.join(',', self.allow)
             }
         )
