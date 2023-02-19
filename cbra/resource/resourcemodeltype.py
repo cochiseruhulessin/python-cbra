@@ -52,7 +52,7 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
                 '__annotations__': {attname: class_ for attname, class_, _ in create_fields},
                 **{name: field for name, _, field in create_fields if field is not None},
             })
-            UpdateResourceRequest = type('Update{name}Request', (pydantic.BaseModel,), {
+            UpdateResourceRequest = type(f'Update{name}Request', (pydantic.BaseModel,), {
                 '__annotations__': {attname: cls.allow_empty(class_) for attname, class_, _ in update_fields},
                 **{name: field for name, _, field in update_fields if field is not None},
             })

@@ -22,6 +22,9 @@ class Book(cbra.ResourceModel):
     title: str
     published: datetime.date
 
+    class Config:
+        title: str = 'Foo'
+
 
 class BookResource(cbra.Resource, model=Book):
 
