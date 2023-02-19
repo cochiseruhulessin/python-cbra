@@ -8,9 +8,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
+from cbra.types import IEndpoint
 from .requesthandler import RequestHandler
 from .optionsrequesthandler import OptionsRequestHandler
-from .types import IEndpoint
 
 
 class EndpointType(type):

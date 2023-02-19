@@ -10,15 +10,16 @@ from typing import Any
 
 import fastapi
 
-from ..types import IEndpoint
-from ..types import IRoutable
+from cbra.types import IRoutable
+from .iresource import IResource
 from .resourcemodel import ResourceModel
 from .resourcetype import ResourceType
 
 
-class Resource(IEndpoint, IRoutable, metaclass=ResourceType):
+class Resource(IResource, IRoutable, metaclass=ResourceType):
     __abstract__: bool = True
     __actions__: list[type[IRoutable]] = []
+    __module__: str = 'cbra.core'
     model: type[ResourceModel]
 
     def __init_subclass__(cls, model: type[ResourceModel]):

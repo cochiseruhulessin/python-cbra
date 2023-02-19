@@ -9,7 +9,7 @@
 from typing import Any
 from typing import TypeVar
 
-from ..types import Operation
+from cbra.types import Operation
 from .detailaction import DetailAction
 
 

@@ -6,15 +6,11 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from .resourcemodel import ResourceModel
+from typing import Any
 
 
-class IResource:
-    model: type[ResourceModel]
-    path_name: str
-    resource_name: str
-    verbose_name: str
-    verbose_name_plural: str
-    __create_model__: type[ResourceModel]
-    __replace_model__: type[ResourceModel]
-    __update_model__: type[ResourceModel]
+class Viewer:
+    __module__: str = 'cbra.core'
+
+    async def get_object(self) -> Any:
+        raise NotImplementedError

@@ -6,6 +6,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import itertools
 import re
 from typing import Any
 
@@ -24,7 +25,7 @@ engine: inflect.engine = inflect.engine()
 
 
 class ResourceType(type):
-    __module__: str = 'cbra'
+    __module__: str = 'cbra.core'
     actions: dict[str, type[ResourceAction]] = {
         'create'    : CreateAction,
         'destroy'   : DeleteAction,
@@ -50,11 +51,20 @@ class ResourceType(type):
                 raise TypeError('The `model` class argument is required.')
 
             # Collect actions and convert them to ResourceAction instances, if
-            # necessary.
-            detail_actions: set[str] = set()
+            # necessary. First inspect the bases for known actions, and then
+            # the namespace of the class we're creating.
+            parent_actions: dict[str, ResourceAction] = {}
             collection_actions: set[str] = set()
+            detail_actions: set[str] = set()
+
+            for action_name, base in itertools.product(cls.actions, bases):
+                handler = getattr(base, action_name, None)
+                if handler is None:
+                    continue
+                parent_actions[action_name] = handler
+
             for action_name in cls.actions:
-                action = namespace.get(action_name)
+                action = namespace.get(action_name) or parent_actions.get(action_name)
                 if action is None:
                     continue
                 if not isinstance(action, ResourceAction):

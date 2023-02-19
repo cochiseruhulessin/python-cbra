@@ -12,7 +12,7 @@ from typing import TypeVar
 import fastapi
 import pydantic
 
-from ..types import IEndpoint
+from cbra.types import IEndpoint
 from .resourceaction import ResourceAction
 
 

@@ -6,7 +6,10 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import copy
 from inspect import Parameter
+from string import Formatter
+from typing import cast
 from typing import Any
 from typing import Awaitable
 from typing import Callable
@@ -15,15 +18,18 @@ from typing import TypeVar
 import fastapi
 import pydantic
 
+from cbra.types import IEndpoint
+from cbra.types import MutableSignature
 from ..requesthandler import RequestHandler
-from ..types import MutableSignature
 from .iresource import IResource
+from .resourceidentifier import ResourceIdentifier
 
 
 T = TypeVar('T', bound='ResourceAction')
 
 
 class ResourceAction(RequestHandler[IResource]): # type: ignore
+    __module__: str = 'cbra.core'
     action: str
     name_template: str
     response_description: str = 'Successful response'
@@ -65,6 +71,33 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
             pluralname=self.endpoint.verbose_name_plural
         )
 
+    def add_to_class(self, cls: type[IResource]) -> None: # type: ignore
+        # Construct a resource identifier from the unprefixed path.
+        formatter = Formatter()
+        params: list[str] = [
+            name for _, name, *_ in formatter.parse(self.get_url_pattern(None, cls))
+            if name
+        ]
+        if params:
+            ParentModel = cls.model.__key_model__
+            parent_fields = list(ParentModel.__fields__.values())
+            fields = {}
+            annotations = {}
+            for i, name in enumerate(params):
+                field = copy.deepcopy(parent_fields[i])
+                info = field.field_info
+                info.update_from_config({'alias': name})
+                annotations[name] = ParentModel.__annotations__[field.name]
+                fields[name] = info
+            Model = type(ParentModel.__name__, (ResourceIdentifier,), {
+                '__annotations__': annotations,
+                **fields
+            })
+            cls.resource_id = Model.depends()
+            cls.__annotations__['resource_id'] = Model
+
+        return super().add_to_class(cast(type[IEndpoint], cls))
+
     def add_to_router(self, router: fastapi.APIRouter, **kwargs: Any) -> None:
         kwargs.setdefault('status_code', self.status_code)
         kwargs.setdefault('summary', self.summary)
@@ -79,7 +112,6 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
             )
         })
         kwargs['responses'] = self.get_openapi_responses(kwargs.get('responses') or {})
-        print(kwargs)
         return super().add_to_router(router, **kwargs)
 
     def can_write(self) -> bool:
@@ -91,12 +123,13 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
     ) -> dict[int | str, Any]:
         return responses
 
-    def get_url_pattern(self, prefix: str | None) -> str:
+    def get_url_pattern(self, prefix: str | None, endpoint: type[IResource] | None = None) -> str:
+        endpoint = endpoint or self.endpoint
         path: str | None = prefix
         if path is None:
-            path = f'/{self.endpoint.path_name}'
+            path = f'/{endpoint.path_name}'
         else:
-            path = f"{str.lstrip(path, '/')}/{self.endpoint.path_name}"
+            path = f"{str.lstrip(path, '/')}/{endpoint.path_name}"
         return path
 
     def get_write_model(self) -> type[pydantic.BaseModel]:
@@ -112,13 +145,20 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
         """Hook to modify a parameter just before it is added to the
         new signature.
         """
-        if self.can_write() and p.name == 'resource':
-            return Parameter(
-                kind=p.kind,
-                name=p.name,
+
+    def preprocess_signature(
+        self,
+        parameters: dict[str, Parameter],
+        return_annotation: Any
+    ) -> tuple[list[Parameter], Any]:
+        if self.can_write() and 'resource' not in parameters:
+            self._handler_params.add('resource')
+            parameters['resource'] = Parameter(
+                kind=Parameter.POSITIONAL_ONLY,
+                name='resource',
                 annotation=self.get_write_model(),
-                default=p.default
             )
+        return super().preprocess_signature(parameters, return_annotation)
 
     def validate_handler(
         self,

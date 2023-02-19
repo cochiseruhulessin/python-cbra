@@ -10,8 +10,8 @@ from typing import Any
 
 import fastapi
 
+from cbra.types import IEndpoint
 from .requesthandler import RequestHandler
-from .types import IEndpoint
 
 
 class OptionsRequestHandler(RequestHandler[IEndpoint]):

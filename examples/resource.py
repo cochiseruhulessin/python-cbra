@@ -7,45 +7,57 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import datetime
+import secrets
 
 import fastapi
+import pydantic
 import uvicorn
 
-import cbra
+import cbra.core as cbra
+
+
+class BookPublication(pydantic.BaseModel):
+    published: datetime.date
+    country_code: str
 
 
 class Book(cbra.ResourceModel):
     id: int | None = cbra.Field(
         default=None,
-        read_only=True
+        read_only=True,
+        primary_key=True
     )
     title: str
-    published: datetime.date
+    publications: list[BookPublication]
 
     class Config:
         title: str = 'Foo'
 
 
-class BookResource(cbra.Resource, model=Book):
+class BookResource(cbra.Resource, cbra.Create, cbra.Retrieve, cbra.Update, model=Book):
+    books: dict[int, Book] = {
+        1: Book(
+            id=1,
+            title="The Hitchhiker's Guide to the Galaxy",
+            publications=[
+                BookPublication(country_code='UK', published=datetime.date(1979, 10, 12)),
+                BookPublication(country_code='US', published=datetime.date(1980, 10, 1)),
+            ]
+        )
+    }
 
-    async def create(self, resource: Book):
-        resource.id = 1
+    async def can_create(self, resource: Book) -> bool:
+        return not any([x.title == resource.title for x in self.books.values()])
+
+    async def get_object(self) -> Book | None:
+        return self.books.get(self.resource_id.book_id)
+
+    async def persist(self, resource: Book, create: bool = False) -> Book:
+        if create:
+            resource.id = secrets.choice(range(1000, 9999))
+        assert resource.id is not None
+        self.books[resource.id] = resource
         return resource
-
-    async def destroy(self, book_id: int):
-        pass
-
-    async def list(self):
-        pass
-
-    async def retrieve(self, book_id: int) -> None:
-        return Book(id=book_id, title="Foo", published=datetime.date.today())
-
-    async def replace(self, book_id: int, resource: Book):
-        pass
-
-    async def update(self, book_id: int, resource: Book):
-        pass
 
 
 app = fastapi.FastAPI(docs_url='/ui')

@@ -10,6 +10,7 @@ from typing import TypeVar
 
 import pydantic
 
+from .resourceidentifier import ResourceIdentifier
 from .resourcemodeltype import ResourceModelType
 
 
@@ -23,6 +24,7 @@ class ResourceModel(pydantic.BaseModel, metaclass=ResourceModelType):
     __replace_model__: type[pydantic.BaseModel]
     __response_model__: type[pydantic.BaseModel]
     __list_model__: type[pydantic.BaseModel]
+    __key_model__: type[ResourceIdentifier]
 
     def can_replace(self) -> bool:
         raise NotImplementedError

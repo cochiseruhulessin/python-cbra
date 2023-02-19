@@ -51,7 +51,7 @@ class RequestHandler(Generic[E]):
         fastapi.params.Param,
     )
     _method: str
-    _path_types: dict[type, type] = {
+    _path_types: dict[type, type[PathParameter]] = {
         int: IntegerPathParameter,
         uuid.UUID: UUIDPathParameter
     }
@@ -101,6 +101,9 @@ class RequestHandler(Generic[E]):
         # True for this object, since it depends on a private
         # symbol.
         assert asyncio.iscoroutinefunction(self) # nosec
+
+    def annotate_path(self, cls: Any) -> type[PathParameter]:
+        return self._path_types[cls]
 
     def get_return_annotation(self) -> Any:
         return self._handler_sig.return_annotation
@@ -186,7 +189,7 @@ class RequestHandler(Generic[E]):
             # a proper 404.
             if annotation in self._path_types\
             and not isinstance(default, self._injectables):
-                annotation = self._path_types[annotation]
+                annotation = self.annotate_path(annotation)
 
             dependencies[param.name] = Parameter(
                 kind=(
@@ -218,6 +221,10 @@ class RequestHandler(Generic[E]):
         parameters = list(dependencies.values())
         for i, p in enumerate(parameters):
             parameters[i] = self.preprocess_parameter(p) or p
+        parameters, return_annotation = self.preprocess_signature(
+            parameters={p.name: p for p in parameters},
+            return_annotation=self.get_return_annotation()
+        )
         parameters = [
             *[
                 p for p in parameters
@@ -248,7 +255,7 @@ class RequestHandler(Generic[E]):
         ])
         self._signature = sig.replace(
             parameters=parameters,
-            return_annotation=self.get_return_annotation()
+            return_annotation=return_annotation
         )
 
     def add_to_router(
@@ -296,6 +303,13 @@ class RequestHandler(Generic[E]):
         :class:`inspect.Parameter` instance.
         """
         return p
+
+    def preprocess_signature(
+        self,
+        parameters: dict[str, Parameter],
+        return_annotation: Any
+    ) -> tuple[list[Parameter], Any]:
+        return list(parameters.values()), return_annotation
 
     async def preprocess_value(self, name: str, value: Any) -> Any:
         return value

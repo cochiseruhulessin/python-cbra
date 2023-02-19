@@ -10,9 +10,9 @@ from typing import Any
 
 import fastapi
 
+from cbra.types import IEndpoint
+from cbra.types import IRoutable
 from .endpointtype import EndpointType
-from .types import IEndpoint
-from .types import IRoutable
 
 
 class Endpoint(IEndpoint, IRoutable, metaclass=EndpointType):

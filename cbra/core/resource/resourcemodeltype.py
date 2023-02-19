@@ -18,6 +18,7 @@ import pydantic
 import pydantic.main
 import pydantic.schema
 
+from .resourceidentifier import ResourceIdentifier
 from .resourcelist import ResourceList
 
 
@@ -36,13 +37,16 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
             # Collect readonly fields to create the CreateResourceRequest
             # ReplaceResourceRequest and UpdateResourceRequest models.
             create_fields: list[tuple[str, type, pydantic.main.FieldInfo | None]] = []
+            key_fields: list[tuple[str, type, pydantic.main.FieldInfo]] = []
             update_fields: list[tuple[str, type, pydantic.main.FieldInfo | None]] = []
             response_fields: list[tuple[str, type, pydantic.main.FieldInfo | None]] = []
             for attname, class_ in annotations.items():
                 field = namespace.get(attname)
-                if isinstance(field, pydantic.main.FieldInfo)\
-                and field.extra.get('read_only'):
-                    response_fields.append((attname, class_, cls.get_field(field, 'response')))
+                if isinstance(field, pydantic.main.FieldInfo):
+                    if field.extra.get('read_only'):
+                        response_fields.append((attname, class_, cls.get_field(field, 'response')))
+                    if field.extra.get('primary_key'):
+                        key_fields.append((attname, class_, field))
                     continue
                 create_fields.append((attname, class_, cls.get_field(field, 'create')))
                 update_fields.append((attname, class_, cls.get_field(field, 'update')))
@@ -81,6 +85,13 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
                     )
                 })
             })
+            if key_fields:
+                namespace.update({
+                    '__key_model__': type(f'{name}Identifier', (ResourceIdentifier,), {
+                        '__annotations__': {attname: cls.ensure_required(class_) for attname, class_, _ in key_fields},
+                        **{name: field for name, _, field in key_fields if name in namespace},
+                    })
+                })
 
         return super().__new__(cls, name, bases, namespace, **params) # type: ignore
 
@@ -107,7 +118,7 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
     ) -> pydantic.main.FieldInfo | None:
         field = copy.deepcopy(field)
         if isinstance(field, pydantic.main.FieldInfo) and field.extra.get('read_only'):
-            if action != 'response':
+            if action not in {'response', 'key'}:
                 return
             field.update_from_config({
                 'default': ...,

@@ -8,13 +8,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
-from .resourceaction import ResourceAction
 
+class Persister:
 
-class CollectionAction(ResourceAction):
-
-    def is_detail(self) -> bool:
-        return False
-
-    def get_return_annotation(self) -> Any:
-        return self.endpoint.model.__list_model__
+    async def persist(
+        self,
+        resource: Any,
+        create: bool = False
+    ) -> Any:
+        raise NotImplementedError(
+            f'Implement {type(self).__name__}.persist() '
+            f'to persist {type(resource).__name__} resources.'
+        )
