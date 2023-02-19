@@ -30,5 +30,9 @@ class ResourceModel(pydantic.BaseModel, metaclass=ResourceModelType):
     def merge(self: T, resource: T) -> T:
         return self.parse_obj({
             **self.dict(),
-            **resource.dict()
+            **resource.dict(
+                exclude_defaults=True,
+                exclude_none=True,
+                exclude_unset=True
+            ),
         })
