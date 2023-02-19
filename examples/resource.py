@@ -25,6 +25,7 @@ class Book(cbra.ResourceModel):
     id: int | None = cbra.Field(
         default=None,
         read_only=True,
+        path_alias='book_id',
         primary_key=True
     )
     title: str
