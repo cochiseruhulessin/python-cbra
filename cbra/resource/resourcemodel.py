@@ -6,9 +6,14 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from typing import TypeVar
+
 import pydantic
 
 from .resourcemodeltype import ResourceModelType
+
+
+T = TypeVar('T', bound='ResourceModel')
 
 
 class ResourceModel(pydantic.BaseModel, metaclass=ResourceModelType):
@@ -18,3 +23,9 @@ class ResourceModel(pydantic.BaseModel, metaclass=ResourceModelType):
     __replace_model__: type[pydantic.BaseModel]
     __response_model__: type[pydantic.BaseModel]
     __list_model__: type[pydantic.BaseModel]
+
+    def merge(self: T, resource: T) -> T:
+        return self.parse_obj({
+            **self.dict(),
+            **resource.dict()
+        })
