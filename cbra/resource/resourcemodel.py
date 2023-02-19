@@ -24,6 +24,9 @@ class ResourceModel(pydantic.BaseModel, metaclass=ResourceModelType):
     __response_model__: type[pydantic.BaseModel]
     __list_model__: type[pydantic.BaseModel]
 
+    def can_replace(self) -> bool:
+        raise NotImplementedError
+
     def merge(self: T, resource: T) -> T:
         return self.parse_obj({
             **self.dict(),
