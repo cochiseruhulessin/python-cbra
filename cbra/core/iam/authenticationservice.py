@@ -25,20 +25,22 @@ class AuthenticationService(
     IDependant
 ):
     __module__: str = 'cbra.core.iam'
-    providers: list[str]
+    providers: set[str]
 
     def __init__(
         self,
         providers: list[str] = TRUSTED_AUTHORIZATION_SERVERS
     ):
-        self.providers = providers
+        self.providers = set(providers)
 
     @functools.singledispatchmethod # type: ignore
     async def verify(
         self,
         principal: OIDCPrincipal | RFC9068Principal,
-        credential: ICredential | None
+        credential: ICredential | None,
+        providers: set[str] | None = None
     ) -> bool:
+        if providers: raise NotImplementedError
         warnings.warn(
             f'Unknown principal {type(principal).__name__}. '
             f'{type(self).__name__}.verify(principal, credential) '
@@ -50,16 +52,19 @@ class AuthenticationService(
     async def verify_oidc(
         self,
         principal: OIDCPrincipal,
-        credential: JSONWebToken
+        credential: JSONWebToken,
+        providers: set[str] | None = None
     ) -> bool:
-        return await self.verify_oauth_jwt(principal, credential)
+        return await self.verify_oauth_jwt(principal, credential, providers)
 
     async def verify_oauth_jwt(
         self,
         principal: OIDCPrincipal | RFC9068Principal,
-        credential: JSONWebToken
+        credential: JSONWebToken,
+        providers: set[str] | None = None
     ) -> bool:
-        if principal.iss not in self.providers:
+        providers = providers or self.providers
+        if principal.iss not in providers:
             return False
         async with Client(issuer=principal.iss) as client:
             return await client.verify(str(credential))

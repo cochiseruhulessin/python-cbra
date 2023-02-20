@@ -19,7 +19,8 @@ class IAuthorizationContextFactory:
     async def authenticate(
         self,
         request: fastapi.Request,
-        principal: IPrincipal
+        principal: IPrincipal,
+        providers: set[str] | None = None
     ) -> IAuthorizationContext:
         raise NotImplementedError
 

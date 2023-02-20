@@ -22,7 +22,8 @@ class ISubject:
 
     async def authenticate(
         self,
-        verifier: ICredentialVerifier[Any]
+        verifier: ICredentialVerifier[Any],
+        providers: set[str] | None = None
     ) -> None:
         """Authenticate the subject."""
         raise NotImplementedError

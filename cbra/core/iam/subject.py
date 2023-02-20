@@ -29,11 +29,13 @@ class Subject(ISubject):
 
     async def authenticate(
         self,
-        verifier: ICredentialVerifier[Any]
+        verifier: ICredentialVerifier[Any],
+        providers: set[str] | None = None
     ) -> None:
         self.authenticated = await verifier.verify(
             self.principal,
-            self.principal.get_credential()
+            self.principal.get_credential(),
+            providers=providers
         )
 
     def is_authenticated(self) -> bool:

@@ -24,6 +24,7 @@ class ICredentialVerifier(Generic[P]):
     async def verify(
         self,
         principal: P,
-        credential: ICredential | None
+        credential: ICredential | None,
+        providers: set[str] | None = None
     ) -> bool:
         raise NotImplementedError

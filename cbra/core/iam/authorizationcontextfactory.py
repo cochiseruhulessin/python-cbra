@@ -47,11 +47,15 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
     async def authenticate(
         self,
         request: fastapi.Request,
-        principal: IPrincipal
+        principal: IPrincipal,
+        providers: set[str] | None = None
     ):
         remote_host = request.client.host if request.client else None
         subject = await principal.resolve(self.resolver.resolve)
-        await subject.authenticate(self.authentication)
+        await subject.authenticate(
+            self.authentication,
+            providers=providers
+        )
         if principal.has_audience():
             url = request.url
             self.validate_audience(principal, {

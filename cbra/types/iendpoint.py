@@ -78,7 +78,11 @@ class IEndpoint:
         **kwargs: Any
     ):
         try:
-            self.ctx = await self.context_factory.authenticate(self.request, self.principal)
+            self.ctx = await self.context_factory.authenticate(
+                request=self.request,
+                principal=self.principal,
+                providers=self.trusted_providers
+            )
             if self.require_authentication and not self.ctx.is_authenticated():
                 raise NotAuthorized
             return await func(self, *args, **kwargs)

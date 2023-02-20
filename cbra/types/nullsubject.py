@@ -21,5 +21,9 @@ class NullSubject(ISubject):
     def is_authenticated(self) -> bool:
         return False
 
-    async def authenticate(self, verifier: ICredentialVerifier[Any]) -> None:
+    async def authenticate(
+        self,
+        verifier: ICredentialVerifier[Any],
+        providers: set[str] | None = None
+    ) -> None:
         return
