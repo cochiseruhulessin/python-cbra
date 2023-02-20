@@ -12,6 +12,7 @@ import fastapi
 
 from cbra.types import IEndpoint
 from cbra.types import Principal
+from .iam import AuthorizationContextFactory
 from .endpointtype import EndpointType
 
 
@@ -21,6 +22,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     allowed_http_methods: list[str]
     include_in_schema: bool = True
     principal: Principal = Principal.depends()
+    context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
 
     def __init__(self, **kwargs: Any):
         """Constructor. Called in the router; can contain helpful extra

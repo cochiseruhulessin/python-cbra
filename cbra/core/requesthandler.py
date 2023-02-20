@@ -378,5 +378,5 @@ class RequestHandler(Generic[E]):
         endpoint.__dict__.update(attrs)
         return await self.process_response(
             endpoint,
-            await self._func(endpoint, **kwargs)
+            await endpoint.run_handler(self._func, **kwargs)
         )

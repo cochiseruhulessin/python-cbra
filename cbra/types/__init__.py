@@ -26,6 +26,7 @@ from .mutablesignature import MutableSignature
 from .nullprincipal import NullPrincipal
 from .nullsubject import NullSubject
 from .nullsubjectesolver import NullSubjectResolver
+from .notauthorized import NotAuthorized
 from .notfound import NotFound
 from .operation import Operation
 from .oidcprincipal import OIDCPrincipal
@@ -54,6 +55,7 @@ __all__: list[str] = [
     'ISubjectResolver',
     'JSONWebToken',
     'MutableSignature',
+    'NotAuthorized',
     'NotFound',
     'NullPrincipal',
     'NullSubject',

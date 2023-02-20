@@ -12,6 +12,7 @@ import fastapi
 
 from cbra.types import Principal
 from cbra.types import IRoutable
+from ..iam import AuthorizationContextFactory
 from .iresource import IResource
 from .resourcemodel import ResourceModel
 from .resourcetype import ResourceType
@@ -21,6 +22,7 @@ class Resource(IResource, metaclass=ResourceType):
     __abstract__: bool = True
     __actions__: list[type[IRoutable]] = []
     __module__: str = 'cbra.core'
+    context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
     model: type[ResourceModel]
     principal: Principal = Principal.depends()
 
