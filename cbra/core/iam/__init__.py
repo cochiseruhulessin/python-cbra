@@ -119,7 +119,6 @@ ID Token from Google:
 
     import google.oauth2.id_token
     import google.auth.transport.requests
-    import httpx
 
     if __name__ == '__main__':
         request = google.auth.transport.requests.Request()
