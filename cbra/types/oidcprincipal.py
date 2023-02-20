@@ -8,13 +8,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
+from .icredential import ICredential
 from .httpheaderprincipal import HTTPHeaderPrincipal
 from .jsonwebtokenprincipal import JSONWebTokenPrincipal
+from .jsonwebtoken import JSONWebToken
 
 
 class OIDCPrincipal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
     iss: str
-    sub: int | str
+    sub: str
     exp: int
     aud: str| list[str]
     iat: int
@@ -36,3 +38,6 @@ class OIDCPrincipal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
             raise ValueError('this principal requires the Bearer scheme')
         values.update(cls.parse_jwt(value, accept={"application/jwt", "jwt"}))
         return values
+
+    def get_credential(self) -> ICredential | None:
+        return JSONWebToken(self.token)

@@ -6,11 +6,15 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from typing import Awaitable
+from typing import Callable
 from typing import TypeVar
 
 import fastapi
 
+from .icredential import ICredential
 from .iprincipalintrospecter import IPrincipalIntrospecter
+from .isubject import ISubject
 
 
 P = TypeVar('P', bound='IPrincipal')
@@ -36,6 +40,10 @@ class IPrincipal:
             )
         })
 
+    def get_credential(self) -> ICredential | None:
+        """Return the credential from which the principal was instantiated."""
+        raise NotImplementedError
+
     def is_anonymous(self) -> bool:
         """Return a boolean indicating if the principal was anonymous
         i.e. did not provide identifying information or credentials
@@ -49,6 +57,12 @@ class IPrincipal:
         """
         return False
 
+    async def resolve(
+        self: P,
+        resolve: Callable[[P], Awaitable[ISubject]]
+    ) -> ISubject:
+        return await resolve(self)
+
     async def introspect(
         self: P,
         introspecter: IPrincipalIntrospecter
@@ -57,3 +71,11 @@ class IPrincipal:
         or a session identifier.
         """
         return await introspecter.introspect(self)
+
+    async def verify(
+        self: P,
+        verify: Callable[[P, ICredential | None], Awaitable[bool]]
+    ) -> bool:
+        return await verify(self, self.get_credential())
+
+    

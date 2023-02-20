@@ -22,8 +22,8 @@ class Injected(Requirement, fastapi.params.Depends):
     def __signature__(self) -> inspect.Signature:
         return inspect.Signature()
 
-    def __init__(self, name: str):
-        Requirement.__init__(self, name=name)
+    def __init__(self, name: str, missing: Any | None = NotImplemented):
+        Requirement.__init__(self, name=name, missing=missing)
         fastapi.params.Depends.__init__(
             self,
             dependency=self,

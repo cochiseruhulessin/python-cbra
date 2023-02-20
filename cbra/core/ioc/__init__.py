@@ -13,11 +13,16 @@ from .container import Container
 from .dependency import Dependency
 from .inheriteddependencydecorator import InheritDependenciesDecorator
 from .injected import Injected
-from .instance import Instance
+from .instance import Instance # type: ignore
 from .requirement import Requirement
+from .setting_ import Setting
 
 
 __all__: list[str] = [
+    'clone',
+    'inject',
+    'instance',
+    'setting',
     'Container',
     'Dependency',
     'Requirement',
@@ -33,5 +38,9 @@ def inject(name: str) -> Any:
     return Injected(name)
 
 
-def instance(name: str) -> Any:
-    return Instance(name)
+def instance(name: str, missing: Any = None) -> Any:
+    return Instance(name, missing=missing)
+
+
+def setting(name: str, default: Any = NotImplemented) -> Any:
+    return Setting(name, missing=default)

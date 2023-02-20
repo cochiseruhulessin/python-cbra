@@ -6,29 +6,25 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import datetime
 import ipaddress
 
-from .isubject import ISubject
+from .iauthorizationcontext import IAuthorizationContext
+from .nullsubject import NullSubject
 
 
-class IAuthorizationContext:
+class UnauthenticatedAuthorizationContext(IAuthorizationContext):
     __module__: str = 'cbra.types'
-    timestamp: datetime.datetime
 
-    @property
-    def remote_host(self) -> ipaddress.IPv4Address | None:
-        return self.get_remote_host()
-
-    @property
-    def subject(self) -> ISubject:
-        return self.get_subject()
-
-    def is_authenticated(self) -> bool:
-        return self.subject.is_authenticated()
+    def __init__(
+        self,
+        remote_host: ipaddress.IPv4Address | str | None = None
+    ):
+        if isinstance(remote_host, str):
+            remote_host = ipaddress.IPv4Address(remote_host)
+        self._remote_host = remote_host
 
     def get_remote_host(self) -> ipaddress.IPv4Address | None:
-        raise NotImplementedError
+        return self._remote_host
 
-    def get_subject(self) -> ISubject:
-        raise NotImplementedError
+    def get_subject(self) -> NullSubject:
+        return NullSubject()

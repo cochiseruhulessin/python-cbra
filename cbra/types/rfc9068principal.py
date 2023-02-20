@@ -8,7 +8,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
+from .icredential import ICredential
 from .httpheaderprincipal import HTTPHeaderPrincipal
+from .jsonwebtoken import JSONWebToken
 from .jsonwebtokenprincipal import JSONWebTokenPrincipal
 
 
@@ -36,3 +38,6 @@ class RFC9068Principal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
             raise ValueError('this principal requires the Bearer scheme')
         values.update(cls.parse_jwt(value, accept={"application/at+jwt", "at+jwt"}))
         return values
+
+    def get_credential(self) -> ICredential | None:
+        return JSONWebToken(self.token)

@@ -11,11 +11,13 @@ from typing import Callable
 
 from .container import Container
 from .dependency import Dependency
+from .dependencynotsatisfied import DependencyNotSatisfied
 
 
 class Requirement:
     __module__: str = 'cbra.core.ioc'
     ref: Dependency | None = None
+    missing: str
     name: str
 
     @property
@@ -23,16 +25,28 @@ class Requirement:
         assert self.ref is not None
         return self.ref.symbol
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, missing: Any = None) -> None:
+        self.missing = missing
         self.name = name
 
     def callable(self) -> bool:
         return False
 
     def add_to_container(self, container: Container) -> None:
+        if self.missing == NotImplemented:
+            raise NotImplementedError
         if self.ref is not None:
             return
-        self.ref = container.require(self.name)
+        try:
+            self.ref = container.require(self.name)
+        except DependencyNotSatisfied:
+            if self.missing == NotImplemented:
+                raise
+            self.ref = Dependency(
+                name=self.name,
+                qualname='NotImplemented',
+                symbol=self.missing
+            )
 
     def __repr__(self) -> str:
         return f'Requirement({self.name})'

@@ -11,6 +11,8 @@ from .conflict import Conflict
 from .forbidden import Forbidden
 from .iauthorizationcontext import IAuthorizationContext
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
+from .icredential import ICredential
+from .icredentialverifier import ICredentialVerifier
 from .idependant import IDependant
 from .iendpoint import IEndpoint
 from .integerpathparameter import IntegerPathParameter
@@ -19,15 +21,18 @@ from .iprincipal import IPrincipal
 from .iprincipalintrospecter import IPrincipalIntrospecter
 from .isubject import ISubject
 from .isubjectresolver import ISubjectResolver
+from .jsonwebtoken import JSONWebToken
 from .mutablesignature import MutableSignature
 from .nullprincipal import NullPrincipal
 from .nullsubject import NullSubject
+from .nullsubjectesolver import NullSubjectResolver
 from .notfound import NotFound
 from .operation import Operation
 from .oidcprincipal import OIDCPrincipal
 from .pathparameter import PathParameter
 from .principal import Principal
 from .rfc9068principal import RFC9068Principal
+from .unauthenticatedauthorizationcontext import UnauthenticatedAuthorizationContext
 from .uuidpathparameter import UUIDPathParameter
 
 
@@ -35,6 +40,8 @@ __all__: list[str] = [
     'Abortable',
     'Conflict',
     'Forbidden',
+    'ICredential',
+    'ICredentialVerifier',
     'IDependant',
     'IAuthorizationContext',
     'IAuthorizationContextFactory',
@@ -45,14 +52,17 @@ __all__: list[str] = [
     'IRoutable',
     'ISubject',
     'ISubjectResolver',
+    'JSONWebToken',
     'MutableSignature',
     'NotFound',
     'NullPrincipal',
     'NullSubject',
+    'NullSubjectResolver',
     'Operation',
     'OIDCPrincipal',
     'PathParameter',
     'Principal',
     'RFC9068Principal',
+    'UnauthenticatedAuthorizationContext',
     'UUIDPathParameter',
 ]

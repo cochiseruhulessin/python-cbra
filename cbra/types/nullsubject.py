@@ -6,6 +6,9 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from typing import Any
+
+from .icredentialverifier import ICredentialVerifier
 from .isubject import ISubject
 
 
@@ -14,3 +17,9 @@ class NullSubject(ISubject):
     and non-identified subject.
     """
     __module__: str = 'cbra.types'
+
+    def is_authenticated(self) -> bool:
+        return False
+
+    async def authenticate(self, verifier: ICredentialVerifier[Any]) -> None:
+        return

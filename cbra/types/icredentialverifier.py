@@ -6,16 +6,24 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from .idependant import IDependant
-from .iprincipal import IPrincipal
-from .isubject import ISubject
+# type: ignore
+from typing import Any
+from typing import Generic
+from typing import TypeVar
+
+from .icredential import ICredential
 
 
-class ISubjectResolver(IDependant):
-    """Resolves an :class:`IPrincipal` to a :class:`ISubject`
-    implementation.
-    """
+P = TypeVar('P')
+
+
+class ICredentialVerifier(Generic[P]):
+    """Knows how to verify a credential attached to a principal."""
     __module__: str = 'cbra.types'
 
-    async def resolve(self, principal: IPrincipal) -> ISubject:
+    async def verify(
+        self,
+        principal: P,
+        credential: ICredential | None
+    ) -> bool:
         raise NotImplementedError

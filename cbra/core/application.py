@@ -12,6 +12,7 @@ from typing import Callable
 
 from fastapi import FastAPI
 from fastapi.routing import DecoratedCallable
+from fastapi.params import Depends
 
 
 from .ioc import Container
@@ -21,6 +22,10 @@ from .utils import parent_signature
 
 class Application(FastAPI):
     __module__: str = 'cbra'
+    _injectables: tuple[type, ...] = (
+        Depends,
+        Requirement
+    )
 
     @parent_signature(FastAPI.__init__)
     def __init__(self, *args: Any, **kwargs: Any):
@@ -80,16 +85,28 @@ class Application(FastAPI):
             return decorator_factory(self, *args, *kwargs)(func)
         return decorator
 
-    def update_requirements(self, func: Callable[..., Any]):
+    def update_requirements(self, func: Callable[..., Any] | Depends | Any) -> None:
         """Traverse the signature tree of the given function to find
         all :class:`Requirement` instances.
         """
+        if not callable(func): return None
+        if isinstance(func, Depends):
+            return self.update_requirements(func.dependency)
         if isinstance(func, Requirement):
             func.add_to_container(self.container)
-        signature = inspect.signature(func)
+        signature = inspect.signature(func) # type: ignore
         for param in signature.parameters.values():
-            if not isinstance(param.default, Requirement):
+            if not isinstance(param.default, self._injectables):
                 continue
-            param.default.add_to_container(self.container)
-            if param.default.callable():
-                self.update_requirements(param.default.factory) # type: ignore
+            if isinstance(param.default, Requirement):
+                param.default.add_to_container(self.container)
+                if param.default.callable():
+                    self.update_requirements(param.default.factory) # type: ignore
+                continue
+
+            if isinstance(param.default, Depends):
+                injectable = param.default.dependency
+                if injectable is None:
+                    # Was declared as f(dependency: Callable = fastapi.Depends())
+                    injectable = param.annotation
+                self.update_requirements(injectable)

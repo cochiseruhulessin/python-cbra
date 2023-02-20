@@ -6,16 +6,13 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from .idependant import IDependant
 from .iprincipal import IPrincipal
-from .isubject import ISubject
+from .isubjectresolver import ISubjectResolver
+from .nullsubject import NullSubject
 
 
-class ISubjectResolver(IDependant):
-    """Resolves an :class:`IPrincipal` to a :class:`ISubject`
-    implementation.
-    """
+class NullSubjectResolver(ISubjectResolver):
     __module__: str = 'cbra.types'
 
-    async def resolve(self, principal: IPrincipal) -> ISubject:
-        raise NotImplementedError
+    async def resolve(self, principal: IPrincipal) -> NullSubject:
+        return NullSubject()

@@ -6,16 +6,16 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from .idependant import IDependant
-from .iprincipal import IPrincipal
-from .isubject import ISubject
+from .icredential import ICredential
 
 
-class ISubjectResolver(IDependant):
-    """Resolves an :class:`IPrincipal` to a :class:`ISubject`
-    implementation.
-    """
+class JSONWebToken(ICredential):
+    """An unparsed JSON Web Token."""
     __module__: str = 'cbra.types'
+    token: str
 
-    async def resolve(self, principal: IPrincipal) -> ISubject:
-        raise NotImplementedError
+    def __init__(self, token: str):
+        self.token = token
+
+    def __str__(self) -> str:
+        return self.token
