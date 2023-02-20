@@ -65,13 +65,16 @@ class EndpointType(type):
         # Create a concrete Principal subclass. This is to allow
         # thing like principal: RFC9068Principal | OIDCPrincipal.
         if annotations.get('principal'):
+            EndpointPrincipal: type[Principal]
             principal: types.UnionType | IPrincipal = annotations['principal']
             if isinstance(principal, types.UnionType):
-                annotations['principal'] = type(
+                EndpointPrincipal = annotations['principal'] = type(
                     f'{name}Principal',
                     (Principal,),
                     {'__annotations__': {'__root__': principal}}
                 )
+                namespace['principal'] = EndpointPrincipal.depends()
+
 
         Endpoint = super().__new__(cls, name, bases, namespace, **params)
         for handler in handlers:
