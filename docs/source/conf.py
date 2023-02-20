@@ -19,7 +19,7 @@
 import os
 
 project = 'CBRA'
-copyright = '2022, Cochise Ruhulessin'
+copyright = '2021-2023, Cochise Ruhulessin'
 author = 'Cochise Ruhulessin'
 
 # The full version, including alpha/beta/rc tags
@@ -72,7 +72,7 @@ html_theme_options = {
     'base_url': 'https://gitlab.com/unimatrixone/libraries/python-unimatrix/cbra',
     'color_primary': 'blue',
     'color_accent': 'light-blue',
-    'repo_url': 'https://gitlab.com/unimatrixone/libraries/python-unimatrix/cbra',
+    'repo_url': 'https://github.com/cochiseruhulessin/python-cbra',
     'repo_name': 'CBRA',
     'globaltoc_depth': 2,
     'globaltoc_collapse': True,

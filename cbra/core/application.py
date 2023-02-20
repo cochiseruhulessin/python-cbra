@@ -15,6 +15,8 @@ from fastapi.routing import DecoratedCallable
 from fastapi.params import Depends
 
 
+from .endpoint import Endpoint
+from .resource import Resource
 from .ioc import Container
 from .ioc import Requirement
 from .utils import parent_signature
@@ -31,6 +33,13 @@ class Application(FastAPI):
     def __init__(self, *args: Any, **kwargs: Any):
         self.container = Container.fromsettings()
         super().__init__(*args, **kwargs)
+
+    def add(
+        self,
+        routable: type[Endpoint | Resource],
+        *args: Any, **kwargs: Any
+    ) -> None:
+        routable.add_to_router(self, *args, **kwargs)
 
     @parent_signature(FastAPI.add_api_route)
     def add_api_route(

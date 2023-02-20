@@ -8,7 +8,6 @@ All APIs and references
   :titlesonly:
   :hidden:
 
-  common-project-structure
   environment-variables
   available-settings
 

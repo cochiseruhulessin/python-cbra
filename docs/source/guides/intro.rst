@@ -5,7 +5,7 @@ All guides
 ==========
 
 This section contains guides on how to implement the :mod:`cbra` framework in
-various subjects.
+various contexts.
 
 .. toctree::
   :titlesonly:
@@ -13,8 +13,3 @@ various subjects.
   :maxdepth: 1
 
   authentication
-  #integrating-an-existing-fastapi-application
-  #configuration
-  #dependency-injection
-  #webhook-simple
-  #oauth2

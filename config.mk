@@ -27,9 +27,8 @@ test.coverage := 100
 # User-defined
 build.alpine.packages += libxml2-dev libxslt-dev
 build.debian.packages += libxml2-dev libxslt-dev
-ifdef DEV_GOOGLE_APPLICATION_CREDENTIALS
-GOOGLE_APPLICATION_CREDENTIALS=$(DEV_GOOGLE_APPLICATION_CREDENTIALS)
-endif
+GOOGLE_LB_NAME = docs-cochise-io
+GOOGLE_LB_PROJECT = cochise-mye9xe
 LOG_LEVEL=DEBUG
 OS_RELEASE_ID ?= debian
 OS_RELEASE_VERSION ?= 11
@@ -38,8 +37,9 @@ export PYTHONPATH=$(PYTHONPATH):./examples/orderapp
 ifdef CI_COMMIT_REF_NAME
 BRANCH_NAME=$(CI_COMMIT_REF_NAME)
 endif
-DOCS_BASE_PATH="python/cbra"
-DOCS_GS_BUCKET=unimatrix-docs
+DOCS_BASE_PATH=python/cbra
+DOCS_DOMAIN=docs.cochise.io
+DOCS_GS_BUCKET=docs.cochise.io
 MINOR_VERSION=$(shell cut -d '.' -f 1,2 <<< "$$(cat VERSION)")
 APP_SIGNING_KEY ?= local:///pki/sig.key?alg=EdDSA&curve=Ed448
 APP_ENCRYPTION_KEY ?= local:///pki/enc.key?kty=RSA&alg=RSA-OAEP-256
@@ -49,9 +49,6 @@ export
 
 
 google-authenticate:
-ifdef GOOGLE_APPLICATION_CREDENTIALS
-	@gcloud auth activate-service-account --key-file $(GOOGLE_APPLICATION_CREDENTIALS)
-endif
 
 
 deploy-docs-google-%:
@@ -66,22 +63,22 @@ deploy-docs-google-%:
 deploy-docs: public google-authenticate
 	@printf "\nDeploying documentation for version $(MINOR_VERSION) "
 	@printf "to base path $(DOCS_BASE_PATH)/$(MINOR_VERSION).\n"
-	@gsutil -m cp -r 'public/*' gs://$(DOCS_GS_BUCKET)/$(DOCS_BASE_PATH)/$(MINOR_VERSION)
-	@printf "Invalidating cache for docs.unimatrixone.io/$(DOCS_BASE_PATH)/$(MINOR_VERSION).\n"
-	@gcloud compute url-maps invalidate-cdn-cache copernicus \
-    --host docs.unimatrixone.io\
-    --path "/$(DOCS_BASE_PATH)/$(MINOR_VERSION)/*"\
-		--project unimatrixinfra
-ifeq ($(BRANCH_NAME), mainline)
+	@gsutil cp -r 'public/*' gs://$(DOCS_GS_BUCKET)/$(DOCS_BASE_PATH)/$(MINOR_VERSION)/
+#ifeq ($(BRANCH_NAME), mainline)
 	@printf "\nDeploying documentation for latest "
 	@printf "to base path $(DOCS_BASE_PATH)/latest.\n"
 	@make deploy-docs-google-latest
-endif
-ifeq ($(BRANCH_NAME), stable)
-	@printf "\nDeploying documentation for stable "
-	@printf "to base path $(DOCS_BASE_PATH)/stable.\n"
-	@make deploy-docs-google-stable
-endif
+#endif
+	@printf "Invalidating cache for docs.unimatrixone.io/$(DOCS_BASE_PATH)/.\n"
+	@gcloud compute url-maps invalidate-cdn-cache $(GOOGLE_LB_NAME) \
+    --host $(DOCS_DOMAIN)\
+    --path "/$(DOCS_BASE_PATH)/*"\
+		--project $(GOOGLE_LB_PROJECT)
+#ifeq ($(BRANCH_NAME), stable)
+#	@printf "\nDeploying documentation for stable "
+#	@printf "to base path $(DOCS_BASE_PATH)/stable.\n"
+#	@make deploy-docs-google-stable
+#endif
 
 update-headless:
 	@cp -R ~/src/unimatrixone/libraries/python-unimatrix/headless/headless/*\

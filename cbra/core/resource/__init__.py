@@ -19,6 +19,7 @@ from .update import Update
 __all__: list[str] = [
     'Create',
     'Delete',
+    'Mutable',
     'Replace',
     'Resource',
     'ResourceModel',
@@ -26,3 +27,13 @@ __all__: list[str] = [
     'Retrieve',
     'Update',
 ]
+
+
+class Mutable(
+    Create,
+    Delete,
+    Replace,
+    Retrieve,
+    Update,
+):
+    __module__: str = 'cbra.core'

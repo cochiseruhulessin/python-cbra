@@ -26,6 +26,12 @@ class IEndpoint:
     context_factory: IAuthorizationContextFactory
     handlers: list[IRoutable]
     include_in_schema: bool = True
+
+    #: The set of permissions supported by this endpoint. These must be
+    #: defined beforehand to limit the number of calls to remote IAM
+    #: systems.
+    permissions: set[str]
+
     principal: IPrincipal
     request: fastapi.Request
     response: fastapi.Response

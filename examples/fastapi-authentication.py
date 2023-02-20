@@ -23,7 +23,7 @@ async def f(
     factory: AuthorizationContextFactory = fastapi.Depends(),
     principal: Principal = fastapi.Depends(Principal.fromrequest)
 ):
-    ctx = await factory.setup(request, principal)
+    ctx = await factory.authenticate(request, principal)
     return {
         'remote_host': ctx.remote_host,
         'is_authenticated': ctx.is_authenticated()
@@ -31,4 +31,4 @@ async def f(
 
 
 if __name__ == '__main__':
-    uvicorn.run('__main__:app', reload=True) # type: ignore
+    uvicorn.run(app) # type: ignore

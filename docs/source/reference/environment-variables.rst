@@ -89,12 +89,4 @@ exist, :envvar:`LOCALHOST_SSL_KEY` will be ``None``.
 ----------------------------------
 
 Points to the settings module used by an application. This value is mandatory
-when using :mod:`cbra.conf.setttings`.
-
-
-.. envvar:: WEB_CONCURRENCY
-
----------------------------
-
-Specifies the number of workers that may be spawned in the context
-of an HTTP web server.
+when using :mod:`cbra.core.conf.setttings`.

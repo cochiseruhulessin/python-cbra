@@ -7,38 +7,14 @@ Available settings
 This document lists the recognized symbol names for use with
 :mod:`cbra.conf.settings`.
 
-.. module:: cbra.conf.settings
+.. module:: cbra.core.conf.settings
 
 
 .. attribute:: DEPENDENCIES
 
   The list of dependencies that are injected during application boot-time. It
   consists of dictionaries describing under what name a dependency must be
-  injected and how it should be resolved. Each dictionary must have a ``type``
-  member indicating the source from which the dependency is resolved, and a
-  ``name`` member specifying under which name the dependency is found. Valid
-  types are:
-
-  - ``file`` - Loads a file from the local filesystem. The parameters are:
-
-    .. code-block:: python
-
-        {
-            'type': "file",
-            'name': "ExampleDependency",
-            'path': "relative/or/absolute/path"
-        }
-
-  - ``symbol`` - Imports the specified symbol and makes it available under the
-    given ``name``:
-
-    .. code-block:: python
-
-        {
-            'type': "symbol",
-            'name': "ExampleDependency",
-            'value': "qualname.to.python.symbol"
-        }
+  injected and how it should be resolved.
 
   An example is shown below:
 
@@ -47,10 +23,14 @@ This document lists the recognized symbol names for use with
     # settings.py
     DEPENDENCIES = [
         {
-          'type': 'symbol',
           'name': "ExampleDependency",
-          'value': "__main__.EXAMPLE_DEPENDENCY"
+          'qualname': 'import.path.to.dependency'
         }
     ]
 
-  .. literalinclude:: ../../../examples/run-dependant.py
+
+.. attribute:: TRUSTED_AUTHORIZATION_SERVERS
+
+  The list of trusted OAuth 2.x/OpenID Connect authorization servers.
+  The :mod:`cbra.core.iam` framework will reject bearer tokens that
+  are not issued by these servers.
