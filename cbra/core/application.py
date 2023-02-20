@@ -69,7 +69,7 @@ class Application(FastAPI):
 
     @parent_signature(FastAPI.head)
     def head(self, *a: Any, **k: Any):
-        return self.discover_requirements(FastAPI.get, *a, **k)
+        return self.discover_requirements(FastAPI.head, *a, **k)
 
     @parent_signature(FastAPI.get)
     def get(self, *a: Any, **k: Any):
@@ -77,27 +77,27 @@ class Application(FastAPI):
 
     @parent_signature(FastAPI.post)
     def post(self, *a: Any, **k: Any):
-        return self.discover_requirements(FastAPI.get, *a, **k)
+        return self.discover_requirements(FastAPI.post, *a, **k)
 
     @parent_signature(FastAPI.patch)
     def patch(self, *a: Any, **k: Any):
-        return self.discover_requirements(FastAPI.get, *a, **k)
+        return self.discover_requirements(FastAPI.patch, *a, **k)
 
     @parent_signature(FastAPI.put)
     def put(self, *a: Any, **k: Any):
-        return self.discover_requirements(FastAPI.get, *a, **k)
+        return self.discover_requirements(FastAPI.put, *a, **k)
 
     @parent_signature(FastAPI.trace)
     def trace(self, *a: Any, **k: Any):
-        return self.discover_requirements(FastAPI.get, *a, **k)
+        return self.discover_requirements(FastAPI.trace, *a, **k)
 
     @parent_signature(FastAPI.options)
     def options(self, *a: Any, **k: Any):
-        return self.discover_requirements(FastAPI.get, *a, **k)
+        return self.discover_requirements(FastAPI.options, *a, **k)
 
     @parent_signature(FastAPI.delete)
     def delete(self, *a: Any, **k: Any):
-        return self.discover_requirements(FastAPI.get, *a, **k)
+        return self.discover_requirements(FastAPI.delete, *a, **k)
 
     def discover_requirements(
         self,
