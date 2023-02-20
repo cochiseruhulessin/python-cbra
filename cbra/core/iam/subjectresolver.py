@@ -12,6 +12,7 @@ import warnings
 from cbra.types import IPrincipal
 from cbra.types import ISubject
 from cbra.types import ISubjectResolver
+from cbra.types import NullPrincipal
 from cbra.types import NullSubject
 from cbra.types import OIDCPrincipal
 from cbra.types import RFC9068Principal
@@ -27,6 +28,13 @@ class SubjectResolver(ISubjectResolver):
             f'{type(self).__name__} does not know how to resolve '
             f'{type(principal).__name__}, returning NullSubject.'
         )
+        return NullSubject()
+
+    @resolve.register
+    async def resolve_null(
+        self,
+        principal: NullPrincipal
+    ) -> ISubject:
         return NullSubject()
 
     @resolve.register

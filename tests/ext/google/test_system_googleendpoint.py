@@ -27,7 +27,7 @@ class GoogleServiceEndpoint(GoogleEndpoint):
 async def client():
     app = cbra.Application()
     app.add(GoogleServiceEndpoint)
-    async with httpx.Client(base_url='https://cbra.ext.google', app=app) as client:
+    async with httpx.Client(base_url='http://cbra.ext.google', app=app) as client:
         yield client
 
 
@@ -58,4 +58,4 @@ async def test_basic_oidc_authentication_accepts_only_google(
     client: httpx.Client,
     google_id_token: str
 ):
-    pass
+    pytest.skip("TODO")
