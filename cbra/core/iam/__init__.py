@@ -123,7 +123,6 @@ ID Token from Google:
     if __name__ == '__main__':
         request = google.auth.transport.requests.Request()
         audience = 'http://localhost:8000'
-
         id_token = google.oauth2.id_token.fetch_id_token(request, audience)
         headers = {'Authorization': f'bearer {id_token}'}
         print(id_token)
