@@ -40,7 +40,7 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         self.authentication = authentication
         self.resolver = resolver
 
-    async def setup(
+    async def authenticate(
         self,
         request: fastapi.Request,
         principal: IPrincipal

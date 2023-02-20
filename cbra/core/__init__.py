@@ -26,6 +26,7 @@ __all__: list[str] = [
     'inject',
     'instance',
     'ioc',
+    'permission',
     'Application',
     'Create',
     'Delete',
@@ -41,3 +42,4 @@ __all__: list[str] = [
 
 inject = ioc.inject
 instance = ioc.instance
+permission = Endpoint.require_permission

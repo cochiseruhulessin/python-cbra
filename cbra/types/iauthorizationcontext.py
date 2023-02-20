@@ -24,6 +24,14 @@ class IAuthorizationContext:
     def subject(self) -> ISubject:
         return self.get_subject()
 
+    async def authorize(self) -> bool:
+        """Fetch the permissions, roles and other authorizations for the current
+        subject. When implementing :class:`IAuthorizationContext`, provide an
+        awaitable object to the constructor that knows how to retrieve the
+        authorizations.
+        """
+        raise NotImplementedError
+
     def is_authenticated(self) -> bool:
         return self.subject.is_authenticated()
 
@@ -31,4 +39,11 @@ class IAuthorizationContext:
         raise NotImplementedError
 
     def get_subject(self) -> ISubject:
+        raise NotImplementedError
+
+    def has_permission(self, name: str) -> bool:
+        """Return a boolean indicating if the context has the given
+        permission. This method should always be invoked after
+        :meth:`authorize()`.
+        """
         raise NotImplementedError

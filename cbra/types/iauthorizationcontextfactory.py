@@ -16,7 +16,7 @@ class IAuthorizationContextFactory:
     """Setup an authorization context for a request."""
     __module__: str = 'cbra.types'
 
-    async def setup(
+    async def authenticate(
         self,
         request: fastapi.Request,
         principal: IPrincipal
