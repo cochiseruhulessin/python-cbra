@@ -78,3 +78,5 @@ html_theme_options = {
     'globaltoc_collapse': True,
     'globaltoc_includehidden': True,
 }
+
+add_module_names = False

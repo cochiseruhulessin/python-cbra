@@ -12,6 +12,10 @@ import fastapi
 class Abortable(Exception):
     """An exception class that is detected by the framework and
     can be converted for a corresponding HTTP response.
+
+    Be aware that any part of the code that catches an :class:`Abortable`
+    is allowed to abort the operation in progress and return a response
+    to the client.
     """
     __module__: str = 'cbra.types'
     status_code: int = 500

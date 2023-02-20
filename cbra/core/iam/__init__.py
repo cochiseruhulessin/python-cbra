@@ -61,7 +61,6 @@ The :mod:`cbra` IAM framework may be used with :class:`~cbra.core.Endpoint`
 and :class:`cbra.core.Resource`, or plain functions as you might be used to
 with FastAPI:
 
-
 .. code:: python
 
     import fastapi
@@ -86,6 +85,49 @@ with FastAPI:
     if __name__ == '__main__':
         import uvicorn
         uvicorn.run(app)
+
+Similarly, :class:`~cbra.core.Endpoint` and :class:`~cbra.core.Resource`
+may be used with the authentication framework:
+
+.. code:: python
+
+    import cbra.core as cbra
+
+
+    class AuthenticatedEndpoint(cbra.Endpoint):
+
+        async def get(self) -> dict[str, bool | str]:
+            return {
+                'remote_host': str(self.ctx.remote_host),
+                'is_authenticated': self.ctx.is_authenticated()
+            }
+
+
+    app: cbra.Application = cbra.Application()
+    app.inject('TRUSTED_AUTHORIZATION_SERVERS', ['https://accounts.google.com'])
+    app.add(AuthenticatedEndpoint)
+
+
+    if __name__ == '__main__':
+        import uvicorn
+        uvicorn.run('__main__:app', reload=True)
+
+To run the above example, the following script obtains an OpenID Connect
+ID Token from Google:
+
+.. code:: python
+
+    import google.oauth2.id_token
+    import google.auth.transport.requests
+    import httpx
+
+    if __name__ == '__main__':
+        request = google.auth.transport.requests.Request()
+        audience = 'http://localhost:8000'
+
+        id_token = google.oauth2.id_token.fetch_id_token(request, audience)
+        headers = {'Authorization': f'bearer {id_token}'}
+        print(id_token)
 """
 from .authenticatedcontext import AuthenticatedContext
 from .authenticationservice import AuthenticationService

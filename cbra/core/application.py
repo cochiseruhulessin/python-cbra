@@ -10,11 +10,12 @@ import inspect
 from typing import Any
 from typing import Callable
 
+import fastapi
 from fastapi import FastAPI
 from fastapi.routing import DecoratedCallable
 from fastapi.params import Depends
 
-
+from cbra.types import Abortable
 from .endpoint import Endpoint
 from .resource import Resource
 from .ioc import Container
@@ -32,6 +33,10 @@ class Application(FastAPI):
     @parent_signature(FastAPI.__init__)
     def __init__(self, *args: Any, **kwargs: Any):
         self.container = Container.fromsettings()
+
+        handlers: dict[type, Any] = kwargs.setdefault('exception_handlers', {})
+        handlers[Abortable] = self.on_aborted
+
         super().__init__(*args, **kwargs)
 
     def add(
@@ -44,6 +49,13 @@ class Application(FastAPI):
     def inject(self, name: str, value: Any) -> None:
         """Inject a value into the dependencies container."""
         self.container.inject(name, value)
+
+    async def on_aborted(
+        self,
+        request: fastapi.Request,
+        exc: Abortable
+    ) -> fastapi.Response:
+        return await exc.as_response()
 
     @parent_signature(FastAPI.add_api_route)
     def add_api_route(

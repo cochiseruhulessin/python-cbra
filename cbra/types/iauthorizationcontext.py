@@ -18,10 +18,17 @@ class IAuthorizationContext:
 
     @property
     def remote_host(self) -> ipaddress.IPv4Address | None:
+        """A :class:`~ipaddress.IPv4Address` instance specifying the remote
+        host from which a request was made, or ``None`` if there is no
+        network request.
+        """
         return self.get_remote_host()
 
     @property
     def subject(self) -> ISubject:
+        """The subject that was resolved from the principal and the
+        credential.
+        """
         return self.get_subject()
 
     async def authorize(self) -> bool:
@@ -33,6 +40,7 @@ class IAuthorizationContext:
         raise NotImplementedError
 
     def is_authenticated(self) -> bool:
+        """Return a boolean indicating if the request is authenticated."""
         return self.subject.is_authenticated()
 
     def get_remote_host(self) -> ipaddress.IPv4Address | None:
