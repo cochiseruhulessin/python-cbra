@@ -9,6 +9,7 @@
 from .abortable import Abortable
 from .conflict import Conflict
 from .forbidden import Forbidden
+from .idependant import IDependant
 from .iendpoint import IEndpoint
 from .integerpathparameter import IntegerPathParameter
 from .iroutable import IRoutable
@@ -32,6 +33,7 @@ __all__: list[str] = [
     'Abortable',
     'Conflict',
     'Forbidden',
+    'IDependant',
     'IEndpoint',
     'IntegerPathParameter',
     'IPrincipal',
