@@ -78,16 +78,19 @@ class IEndpoint:
         **kwargs: Any
     ):
         try:
-            self.ctx = await self.context_factory.authenticate(
-                request=self.request,
-                principal=self.principal,
-                providers=self.trusted_providers
-            )
+            await self.authenticate()
             if self.require_authentication and not self.ctx.is_authenticated():
                 raise NotAuthorized
             return await func(self, *args, **kwargs)
         except Abortable as exc:
             return await exc.as_response()
+
+    async def authenticate(self) -> None:
+        self.ctx = await self.context_factory.authenticate(
+            request=self.request,
+            principal=self.principal,
+            providers=self.trusted_providers
+        )
 
     async def is_authorized(self, name: str) -> bool:
         """Return a boolean if the given authorization context has a
