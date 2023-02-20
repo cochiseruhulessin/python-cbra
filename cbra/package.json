@@ -1,8 +1,8 @@
 {
-  "description": "Enter a description for this Unimatrix package",
+  "description": "A class-based REStful API framework built on FastAPI",
   "author": "Cochise Ruhulessin",
   "author_email": "cochise.ruhulessin@unimatrixone.io",
-  "url": "https://gitlab.com/unimatrixone",
+  "url": "https://docs.cochise.io/python/cbra/latest",
   "licenses": "Proprietary",
   "classifiers": [
      "Development Status :: 4 - Beta",
@@ -10,28 +10,19 @@
      "Environment :: Web Environment",
      "Framework :: Django",
      "Framework :: Django CMS",
+     "Framework :: FastAPI",
      "Framework :: Flask",
      "Intended Audience :: Developers",
-     "Intended Audience :: Financial and Insurance Industry",
-     "Intended Audience :: Healthcare Industry",
      "License :: Other/Proprietary License",
      "Operating System :: POSIX",
      "Operating System :: POSIX :: Linux",
-     "Programming Language :: Python :: 3.5",
-     "Programming Language :: Python :: 3.6",
-     "Programming Language :: Python :: 3.7",
-     "Programming Language :: Python :: 3.8",
-     "Programming Language :: Python :: 3.9",
+     "Programming Language :: Python :: 3.10",
+     "Programming Language :: Python :: 3.11",
      "Programming Language :: Python :: 3 :: Only",
      "Topic :: Internet",
      "Topic :: Internet :: WWW/HTTP :: Session",
-     "Topic :: Office/Business",
      "Topic :: Security",
      "Topic :: Security :: Cryptography",
-     "Topic :: Software Development :: Libraries",
-     "Topic :: Software Development :: User Interfaces",
-     "Topic :: System :: Systems Administration :: Authentication/Directory",
-     "Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP",
-     "Topic :: System :: Systems Administration :: Authentication/Directory :: NIS"
+     "Topic :: Software Development :: Libraries"
   ]
 }
