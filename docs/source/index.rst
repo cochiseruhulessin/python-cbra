@@ -132,7 +132,9 @@ Exposing :class:`BookResource` to HTTP clients then becomes as simple as:
 
     uvicorn.run(app)
 
-
+Run this code and visit http://localhost:8000/redoc to see the result! ReDoc
+will properly show the exposed GET, POST, PUT, PATCH and DELETE methods. It's
+*that* simple.
 
 
 .. toctree::
