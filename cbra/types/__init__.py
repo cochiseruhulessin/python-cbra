@@ -12,10 +12,15 @@ from .forbidden import Forbidden
 from .iendpoint import IEndpoint
 from .integerpathparameter import IntegerPathParameter
 from .iroutable import IRoutable
+from .iprincipal import IPrincipal
 from .mutablesignature import MutableSignature
+from .nullprincipal import NullPrincipal
 from .notfound import NotFound
 from .operation import Operation
+from .oidcprincipal import OIDCPrincipal
 from .pathparameter import PathParameter
+from .principal import Principal
+from .rfc9068principal import RFC9068Principal
 from .uuidpathparameter import UUIDPathParameter
 
 
@@ -25,10 +30,15 @@ __all__: list[str] = [
     'Forbidden',
     'IEndpoint',
     'IntegerPathParameter',
+    'IPrincipal',
     'IRoutable',
     'MutableSignature',
     'NotFound',
+    'NullPrincipal',
     'Operation',
+    'OIDCPrincipal',
     'PathParameter',
+    'Principal',
+    'RFC9068Principal',
     'UUIDPathParameter',
 ]

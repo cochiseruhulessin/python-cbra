@@ -11,15 +11,16 @@ from typing import Any
 import fastapi
 
 from cbra.types import IEndpoint
-from cbra.types import IRoutable
+from cbra.types import Principal
 from .endpointtype import EndpointType
 
 
-class Endpoint(IEndpoint, IRoutable, metaclass=EndpointType):
+class Endpoint(IEndpoint, metaclass=EndpointType):
     __abstract__: bool = True
     __module__: str = 'cbra'
     allowed_http_methods: list[str]
     include_in_schema: bool = True
+    principal: Principal = Principal.depends()
 
     def __init__(self, **kwargs: Any):
         """Constructor. Called in the router; can contain helpful extra
@@ -33,4 +34,4 @@ class Endpoint(IEndpoint, IRoutable, metaclass=EndpointType):
     @classmethod
     def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:
         for handler in cls.handlers:
-            handler.add_to_router(router, **kwargs)
+            handler.add_to_router(cls, router, **kwargs)

@@ -1,0 +1,27 @@
+#!/usr/local/env python3
+import asyncio
+import os
+
+from headless.ext.oauth2 import Client
+
+
+
+OAUTH2_SERVER: str = 'https://oauth2.webidentityapis.com'
+OAUTH2_CLIENT: str = os.environ['OAUTH2_CLIENT']
+PRIVATE_KEY: str = f'local:///{os.path.expanduser("~/.ssh/id_rsa")}?use=sig&alg=RS256'
+
+
+async def main():
+    client = Client(
+        issuer=OAUTH2_SERVER,
+        client_id=OAUTH2_CLIENT,
+        client_secret=PRIVATE_KEY
+    )
+    async with client:
+        await client.discover()
+        result = await client.client_credentials(set())
+        print(result.access_token)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())

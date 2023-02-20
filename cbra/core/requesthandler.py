@@ -37,7 +37,7 @@ class RequestHandler(Generic[E]):
     _is_coroutine = asyncio.coroutines._is_coroutine # type: ignore
     _annotations: tuple[type, ...] = (
         fastapi.Request,
-        fastapi.Response
+        fastapi.Response,
     )
     _class: type[E] | None
     _class_params: set[str]
@@ -108,6 +108,13 @@ class RequestHandler(Generic[E]):
     def get_return_annotation(self) -> Any:
         return self._handler_sig.return_annotation
 
+    def is_injectable(self, cls: Any) -> bool:
+        """Return a boolean indicating if the class is injectable."""
+        return any([
+            inspect.isclass(cls) and issubclass(cls, self._annotations),
+            cls in self._annotations
+        ])
+
     def validate_handler(
         self,
         func: Callable[..., Awaitable[Any] | Any],
@@ -142,7 +149,7 @@ class RequestHandler(Generic[E]):
             )
             self._class_params.add(attname)
 
-        for attname, value in cls.__dict__.items():
+        for attname, value in inspect.getmembers(cls):
             if not self.can_inject(value, 'class'):
                 continue
             dependencies[attname] = Parameter(
@@ -260,6 +267,7 @@ class RequestHandler(Generic[E]):
 
     def add_to_router(
         self,
+        cls: IEndpoint,
         router: fastapi.APIRouter,
         **kwargs: Any
     ) -> None:
@@ -282,8 +290,7 @@ class RequestHandler(Generic[E]):
     def can_inject(self, p: Parameter | Any, where: str) -> bool:
         return any([
             isinstance(p, Parameter)\
-                and inspect.isclass(p.annotation)\
-                and p.annotation in self._annotations,
+                and inspect.isclass(p.annotation) and self.is_injectable(p.annotation),
             isinstance(p, Parameter)\
                 and isinstance(p.default, self._injectables),
             isinstance(p, Parameter) and (where=='handler')\
@@ -293,8 +300,7 @@ class RequestHandler(Generic[E]):
                 and issubclass(p.annotation, pydantic.BaseModel),
             not isinstance(p, Parameter)\
                 and isinstance(p, self._injectables),
-            not isinstance(p, Parameter)\
-                and p in self._annotations,
+            not isinstance(p, Parameter) and self.is_injectable(p)
         ])
 
     def preprocess_parameter(self, p: Parameter) -> Parameter | None:

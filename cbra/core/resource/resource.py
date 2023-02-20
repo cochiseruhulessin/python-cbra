@@ -10,17 +10,19 @@ from typing import Any
 
 import fastapi
 
+from cbra.types import Principal
 from cbra.types import IRoutable
 from .iresource import IResource
 from .resourcemodel import ResourceModel
 from .resourcetype import ResourceType
 
 
-class Resource(IResource, IRoutable, metaclass=ResourceType):
+class Resource(IResource, metaclass=ResourceType):
     __abstract__: bool = True
     __actions__: list[type[IRoutable]] = []
     __module__: str = 'cbra.core'
     model: type[ResourceModel]
+    principal: Principal = Principal.depends()
 
     def __init_subclass__(cls, model: type[ResourceModel]):
         cls.model = model
@@ -28,4 +30,4 @@ class Resource(IResource, IRoutable, metaclass=ResourceType):
     @classmethod
     def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:
         for action in cls.__actions__:
-            action.add_to_router(router, **kwargs)
+            action.add_to_router(cls, router, **kwargs)

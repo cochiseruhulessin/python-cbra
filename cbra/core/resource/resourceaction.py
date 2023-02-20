@@ -98,7 +98,11 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
 
         return super().add_to_class(cast(type[IEndpoint], cls))
 
-    def add_to_router(self, router: fastapi.APIRouter, **kwargs: Any) -> None:
+    def add_to_router( # type: ignore
+        self,
+        cls: IResource,
+        router: fastapi.APIRouter, **kwargs: Any
+    ) -> None:
         kwargs.setdefault('status_code', self.status_code)
         kwargs.setdefault('summary', self.summary)
         tags: list[str] = kwargs.setdefault('tags', [])
@@ -112,7 +116,7 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
             )
         })
         kwargs['responses'] = self.get_openapi_responses(kwargs.get('responses') or {})
-        return super().add_to_router(router, **kwargs)
+        return super().add_to_router(cls, router, **kwargs)
 
     def can_write(self) -> bool:
         raise NotImplementedError

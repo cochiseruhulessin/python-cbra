@@ -5,6 +5,7 @@
   "url": "https://docs.unimatrixone.io/python/cbra/latest",
   "licenses": "Proprietary",
   "install_requires": [
+    "ckms>=0.60.0",
     "fastapi",
     "headless>=1.9.1",
     "inflect",

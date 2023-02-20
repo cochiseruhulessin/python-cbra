@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2023 Cochise Ruhulessin
+# Copyright (C) 2022 Cochise Ruhulessin
 #
 # All rights reserved. No warranty, explicit or implicit, provided. In
 # no event shall the author(s) be liable for any claim or damages.
@@ -6,14 +6,12 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from typing import Any
+import pydantic
 
-import fastapi
+from .iprincipal import IPrincipal
 
 
-class IRoutable:
-    __module__: str = 'cbra.types'
+class NullPrincipal(IPrincipal, pydantic.BaseModel):
 
-    @classmethod
-    def add_to_router(cls, endpoint: Any, router: fastapi.FastAPI, **kwargs: Any) -> None:
-        raise NotImplementedError
+    def is_anonymous(self) -> bool:
+        return True
