@@ -10,6 +10,8 @@ from typing import TypeVar
 
 import fastapi
 
+from .iprincipalintrospecter import IPrincipalIntrospecter
+
 
 P = TypeVar('P', bound='IPrincipal')
 
@@ -36,3 +38,12 @@ class IPrincipal:
         at all.
         """
         raise NotImplementedError
+
+    async def introspect(
+        self: P,
+        introspecter: IPrincipalIntrospecter
+    ) -> P:
+        """Introspect an opaque principal such as a generic bearer token
+        or a session identifier.
+        """
+        return await introspecter.introspect(self)

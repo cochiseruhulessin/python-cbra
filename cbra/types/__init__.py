@@ -13,8 +13,12 @@ from .iendpoint import IEndpoint
 from .integerpathparameter import IntegerPathParameter
 from .iroutable import IRoutable
 from .iprincipal import IPrincipal
+from .iprincipalintrospecter import IPrincipalIntrospecter
+from .isubject import ISubject
+from .isubjectresolver import ISubjectResolver
 from .mutablesignature import MutableSignature
 from .nullprincipal import NullPrincipal
+from .nullsubject import NullSubject
 from .notfound import NotFound
 from .operation import Operation
 from .oidcprincipal import OIDCPrincipal
@@ -31,10 +35,14 @@ __all__: list[str] = [
     'IEndpoint',
     'IntegerPathParameter',
     'IPrincipal',
+    'IPrincipalIntrospecter',
     'IRoutable',
+    'ISubject',
+    'ISubjectResolver',
     'MutableSignature',
     'NotFound',
     'NullPrincipal',
+    'NullSubject',
     'Operation',
     'OIDCPrincipal',
     'PathParameter',
