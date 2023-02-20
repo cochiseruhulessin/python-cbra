@@ -39,6 +39,12 @@ class IPrincipal:
         """
         raise NotImplementedError
 
+    def must_introspect(self) -> bool:
+        """Return a boolean indicating if the principal must be
+        introspected to obtain information about the subject.
+        """
+        return False
+
     async def introspect(
         self: P,
         introspecter: IPrincipalIntrospecter
