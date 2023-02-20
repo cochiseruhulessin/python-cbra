@@ -13,6 +13,7 @@ from .iauthorizationcontext import IAuthorizationContext
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
 from .icredential import ICredential
 from .icredentialverifier import ICredentialVerifier
+from .ideferred import IDeferred
 from .idependant import IDependant
 from .iendpoint import IEndpoint
 from .integerpathparameter import IntegerPathParameter
@@ -44,6 +45,7 @@ __all__: list[str] = [
     'ICredential',
     'ICredentialVerifier',
     'IDependant',
+    'IDeferred',
     'IAuthorizationContext',
     'IAuthorizationContextFactory',
     'IEndpoint',

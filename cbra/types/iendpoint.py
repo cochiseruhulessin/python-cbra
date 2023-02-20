@@ -7,12 +7,14 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import functools
+import logging
 from typing import Any
 from typing import Awaitable
 from typing import Callable
 
 import fastapi
 
+from .abortable import Abortable
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
 from .iprincipal import IPrincipal
 from .iroutable import IRoutable
@@ -26,6 +28,7 @@ class IEndpoint:
     context_factory: IAuthorizationContextFactory
     handlers: list[IRoutable]
     include_in_schema: bool = True
+    logger: logging.Logger = logging.getLogger('uvicorn')
 
     #: The set of permissions supported by this endpoint. These must be
     #: defined beforehand to limit the number of calls to remote IAM
@@ -69,10 +72,13 @@ class IEndpoint:
         *args: Any,
         **kwargs: Any
     ):
-        self.ctx = await self.context_factory.authenticate(self.request, self.principal)
-        if self.require_authentication and not self.ctx.is_authenticated():
-            raise NotAuthorized
-        return await func(self, *args, **kwargs)
+        try:
+            self.ctx = await self.context_factory.authenticate(self.request, self.principal)
+            if self.require_authentication and not self.ctx.is_authenticated():
+                raise NotAuthorized
+            return await func(self, *args, **kwargs)
+        except Abortable as exc:
+            return await exc.as_response()
 
     async def is_authorized(self, name: str) -> bool:
         """Return a boolean if the given authorization context has a

@@ -31,6 +31,9 @@ class Principal(IPrincipal, pydantic.BaseModel):
     def get_credential(self) -> ICredential | None:
         return self.__root__.get_credential()
 
+    def has_audience(self) -> bool:
+        return self.__root__.has_audience()
+
     def is_anonymous(self) -> bool:
         return self.__root__.is_anonymous()
 
@@ -39,3 +42,6 @@ class Principal(IPrincipal, pydantic.BaseModel):
         resolve: Callable[..., Awaitable[ISubject]]
     ) -> ISubject:
         return await resolve(self.__root__)
+
+    def validate_audience(self, allow: set[str]) -> bool:
+        return self.__root__.validate_audience(allow)

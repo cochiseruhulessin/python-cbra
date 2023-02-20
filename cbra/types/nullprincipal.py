@@ -15,3 +15,6 @@ class NullPrincipal(IPrincipal, pydantic.BaseModel):
 
     def is_anonymous(self) -> bool:
         return True
+
+    def has_audience(self) -> bool:
+        return False

@@ -22,3 +22,6 @@ class IAuthorizationContextFactory:
         principal: IPrincipal
     ) -> IAuthorizationContext:
         raise NotImplementedError
+
+    def validate_audience(self, principal: IPrincipal, allow: set[str]) -> None:
+        raise NotImplementedError

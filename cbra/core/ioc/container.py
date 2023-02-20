@@ -39,6 +39,18 @@ class Container:
         dependency.resolve()
         self.injected[dependency.name] = dependency
 
+    def has(self, name: str) -> bool:
+        return name in self.injected
+
+    def inject(self, name: str, value: Any) -> None:
+        """Inject a dependency into the container."""
+        self.injected[name] = Dependency(
+            name=name,
+            qualname='',
+            symbol=value,
+            singleton=True
+        )
+
     def require(self, name: str) -> Dependency:
         if name not in self.injected:
             raise DependencyNotSatisfied

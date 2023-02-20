@@ -10,6 +10,7 @@ from typing import Any
 
 import fastapi
 
+from cbra.types import IAuthorizationContext
 from cbra.types import IEndpoint
 from cbra.types import Principal
 from .iam import AuthorizationContextFactory
@@ -22,6 +23,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     allowed_http_methods: list[str]
     include_in_schema: bool = True
     principal: Principal = Principal.depends()
+    ctx: IAuthorizationContext
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
 
     def __init__(self, **kwargs: Any):
@@ -35,5 +37,6 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
 
     @classmethod
     def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:
+        kwargs.setdefault('path', '/')
         for handler in cls.handlers:
             handler.add_to_router(cls, router, **kwargs)

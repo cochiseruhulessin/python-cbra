@@ -41,3 +41,12 @@ class OIDCPrincipal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
 
     def get_credential(self) -> ICredential | None:
         return JSONWebToken(self.token)
+
+    def has_audience(self) -> bool:
+        return True
+
+    def validate_audience(self, allow: set[str]) -> bool:
+        aud = self.aud
+        if isinstance(aud, str):
+            aud = {aud}
+        return bool(set(aud) & allow)

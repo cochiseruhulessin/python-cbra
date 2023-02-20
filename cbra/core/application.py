@@ -41,6 +41,10 @@ class Application(FastAPI):
     ) -> None:
         routable.add_to_router(self, *args, **kwargs)
 
+    def inject(self, name: str, value: Any) -> None:
+        """Inject a value into the dependencies container."""
+        self.container.inject(name, value)
+
     @parent_signature(FastAPI.add_api_route)
     def add_api_route(
         self,

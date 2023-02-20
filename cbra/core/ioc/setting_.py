@@ -17,8 +17,14 @@ class Setting(Injected):
     __module__: str = 'cbra.core.ioc'
 
     def add_to_container(self, container: Container) -> None:
+        if container.has(self.name):
+            # TODO: This basically cover the user case where the implementer
+            # override the dependency from somewhere in the code. This is
+            # currently only used in the examples.
+            self.ref = container.require(self.name)
+            return
         try:
-            config = importlib.import_module('cbra.core.config')
+            config = importlib.import_module('cbra.core.conf')
             self.ref = Dependency(
                 name=self.name,
                 qualname=f'cbra.core.conf.settings.{self.name}',

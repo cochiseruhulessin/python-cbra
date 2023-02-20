@@ -6,8 +6,11 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import logging
+
 import fastapi
 
+from cbra.types import Forbidden
 from cbra.types import IAuthorizationContextFactory
 from cbra.types import IDependant
 from cbra.types import IPrincipal
@@ -24,6 +27,7 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
     """The default implementation of :class:`~cbra.types.IAuthorizationContextFactory`"""
     __module__: str = 'cbra.core.iam'
     authentication: AuthenticationService
+    logger: logging.Logger = logging.getLogger('uvicorn')
     resolver: ISubjectResolver
 
     def __init__(
@@ -48,6 +52,12 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         remote_host = request.client.host if request.client else None
         subject = await principal.resolve(self.resolver.resolve)
         await subject.authenticate(self.authentication)
+        if principal.has_audience():
+            url = request.url
+            self.validate_audience(principal, {
+                f'{url.scheme}://{url.netloc}',
+                str(url)
+            })
         if not subject.is_authenticated():
             return UnauthenticatedAuthorizationContext(remote_host=remote_host)
         return AuthenticatedContext(
@@ -77,3 +87,11 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         overriden to implement additional authenticated logic.
         """
         return True
+
+    def validate_audience(self, principal: IPrincipal, allow: set[str]):
+        if not principal.validate_audience(allow):
+            self.logger.critical(
+                'Received a principal/credential combination with an '
+                'audience that is not accepted by the server.',
+            )
+            raise Forbidden

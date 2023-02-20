@@ -44,6 +44,12 @@ class IPrincipal:
         """Return the credential from which the principal was instantiated."""
         raise NotImplementedError
 
+    def has_audience(self) -> bool:
+        """Return a boolean indicating if the principal targets a specific
+        audience.
+        """
+        raise NotImplementedError
+
     def is_anonymous(self) -> bool:
         """Return a boolean indicating if the principal was anonymous
         i.e. did not provide identifying information or credentials
@@ -56,6 +62,12 @@ class IPrincipal:
         introspected to obtain information about the subject.
         """
         return False
+
+    def validate_audience(self, allow: set[str]) -> bool:
+        """Return a boolean indicating if the principal targets
+        *any* of the given audiences.
+        """
+        raise NotImplementedError
 
     async def resolve(
         self: P,
