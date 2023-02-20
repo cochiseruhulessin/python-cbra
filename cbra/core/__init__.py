@@ -6,23 +6,26 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from typing import cast
-from typing import Any
-
 from pydantic import Field
 
 from .application import Application
 from .endpoint import Endpoint
-from .resource import *
+from . import ioc
+from .resource import Create
+from .resource import Delete
+from .resource import Replace
+from .resource import Resource
+from .resource import ResourceModel
+from .resource import ResourceType
+from .resource import Retrieve
+from .resource import Update
 
-from unimatrix.conf import settings # type: ignore
-
-
-settings: Any = cast(Any, settings)
 
 
 __all__: list[str] = [
-    'settings',
+    'inject',
+    'instance',
+    'ioc',
     'Application',
     'Create',
     'Delete',
@@ -35,3 +38,6 @@ __all__: list[str] = [
     'Retrieve',
     'Update'
 ]
+
+inject = ioc.inject
+instance = ioc.instance

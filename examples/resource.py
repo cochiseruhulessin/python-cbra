@@ -9,7 +9,6 @@
 import datetime
 import secrets
 
-import fastapi
 import pydantic
 import uvicorn
 
@@ -63,7 +62,7 @@ class BookResource(cbra.Resource, cbra.Create, cbra.Delete, cbra.Retrieve, cbra.
         return resource
 
 
-app = fastapi.FastAPI(docs_url='/ui')
+app = cbra.Application(docs_url='/ui')
 BookResource.add_to_router(app, path='/')
 
 if __name__ == '__main__':
