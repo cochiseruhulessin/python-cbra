@@ -6,6 +6,8 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from typing import Union
+
 import pydantic
 
 from .iprincipal import IPrincipal
@@ -15,7 +17,12 @@ from .rfc9068principal import RFC9068Principal
 
 
 class Principal(IPrincipal, pydantic.BaseModel):
-    __root__: RFC9068Principal | OIDCPrincipal | NullPrincipal
+    # Note that the order is important here.
+    __root__: Union[
+        RFC9068Principal,
+        OIDCPrincipal,
+        NullPrincipal
+    ]
 
     def is_anonymous(self) -> bool:
         return self.__root__.is_anonymous()
