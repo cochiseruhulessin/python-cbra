@@ -9,6 +9,8 @@
 from .abortable import Abortable
 from .conflict import Conflict
 from .forbidden import Forbidden
+from .iauthorizationcontext import IAuthorizationContext
+from .iauthorizationcontextfactory import IAuthorizationContextFactory
 from .idependant import IDependant
 from .iendpoint import IEndpoint
 from .integerpathparameter import IntegerPathParameter
@@ -34,6 +36,8 @@ __all__: list[str] = [
     'Conflict',
     'Forbidden',
     'IDependant',
+    'IAuthorizationContext',
+    'IAuthorizationContextFactory',
     'IEndpoint',
     'IntegerPathParameter',
     'IPrincipal',
