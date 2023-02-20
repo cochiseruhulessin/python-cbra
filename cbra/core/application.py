@@ -114,6 +114,8 @@ class Application(FastAPI):
         """Traverse the signature tree of the given function to find
         all :class:`Requirement` instances.
         """
+        # TODO: this will completely mess up if multiple Application instances
+        # are spawned.
         if not callable(func): return None
         if isinstance(func, Depends):
             return self.update_requirements(func.dependency)
