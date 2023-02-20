@@ -35,6 +35,11 @@ class IEndpoint:
     #: systems.
     permissions: set[str]
 
+    #: The set of trusted authorization servers. This will override the
+    #: :attr:`cbra.core.conf.settings.TRUSTED_AUTHORIZATION_SERVERS`
+    #: setting.
+    trusted_providers: set[str] = set()
+
     principal: IPrincipal
     request: fastapi.Request
     response: fastapi.Response
