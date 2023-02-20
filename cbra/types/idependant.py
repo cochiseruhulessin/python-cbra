@@ -20,8 +20,12 @@ class IDependant:
 
     @classmethod
     def depends(cls: type[T]) -> T:
+        """Return a :class:`fastapi.params.Depends` object."""
         return fastapi.Depends(cls.__inject__())
 
     @classmethod
     def __inject__(cls: type[T]) -> Callable[..., T]:
+        """Return a callable that specifies the dependencies of this
+        class in its signature.
+        """
         return cls
