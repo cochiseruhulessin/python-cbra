@@ -29,7 +29,11 @@ class IPrincipal:
         return cls.parse_obj({ # type: ignore
             'request': request,
             'headers': request.headers,
-            'content': await request.body()
+            'content': (
+                await request.body()
+                if 'Content-Type' in request.headers
+                else None
+            )
         })
 
     def is_anonymous(self) -> bool:
