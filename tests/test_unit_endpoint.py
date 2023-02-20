@@ -15,7 +15,7 @@ from headless.core import httpx
 import cbra.core as cbra
 
 
-class TestEndpoint(cbra.Endpoint):
+class MockEndpoint(cbra.Endpoint):
 
     async def head(self) -> dict[str, Any]:
         return {'method': self.request.method}
@@ -39,7 +39,7 @@ class TestEndpoint(cbra.Endpoint):
 @pytest_asyncio.fixture # type: ignore
 async def client():
     app = cbra.Application()
-    TestEndpoint.add_to_router(app, path='/')
+    MockEndpoint.add_to_router(app, path='/')
     async with httpx.Client(base_url='https://cbra', app=app) as client:
         yield client
 
