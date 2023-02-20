@@ -31,11 +31,12 @@ class HTTPHeaderPrincipal(IPrincipal, pydantic.BaseModel):
         values: dict[str, Any]
     ) -> dict[str, Any]:
         headers = values.get('headers') or {}
-        if headers.get('Authorization'):
-            scheme, param = get_authorization_scheme_param(headers['Authorization'])
-            if not scheme and param:
-                raise ValueError('the Authorization header was not provided.')
-            values.update(cls.parse_scheme(values, str.lower(scheme), param))
+        if not headers.get('Authorization'):
+            raise ValueError('no Authorization header.')
+        scheme, param = get_authorization_scheme_param(headers['Authorization'])
+        if not scheme or not param:
+            raise ValueError('the Authorization header was malformed.')
+        values.update(cls.parse_scheme(values, str.lower(scheme), param))
         return values
 
     @classmethod
