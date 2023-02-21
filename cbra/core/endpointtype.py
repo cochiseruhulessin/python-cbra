@@ -6,6 +6,8 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import collections
+import itertools
 import types
 from typing import Any
 
@@ -37,29 +39,30 @@ class EndpointType(type):
     ) -> type[IEndpoint]:
         annotations = namespace.get('__annotations__') or {}
         is_abstract = namespace.pop('__abstract__', False)
-        handlers: list[RequestHandler[Any]] = []
+        handlers: dict[str, RequestHandler[Any]] = collections.OrderedDict()
         if not is_abstract:
+            for h in itertools.chain(*[getattr(x, 'handlers', {}) for x in bases]):
+                handlers[h.attname] = h.clone() # type: ignore
+
             for attname, func in list(namespace.items()):
                 if attname not in cls.http_methods:
                     continue
                 if not callable(func):
                     raise TypeError("A request handler must be callable.")
-                handlers.append(
-                    RequestHandler(
-                        name=name,
-                        method=attname,
-                        func=func
-                    )
+                handlers[attname] = RequestHandler(
+                    name=name,
+                    method=attname,
+                    func=func
                 )
 
             namespace.update({
-                'allowed_http_methods': [x.method for x in handlers],
-                'handlers': handlers
+                'allowed_http_methods': [x.method for x in handlers.values()],
+                'handlers': handlers.values()
             })
             if 'OPTIONS' not in namespace['allowed_http_methods']:
                 # Create an options handler using the default CORS
                 # policy.
-                handlers.append(OptionsRequestHandler(name))
+                handlers['options'] = OptionsRequestHandler(name)
                 namespace['allowed_http_methods'].append('OPTIONS')
 
         # Create a concrete Principal subclass. This is to allow
@@ -77,6 +80,6 @@ class EndpointType(type):
 
 
         Endpoint = super().__new__(cls, name, bases, namespace, **params)
-        for handler in handlers:
+        for handler in handlers.values():
             handler.add_to_class(Endpoint) # type: ignore
         return Endpoint # type: ignore

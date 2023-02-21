@@ -16,6 +16,7 @@ class ISubject:
     credential.
     """
     __module__: str = 'cbra.types'
+    sub: Any
 
     def is_authenticated(self) -> bool:
         raise NotImplementedError

@@ -7,6 +7,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import logging
+from typing import Awaitable
 
 import fastapi
 
@@ -17,6 +18,7 @@ from cbra.types import IPrincipal
 from cbra.types import ISubjectResolver
 from cbra.types import UnauthenticatedAuthorizationContext
 from ..ioc import instance
+from ..utils import ensure_awaited
 from .authenticatedcontext import AuthenticatedContext
 from .authenticationservice import AuthenticationService
 from .subject import Subject
@@ -48,7 +50,8 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         self,
         request: fastapi.Request,
         principal: IPrincipal,
-        providers: set[str] | None = None
+        providers: set[str] | None = None,
+        subjects: set[str] | Awaitable[set[str]] | None  = None
     ):
         remote_host = request.client.host if request.client else None
         subject = await principal.resolve(self.resolver.resolve)
@@ -62,8 +65,20 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
                 f'{url.scheme}://{url.netloc}',
                 str(url)
             })
+
+        unauthenticated= UnauthenticatedAuthorizationContext(remote_host=remote_host)
         if not subject.is_authenticated():
-            return UnauthenticatedAuthorizationContext(remote_host=remote_host)
+            return unauthenticated
+
+        # Determine if the subject is in the allowed subjects list.
+        subjects = await ensure_awaited(subjects) or set()
+        if subjects and subject.sub not in subjects:
+            self.logger.critical(
+                'Subject %s is not in the allowed subjects list',
+                subject.sub
+            )
+            return unauthenticated
+
         return AuthenticatedContext(
             remote_host=remote_host,
             subject=subject

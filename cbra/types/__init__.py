@@ -9,6 +9,7 @@
 from .abortable import Abortable
 from .conflict import Conflict
 from .forbidden import Forbidden
+from .hints import PolymorphicIterable
 from .iauthorizationcontext import IAuthorizationContext
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
 from .icredential import ICredential
@@ -65,6 +66,7 @@ __all__: list[str] = [
     'Operation',
     'OIDCPrincipal',
     'PathParameter',
+    'PolymorphicIterable',
     'Principal',
     'RFC9068Principal',
     'UnauthenticatedAuthorizationContext',

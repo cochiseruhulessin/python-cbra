@@ -17,6 +17,7 @@ class NullSubject(ISubject):
     and non-identified subject.
     """
     __module__: str = 'cbra.types'
+    sub: None = None
 
     def is_authenticated(self) -> bool:
         return False

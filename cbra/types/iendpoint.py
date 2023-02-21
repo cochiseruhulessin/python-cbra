@@ -11,6 +11,7 @@ import logging
 from typing import Any
 from typing import Awaitable
 from typing import Callable
+from typing import TypeVar
 
 import fastapi
 
@@ -20,6 +21,9 @@ from .iprincipal import IPrincipal
 from .iroutable import IRoutable
 from .forbidden import Forbidden
 from .notauthorized import NotAuthorized
+
+
+T = TypeVar('T', bound='IEndpoint')
 
 
 class IEndpoint:
@@ -34,6 +38,12 @@ class IEndpoint:
     #: defined beforehand to limit the number of calls to remote IAM
     #: systems.
     permissions: set[str]
+
+    #: The list of subjects that may access this endpoint. Override this
+    #: property if an endpoint needs to hardcode the allowed subjects
+    #: that may invoke it, for example when expecting a request from
+    #: Google using a priorly known service account.
+    allowed_subjects: set[str] = set()
 
     #: The set of trusted authorization servers. This will override the
     #: :attr:`cbra.core.conf.settings.TRUSTED_AUTHORIZATION_SERVERS`
@@ -65,6 +75,16 @@ class IEndpoint:
             return f
         return decorator_factory
 
+    @classmethod
+    def configure(cls: type[T], **kwargs: Any) -> type[T]:
+        return type(cls.__name__, (cls,), kwargs) # type: ignore
+
+    async def get_allowed_subjects(self) -> set[str]:
+        """Return the set of allowed subjects that may access this resource.
+        By default, returns :attr:`allowed_subjects`.
+        """
+        return self.allowed_subjects
+
     def get_success_headers(self, data: Any) -> dict[str, Any]:
         """Return a mapping holding the headers to add on a successful
         request based on the return value of the request handler.
@@ -89,7 +109,8 @@ class IEndpoint:
         self.ctx = await self.context_factory.authenticate(
             request=self.request,
             principal=self.principal,
-            providers=self.trusted_providers
+            providers=self.trusted_providers,
+            subjects=await self.get_allowed_subjects()
         )
 
     async def is_authorized(self, name: str) -> bool:

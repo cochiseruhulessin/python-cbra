@@ -30,6 +30,7 @@ from cbra.types import UUIDPathParameter
 
 
 E = TypeVar('E', bound='IEndpoint')
+T = TypeVar('T', bound='RequestHandler[Any]')
 
 
 class RequestHandler(Generic[E]):
@@ -101,6 +102,14 @@ class RequestHandler(Generic[E]):
         # True for this object, since it depends on a private
         # symbol.
         assert asyncio.iscoroutinefunction(self) # nosec
+
+    def clone(self: T) -> T:
+        return type(self)(
+            self._endpoint_name,
+            self.method,
+            self._func,
+            self.include_in_schema
+        )
 
     def annotate_path(self, cls: Any) -> type[PathParameter]:
         return self._path_types[cls]

@@ -28,6 +28,9 @@ class OptionsRequestHandler(RequestHandler[IEndpoint]):
             func=self.handle
         )
 
+    def clone(self):
+        return type(self)(self._endpoint_name, self.include_in_schema)
+
     async def handle(
         self,
         endpoint: IEndpoint,
