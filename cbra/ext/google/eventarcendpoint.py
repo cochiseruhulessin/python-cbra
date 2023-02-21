@@ -13,8 +13,9 @@ from .pubsubmessage import PubsubMessage
 
 
 class EventarcEndpoint(GoogleEndpoint):
-    """A :class:`~cbra.ext.google.GoogleEndpoint` implementation that handles
-    messages pushed by Google Eventarc.
+    """Accepts a message from Google Eventarc from a HTTP POST request. The
+    default implementation does nothing. Implementations must override
+    the :meth:`on_message()` method to handle the incoming messages.
     """
     __module__: str = 'cbra.ext.google'
     include_in_schema: bool = False
@@ -22,7 +23,7 @@ class EventarcEndpoint(GoogleEndpoint):
     summary: str = 'Eventarc Message'
     tags: list[str] = ['Cloud Endpoints']
 
-    async def get(self, dto: MessagePublished) -> None:
+    async def post(self, dto: MessagePublished) -> None:
         """Receive a `google.cloud.pubsub.topic.v1.messagePublished` message
         and invoke the appropriate handler.
         """

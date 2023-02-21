@@ -2,15 +2,15 @@
 =====================================================
 :mod:`cbra.ext.google` - Google integration framework
 =====================================================
-
 The :mod:`cbra.ext.google` provides integration with various
 Google Cloud Platform services.
 
-Classes, functions and constants
-================================
+Classes
+=======
 
-.. autoclass:: cbra.ext.google.GoogleEndpoint
-  :members: allowed_service_accounts
+.. autoclass:: PubsubMessage
+
+.. class:: GoogleEndpoint
 
   An implementation of :class:`~cbra.core.Endpoint`. This implementation
   is used to build endpoints that are invoked by Google services, such
@@ -24,6 +24,12 @@ Classes, functions and constants
   .. literalinclude:: ../../../../cbra/ext/google/eventarcendpoint.py
     :language: python
     :lines: 10-
+
+
+The following subclasses are implemented:
+
+.. autoclass:: EventarcEndpoint
+  :members: on_message
 
 
 Environment variables
@@ -64,6 +70,7 @@ from .eventarcendpoint import EventarcEndpoint
 from .googleendpoint import GoogleEndpoint
 from .googlepubsubtransport import GooglePubsubTransport
 from .googleserviceaccountprincipal import GoogleServiceAccountPrincipal
+from .pubsubmessage import PubsubMessage
 from .service import Service
 
 
@@ -72,5 +79,6 @@ __all__: list[str] = [
     'GoogleEndpoint',
     'GooglePubsubTransport',
     'GoogleServiceAccountPrincipal',
+    'PubsubMessage',
     'Service'
 ]
