@@ -22,8 +22,10 @@ class Subject(ISubject):
         self,
         *,
         id: str,
+        email: str | None,
         principal: IPrincipal
     ):
+        self.email = email
         self.sub = id
         self.principal = principal
 

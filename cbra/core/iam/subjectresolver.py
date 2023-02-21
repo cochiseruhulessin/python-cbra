@@ -49,6 +49,7 @@ class SubjectResolver(ISubjectResolver):
         principal: OIDCPrincipal
     ) -> ISubject:
         return Subject(
+            email=principal.email,
             id=principal.sub,
             principal=principal
         )
@@ -65,6 +66,7 @@ class SubjectResolver(ISubjectResolver):
         principal: RFC9068Principal
     ) -> ISubject:
         return Subject(
+            email=None,
             id=principal.sub,
             principal=principal
         )

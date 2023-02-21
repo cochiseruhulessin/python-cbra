@@ -14,6 +14,7 @@ from headless.core import httpx
 
 import cbra.core as cbra
 from cbra.ext.google import GoogleEndpoint
+from cbra.types import JSONWebTokenPrincipal
 
 
 class GoogleServiceEndpoint(GoogleEndpoint):
@@ -22,20 +23,24 @@ class GoogleServiceEndpoint(GoogleEndpoint):
         return self.principal.dict()
 
 
+@pytest.fixture
+def app() -> cbra.Application:
+    return cbra.Application()
+
 
 @pytest_asyncio.fixture # type: ignore
-async def client():
-    app = cbra.Application()
-    app.add(GoogleServiceEndpoint)
+async def client(app: cbra.Application):
     async with httpx.Client(base_url='http://cbra.ext.google', app=app) as client:
         yield client
 
 
 @pytest.mark.asyncio
 async def test_basic_oidc_authentication_is_refused_without_token(
+    app: cbra.Application,
     client: httpx.Client,
     google_id_token: str
 ):
+    app.add(GoogleServiceEndpoint)
     response = await client.get(url='/')
     assert response.status_code == 401
     pass
@@ -43,9 +48,12 @@ async def test_basic_oidc_authentication_is_refused_without_token(
 
 @pytest.mark.asyncio
 async def test_basic_oidc_authentication(
+    app: cbra.Application,
     client: httpx.Client,
     google_id_token: str
-):
+): 
+    claims: dict[str, Any] = JSONWebTokenPrincipal.parse_jwt(google_id_token)
+    app.add(GoogleServiceEndpoint.configure(allowed_service_accounts={claims['email']}))
     response = await client.get(
         url='/',
         headers={'Authorization': f'Bearer {google_id_token}'}
@@ -54,7 +62,22 @@ async def test_basic_oidc_authentication(
 
 
 @pytest.mark.asyncio
+async def test_basic_oidc_authentication_accepts_only_whitelisted(
+    app: cbra.Application,
+    client: httpx.Client,
+    google_id_token: str
+): 
+    app.add(GoogleServiceEndpoint.configure(allowed_service_accounts=set()))
+    response = await client.get(
+        url='/',
+        headers={'Authorization': f'Bearer {google_id_token}'}
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
 async def test_basic_oidc_authentication_accepts_only_google(
+    app: cbra.Application,
     client: httpx.Client,
     google_id_token: str
 ):

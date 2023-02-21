@@ -24,6 +24,7 @@ from .iprincipalintrospecter import IPrincipalIntrospecter
 from .isubject import ISubject
 from .isubjectresolver import ISubjectResolver
 from .jsonwebtoken import JSONWebToken
+from .jsonwebtokenprincipal import JSONWebTokenPrincipal
 from .mutablesignature import MutableSignature
 from .nullprincipal import NullPrincipal
 from .nullsubject import NullSubject
@@ -57,6 +58,7 @@ __all__: list[str] = [
     'ISubject',
     'ISubjectResolver',
     'JSONWebToken',
+    'JSONWebTokenPrincipal',
     'MutableSignature',
     'NotAuthorized',
     'NotFound',

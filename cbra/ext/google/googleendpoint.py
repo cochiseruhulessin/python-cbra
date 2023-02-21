@@ -6,6 +6,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from cbra.types import Forbidden
 from cbra.types import NullPrincipal
 from cbra.core import Endpoint
 
@@ -18,8 +19,21 @@ class GoogleEndpoint(Endpoint):
     """
     __abstract__: bool = True
     __module__: str = 'cbra.ext.google'
+    allowed_service_accounts: set[str] = set()
     principal: GoogleServiceAccountPrincipal | NullPrincipal # type: ignore
     require_authentication: bool = True
     trusted_providers: set[str] = {
         "https://accounts.google.com"
     }
+
+    async def authenticate(self) -> None:
+        await super().authenticate()
+        if not self.ctx.is_authenticated():
+            return
+        if self.ctx.subject.email not in self.allowed_service_accounts:
+            self.logger.critical(
+                'Google service endpoint was invoked with a disallowed '
+                'service account (email: %s)',
+                self.ctx.subject.email
+            )
+            raise Forbidden

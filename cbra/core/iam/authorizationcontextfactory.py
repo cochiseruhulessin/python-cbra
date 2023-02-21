@@ -7,6 +7,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import logging
+from typing import Any
 from typing import Awaitable
 
 import fastapi
@@ -51,7 +52,8 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         request: fastapi.Request,
         principal: IPrincipal,
         providers: set[str] | None = None,
-        subjects: set[str] | Awaitable[set[str]] | None  = None
+        subjects: set[str] | Awaitable[set[str]] | None  = None,
+        claims: dict[str, Any] | None = None
     ):
         remote_host = request.client.host if request.client else None
         subject = await principal.resolve(self.resolver.resolve)

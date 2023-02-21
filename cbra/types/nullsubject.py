@@ -17,6 +17,7 @@ class NullSubject(ISubject):
     and non-identified subject.
     """
     __module__: str = 'cbra.types'
+    email: None = None
     sub: None = None
 
     def is_authenticated(self) -> bool:
@@ -28,3 +29,6 @@ class NullSubject(ISubject):
         providers: set[str] | None = None
     ) -> None:
         return
+
+    def has_claim(self, name: str, value: Any) -> bool:
+        return False

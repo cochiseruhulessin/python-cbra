@@ -6,6 +6,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from typing import Any
 from typing import Awaitable
 
 import fastapi
@@ -23,7 +24,8 @@ class IAuthorizationContextFactory:
         request: fastapi.Request,
         principal: IPrincipal,
         providers: set[str] | None = None,
-        subjects: set[str] | Awaitable[set[str]] | None  = None
+        subjects: set[str] | Awaitable[set[str]] | None  = None,
+        claims: dict[str, Any] | None = None
     ) -> IAuthorizationContext:
         raise NotImplementedError
 

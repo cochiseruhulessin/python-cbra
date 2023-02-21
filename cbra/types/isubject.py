@@ -16,6 +16,7 @@ class ISubject:
     credential.
     """
     __module__: str = 'cbra.types'
+    email: str | None
     sub: Any
 
     def is_authenticated(self) -> bool:
@@ -27,4 +28,7 @@ class ISubject:
         providers: set[str] | None = None
     ) -> None:
         """Authenticate the subject."""
+        raise NotImplementedError
+
+    def has_claim(self, name: str, value: Any) -> bool:
         raise NotImplementedError

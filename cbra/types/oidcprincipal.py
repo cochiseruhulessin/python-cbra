@@ -27,6 +27,9 @@ class OIDCPrincipal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
     azp: str | None = None
     token: str
 
+    # Standard claims
+    email: str | None = None
+
     @classmethod
     def parse_scheme(
         cls,
