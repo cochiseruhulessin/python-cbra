@@ -22,14 +22,20 @@ class GoogleEndpoint(Endpoint):
     """
     __abstract__: bool = True
     __module__: str = 'cbra.ext.google'
+
+    #: The set of service account emails that may invoke this endpoint.
     allowed_service_accounts: set[str] = set()
-    if os.getenv('GOOGLE_SERVICE_ACCOUNT_EMAIL'):
-        allowed_service_accounts = {os.environ['GOOGLE_SERVICE_ACCOUNT_EMAIL']}
+
     principal: GoogleServiceAccountPrincipal | NullPrincipal # type: ignore
     require_authentication: bool = True
     trusted_providers: set[str] = {
         "https://accounts.google.com"
     }
+
+    def __init__(self):
+        super().__init__()
+        if os.getenv('GOOGLE_SERVICE_ACCOUNT_EMAIL'):
+            self.allowed_service_accounts.add(os.environ['GOOGLE_SERVICE_ACCOUNT_EMAIL'])
 
     async def authenticate(self) -> None:
         await super().authenticate()

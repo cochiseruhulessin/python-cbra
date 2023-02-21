@@ -3,13 +3,15 @@
 =======================
 All APIs and references
 =======================
-
-.. toctree::
-  :titlesonly:
-  :hidden:
-
-  environment-variables
-  available-settings
-
 This section contains references to the APIs exposed by the :mod:`cbra`
-framework and its development standards.
+framework and its development guidelines.
+
+Core concepts
+=============
+* :doc:`The CBRA settings module <available-settings>`
+* :doc:`Supported environment variables <environment-variables>`
+
+
+Cloud platform integrations
+===========================
+* :doc:`Google Cloud Platform <api/cbra.ext.google>`

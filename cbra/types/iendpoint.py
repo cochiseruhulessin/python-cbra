@@ -57,6 +57,9 @@ class IEndpoint:
 
     #: Indicates if all requests to the endpoint must be authenticated.
     require_authentication: bool = False
+    status_code: int = 200
+    summary: str | None = None
+    tags: list[str] = []
 
     @staticmethod
     def require_permission(name: str) -> Callable[..., Any]:

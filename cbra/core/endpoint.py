@@ -38,5 +38,8 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     @classmethod
     def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:
         kwargs.setdefault('path', '/')
+        kwargs.setdefault('status_code', cls.status_code)
+        kwargs.setdefault('summary', cls.summary)
+        kwargs.setdefault('tags', cls.tags)
         for handler in cls.handlers:
             handler.add_to_router(cls, router, **kwargs)

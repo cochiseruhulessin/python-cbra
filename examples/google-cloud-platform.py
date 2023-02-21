@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Cochise Ruhulessin
+# Copyright (C) 2022 Cochise Ruhulessin
 #
 # All rights reserved. No warranty, explicit or implicit, provided. In
 # no event shall the author(s) be liable for any claim or damages.
@@ -6,11 +6,12 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from typing import Literal
-
-from cbra.types import OIDCPrincipal
+from cbra.ext import google
 
 
-class GoogleServiceAccountPrincipal(OIDCPrincipal):
-    iss: Literal['https://accounts.google.com']
-    email: str
+app: google.Service = google.Service()
+
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run('__main__:app', reload=True)
