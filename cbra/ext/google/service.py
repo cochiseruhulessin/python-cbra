@@ -11,6 +11,8 @@ from typing import Any
 from cbra.core import Application
 from cbra.core.utils import parent_signature
 from .aortaendpoint import AortaEndpoint
+from .environ import GOOGLE_DATASTORE_NAMESPACE
+from .environ import GOOGLE_SERVICE_PROJECT
 
 
 class Service(Application):
@@ -19,4 +21,13 @@ class Service(Application):
     @parent_signature(Application.__init__)
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
+        if GOOGLE_SERVICE_PROJECT and GOOGLE_DATASTORE_NAMESPACE:
+            from google.cloud.datastore import Client
+            self.inject(
+                name='GoogleDatastoreClient',
+                value=Client(
+                    project=GOOGLE_SERVICE_PROJECT,
+                    namespace=GOOGLE_DATASTORE_NAMESPACE
+                )
+            )
         self.add(AortaEndpoint, path="/.well-known/aorta")

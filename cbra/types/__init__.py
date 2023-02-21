@@ -14,6 +14,7 @@ from .iauthorizationcontext import IAuthorizationContext
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
 from .icredential import ICredential
 from .icredentialverifier import ICredentialVerifier
+from .icursor import ICursor
 from .ideferred import IDeferred
 from .idependant import IDependant
 from .iendpoint import IEndpoint
@@ -46,6 +47,7 @@ __all__: list[str] = [
     'Forbidden',
     'ICredential',
     'ICredentialVerifier',
+    'ICursor',
     'IDependant',
     'IDeferred',
     'IAuthorizationContext',

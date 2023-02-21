@@ -57,6 +57,20 @@ The following user-defined environment variables are supported.
   account that represents the services' identity. It is also
   automatically accepted as a principal when invoking
   :class:`~cbra.ext.google.GoogleEndpoint` and its subclasses.
+
+.. envvar:: GOOGLE_SERVICE_PROJECT
+
+  The Google Cloud Platform project that is dedicated to the
+  *current* running application. This project is used to store
+  application-specific data with, for example, Datastore or
+  Secret Manager.
+
+
+.. env:: GOOGLE_DATASTORE_NAMESPACE
+
+  The Google Datastore namespace in which entities for this
+  application are persisted. Setting this variable is mandatory
+  when using :class:`~cbra.ext.google.DatastoreRepository`.
 """
 # Copyright (C) 2022 Cochise Ruhulessin
 #

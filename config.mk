@@ -34,15 +34,17 @@ OS_RELEASE_ID ?= debian
 OS_RELEASE_VERSION ?= 11
 export PYTHONPATH=$(PYTHONPATH):./examples/orderapp
 
+APP_SIGNING_KEY ?= local:///pki/sig.key?alg=EdDSA&curve=Ed448
+APP_ENCRYPTION_KEY ?= local:///pki/enc.key?kty=RSA&alg=RSA-OAEP-256
 ifdef CI_COMMIT_REF_NAME
 BRANCH_NAME=$(CI_COMMIT_REF_NAME)
 endif
 DOCS_BASE_PATH=python/cbra
 DOCS_DOMAIN=docs.cochise.io
 DOCS_GS_BUCKET=docs.cochise.io
+GOOGLE_DATASTORE_NAMESPACE=cbra.dev.cochise.io
+GOOGLE_SERVICE_PROJECT=unimatrixdev
 MINOR_VERSION=$(shell cut -d '.' -f 1,2 <<< "$$(cat VERSION)")
-APP_SIGNING_KEY ?= local:///pki/sig.key?alg=EdDSA&curve=Ed448
-APP_ENCRYPTION_KEY ?= local:///pki/enc.key?kty=RSA&alg=RSA-OAEP-256
 OAUTH_SERVER = https://oauth2.webidentityapis.com
 OAUTH_SERVICE_CLIENT = cbra
 export

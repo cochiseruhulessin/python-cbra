@@ -22,6 +22,7 @@
   "extras_require": {
     "all": [
       "aorta[all]>=2.19.0",
+      "google-cloud-datastore>=2.13.2",
       "gunicorn",
       "httpx",
       "jwcrypto",
@@ -31,7 +32,8 @@
     ],
     "google": [
       "aorta[google]>=2.19.0",
-      "ckms[google]>=0.59"
+      "ckms[google]>=0.59",
+      "google-cloud-datastore>=2.13.2"
     ],
     "gunicorn": [
       "gunicorn"

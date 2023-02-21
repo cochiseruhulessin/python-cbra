@@ -11,6 +11,9 @@ import pytest
 import google.oauth2.id_token
 import google.auth.transport.requests
 from google.auth.exceptions import DefaultCredentialsError
+from google.cloud.datastore import Client
+from cbra.ext.google.environ import GOOGLE_DATASTORE_NAMESPACE
+from cbra.ext.google.environ import GOOGLE_SERVICE_PROJECT
 
 
 @pytest.fixture(scope='session')
@@ -21,3 +24,13 @@ def google_id_token() -> str:
         return google.oauth2.id_token.fetch_id_token(request, audience) # type: ignore
     except DefaultCredentialsError:
         pytest.skip("Google default credentials not found")
+
+
+@pytest.fixture(scope='session')
+def client() -> Client:
+    if not GOOGLE_SERVICE_PROJECT or not GOOGLE_DATASTORE_NAMESPACE:
+        pytest.skip("Google not configure")
+    return Client(
+        project=GOOGLE_SERVICE_PROJECT,
+        namespace=GOOGLE_DATASTORE_NAMESPACE
+    )
