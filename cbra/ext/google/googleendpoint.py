@@ -6,6 +6,8 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import os
+
 from cbra.types import Forbidden
 from cbra.types import NullPrincipal
 from cbra.core import Endpoint
@@ -20,6 +22,8 @@ class GoogleEndpoint(Endpoint):
     __abstract__: bool = True
     __module__: str = 'cbra.ext.google'
     allowed_service_accounts: set[str] = set()
+    if os.getenv('GOOGLE_SERVICE_ACCOUNT_EMAIL'):
+        allowed_service_accounts = {os.environ['GOOGLE_SERVICE_ACCOUNT_EMAIL']}
     principal: GoogleServiceAccountPrincipal | NullPrincipal # type: ignore
     require_authentication: bool = True
     trusted_providers: set[str] = {
