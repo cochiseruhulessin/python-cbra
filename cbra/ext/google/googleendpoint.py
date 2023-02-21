@@ -17,7 +17,8 @@ from .googleserviceaccountprincipal import GoogleServiceAccountPrincipal
 
 class GoogleEndpoint(Endpoint):
     """A :class:`~cbra.core.Endpoint` implementation that is invoked
-    by Google.
+    by Google, for example by services such as Eventarc with Cloud Run,
+    Cloud Tasks or Pubsub.
     """
     __abstract__: bool = True
     __module__: str = 'cbra.ext.google'
