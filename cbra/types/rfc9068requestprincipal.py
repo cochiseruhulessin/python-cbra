@@ -10,25 +10,22 @@ from typing import Any
 
 from .icredential import ICredential
 from .httpheaderprincipal import HTTPHeaderPrincipal
-from .jsonwebtokenprincipal import JSONWebTokenPrincipal
 from .jsonwebtoken import JSONWebToken
+from .jsonwebtokenprincipal import JSONWebTokenPrincipal
 
 
-class OIDCPrincipal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
+class RFC9068RequestPrincipal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
     iss: str
-    sub: str
-    exp: int
     aud: str| list[str]
+    exp: int
+    sub: str
+    client_id: str
     iat: int
+    jti: str
     auth_time: int | None = None
-    nonce: str | None = None
-    acr: str = "0"
-    amr: list[str] = []
-    azp: str | None = None
-    token: str
-
-    # Standard claims
-    email: str | None = None
+    acr: str | None = None
+    amr: list[str] | None = []
+    scope: str | None = None
 
     @classmethod
     def parse_scheme(
@@ -39,7 +36,7 @@ class OIDCPrincipal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
     ) -> dict[str, Any]:
         if scheme != 'bearer':
             raise ValueError('this principal requires the Bearer scheme')
-        values.update(cls.parse_jwt(value, accept={"application/jwt", "jwt"}))
+        values.update(cls.parse_jwt(value, accept={"application/at+jwt", "at+jwt"}))
         return values
 
     def get_credential(self) -> ICredential | None:

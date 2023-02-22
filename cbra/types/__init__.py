@@ -21,8 +21,8 @@ from .iendpoint import IEndpoint
 from .ihashable import IHashable
 from .integerpathparameter import IntegerPathParameter
 from .iroutable import IRoutable
-from .iprincipal import IPrincipal
-from .iprincipalintrospecter import IPrincipalIntrospecter
+from .irequestprincipal import IRequestPrincipal
+from .irequestprincipalintrospecter import IRequestPrincipalIntrospecter
 from .isessionfactory import ISessionFactory
 from .isessionmanager import ISessionManager
 from .isubject import ISubject
@@ -30,19 +30,19 @@ from .isubjectresolver import ISubjectResolver
 from .jsonwebtoken import JSONWebToken
 from .jsonwebtokenprincipal import JSONWebTokenPrincipal
 from .mutablesignature import MutableSignature
-from .nullprincipal import NullPrincipal
+from .nullrequestprincipal import NullRequestPrincipal
 from .nullsubject import NullSubject
 from .nullsubjectesolver import NullSubjectResolver
 from .notauthorized import NotAuthorized
 from .notfound import NotFound
 from .operation import Operation
-from .oidcprincipal import OIDCPrincipal
+from .oidcrequestprincipal import OIDCRequestPrincipal
 from .pathparameter import PathParameter
-from .principal import Principal
-from .rfc9068principal import RFC9068Principal
+from .requestprincipal import RequestPrincipal
+from .rfc9068requestprincipal import RFC9068RequestPrincipal
 from .session import Session
 from .sessionmodel import SessionModel
-from .sessionprincipal import SessionPrincipal
+from .sessionrequestprincipal import SessionRequestPrincipal
 from .stringpathparameter import StringPathParameter
 from .unauthenticatedauthorizationcontext import UnauthenticatedAuthorizationContext
 from .uuidpathparameter import UUIDPathParameter
@@ -62,8 +62,8 @@ __all__: list[str] = [
     'IEndpoint',
     'IntegerPathParameter',
     'IHashable',
-    'IPrincipal',
-    'IPrincipalIntrospecter',
+    'IRequestPrincipalIntrospecter',
+    'IRequestPrincipal',
     'IRoutable',
     'ISessionFactory',
     'ISessionManager',
@@ -74,18 +74,18 @@ __all__: list[str] = [
     'MutableSignature',
     'NotAuthorized',
     'NotFound',
-    'NullPrincipal',
+    'NullRequestPrincipal',
     'NullSubject',
     'NullSubjectResolver',
     'Operation',
-    'OIDCPrincipal',
+    'OIDCRequestPrincipal',
     'PathParameter',
     'PolymorphicIterable',
-    'Principal',
-    'RFC9068Principal',
+    'RequestPrincipal',
+    'RFC9068RequestPrincipal',
     'Session',
     'SessionModel',
-    'SessionPrincipal',
+    'SessionRequestPrincipal',
     'StringPathParameter',
     'UnauthenticatedAuthorizationContext',
     'UUIDPathParameter',

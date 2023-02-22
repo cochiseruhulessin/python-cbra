@@ -9,7 +9,7 @@
 
 
 class ICredential:
-    """Used in conjunction with a :class:`IPrincipal` implementation
+    """Used in conjunction with a :class:`IRequestPrincipal` implementation
     to establish the identity of a subject.
     """
     __module__: str = 'cbra.types'

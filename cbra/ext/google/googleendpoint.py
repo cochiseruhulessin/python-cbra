@@ -9,7 +9,7 @@
 import os
 
 from cbra.types import Forbidden
-from cbra.types import NullPrincipal
+from cbra.types import NullRequestPrincipal
 from cbra.core import Endpoint
 
 from .googleserviceaccountprincipal import GoogleServiceAccountPrincipal
@@ -26,7 +26,7 @@ class GoogleEndpoint(Endpoint):
     #: The set of service account emails that may invoke this endpoint.
     allowed_service_accounts: set[str] = set()
 
-    principal: GoogleServiceAccountPrincipal | NullPrincipal # type: ignore
+    principal: GoogleServiceAccountPrincipal | NullRequestPrincipal # type: ignore
     require_authentication: bool = True
     trusted_providers: set[str] = {
         "https://accounts.google.com"

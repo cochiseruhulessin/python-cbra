@@ -11,11 +11,11 @@ from typing import Any
 import pydantic
 from fastapi.security.utils import get_authorization_scheme_param
 
-from .iprincipal import IPrincipal
+from .irequestprincipal import IRequestPrincipal
 
 
-class HTTPHeaderPrincipal(IPrincipal, pydantic.BaseModel):
-    """A :class:`IPrincipal` that is provided through the
+class HTTPHeaderPrincipal(IRequestPrincipal, pydantic.BaseModel):
+    """A :class:`IRequestPrincipal` that is provided through the
     ``Authorization`` HTTP request header.
     """
     @pydantic.root_validator(pre=True)

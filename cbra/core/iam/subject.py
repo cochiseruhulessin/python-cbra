@@ -9,13 +9,13 @@
 from typing import Any
 
 from cbra.types import ICredentialVerifier
-from cbra.types import IPrincipal
+from cbra.types import IRequestPrincipal
 from cbra.types import ISubject
 
 
 class Subject(ISubject):
     sub: str
-    principal: IPrincipal
+    principal: IRequestPrincipal
     authenticated: bool = False
 
     def __init__(
@@ -23,7 +23,7 @@ class Subject(ISubject):
         *,
         id: str,
         email: str | None,
-        principal: IPrincipal
+        principal: IRequestPrincipal
     ):
         self.email = email
         self.sub = id

@@ -13,12 +13,12 @@ import fastapi
 import pydantic
 
 from .icredential import ICredential
-from .iprincipal import IPrincipal
+from .irequestprincipal import IRequestPrincipal
 from .sessionclaims import SessionClaims
 from .sessionmodel import SessionModel
 
 
-class SessionPrincipal(IPrincipal, ICredential, SessionModel):
+class SessionRequestPrincipal(IRequestPrincipal, ICredential, SessionModel):
     claims: SessionClaims
 
     @pydantic.root_validator(pre=True)

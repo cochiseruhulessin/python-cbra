@@ -19,7 +19,7 @@ import fastapi
 
 from .abortable import Abortable
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
-from .iprincipal import IPrincipal
+from .irequestprincipal import IRequestPrincipal
 from .iroutable import IRoutable
 from .isessionmanager import ISessionManager
 from .forbidden import Forbidden
@@ -55,7 +55,7 @@ class IEndpoint:
     #: setting.
     trusted_providers: set[str] = set()
 
-    principal: IPrincipal
+    principal: IRequestPrincipal
     request: fastapi.Request
     response: fastapi.Response
     router: fastapi.APIRouter

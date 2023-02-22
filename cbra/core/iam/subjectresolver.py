@@ -9,14 +9,14 @@
 import functools
 import warnings
 
-from cbra.types import IPrincipal
+from cbra.types import IRequestPrincipal
 from cbra.types import ISubject
 from cbra.types import ISubjectResolver
-from cbra.types import NullPrincipal
+from cbra.types import NullRequestPrincipal
 from cbra.types import NullSubject
-from cbra.types import OIDCPrincipal
-from cbra.types import RFC9068Principal
-from cbra.types import SessionPrincipal
+from cbra.types import OIDCRequestPrincipal
+from cbra.types import RFC9068RequestPrincipal
+from cbra.types import SessionRequestPrincipal
 from .subject import Subject
 
 
@@ -24,7 +24,7 @@ class SubjectResolver(ISubjectResolver):
     __module__: str = 'cbra.core.iam'
 
     @functools.singledispatchmethod # type: ignore
-    async def resolve(self, principal: IPrincipal) -> ISubject:
+    async def resolve(self, principal: IRequestPrincipal) -> ISubject:
         warnings.warn(
             f'{type(self).__name__} does not know how to resolve '
             f'{type(principal).__name__}, returning NullSubject.'
@@ -34,20 +34,20 @@ class SubjectResolver(ISubjectResolver):
     @resolve.register
     async def resolve_null(
         self,
-        principal: NullPrincipal
+        principal: NullRequestPrincipal
     ) -> ISubject:
         return NullSubject()
 
     @resolve.register
     async def _resolve_oidc(
         self,
-        principal: OIDCPrincipal
+        principal: OIDCRequestPrincipal
     ) -> ISubject:
         return await self.resolve_oidc(principal)
 
     async def resolve_oidc(
         self,
-        principal: OIDCPrincipal
+        principal: OIDCRequestPrincipal
     ) -> ISubject:
         return Subject(
             email=principal.email,
@@ -58,13 +58,13 @@ class SubjectResolver(ISubjectResolver):
     @resolve.register
     async def _resolve_rfc9068(
         self,
-        principal: RFC9068Principal
+        principal: RFC9068RequestPrincipal
     ) -> ISubject:
         return await self.resolve_rfc9068(principal)
 
     async def resolve_rfc9068(
         self,
-        principal: RFC9068Principal
+        principal: RFC9068RequestPrincipal
     ) -> ISubject:
         return Subject(
             email=None,
@@ -75,13 +75,13 @@ class SubjectResolver(ISubjectResolver):
     @resolve.register
     async def _resolve_session(
         self,
-        principal: SessionPrincipal
+        principal: SessionRequestPrincipal
     ) -> ISubject:
         return await self.resolve_session(principal)
 
     async def resolve_session(
         self,
-        principal: SessionPrincipal
+        principal: SessionRequestPrincipal
     ) -> ISubject:
         assert principal.claims is not None
         assert principal.claims.sub is not None

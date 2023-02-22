@@ -8,9 +8,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Literal
 
-from cbra.types import OIDCPrincipal
+from cbra.types import OIDCRequestPrincipal
 
 
-class GoogleServiceAccountPrincipal(OIDCPrincipal):
+class GoogleServiceAccountPrincipal(OIDCRequestPrincipal):
     iss: Literal['https://accounts.google.com']
     email: str

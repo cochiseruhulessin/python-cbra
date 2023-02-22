@@ -15,7 +15,7 @@ import fastapi
 from cbra.types import Forbidden
 from cbra.types import IAuthorizationContextFactory
 from cbra.types import IDependant
-from cbra.types import IPrincipal
+from cbra.types import IRequestPrincipal
 from cbra.types import ISubjectResolver
 from cbra.types import UnauthenticatedAuthorizationContext
 from ..ioc import instance
@@ -50,7 +50,7 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
     async def authenticate(
         self,
         request: fastapi.Request,
-        principal: IPrincipal,
+        principal: IRequestPrincipal,
         providers: set[str] | None = None,
         subjects: set[str] | Awaitable[set[str]] | None  = None,
         claims: dict[str, Any] | None = None
@@ -90,7 +90,7 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         self,
         request: fastapi.Request,
         subject: Subject,
-        principal: IPrincipal
+        principal: IRequestPrincipal
     ) -> bool:
         return all([
             subject.is_authenticated(),
@@ -101,7 +101,7 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         self,
         request: fastapi.Request,
         subject: Subject,
-        principal: IPrincipal
+        principal: IRequestPrincipal
     ) -> bool:
         """Hook to determine if the request is succesfully authenticated.
         The default implementation always returns ``True``, but may be
@@ -109,7 +109,7 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         """
         return True
 
-    def validate_audience(self, principal: IPrincipal, allow: set[str]):
+    def validate_audience(self, principal: IRequestPrincipal, allow: set[str]):
         if not principal.validate_audience(allow):
             self.logger.critical(
                 'Received a principal/credential combination with an '

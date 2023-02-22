@@ -13,14 +13,14 @@ from typing import TypeVar
 import fastapi
 
 from .icredential import ICredential
-from .iprincipalintrospecter import IPrincipalIntrospecter
+from .irequestprincipalintrospecter import IRequestPrincipalIntrospecter
 from .isubject import ISubject
 
 
-P = TypeVar('P', bound='IPrincipal')
+P = TypeVar('P', bound='IRequestPrincipal')
 
 
-class IPrincipal:
+class IRequestPrincipal:
     __module__: str = 'cbra.types'
 
     @classmethod
@@ -78,7 +78,7 @@ class IPrincipal:
 
     async def introspect(
         self: P,
-        introspecter: IPrincipalIntrospecter
+        introspecter: IRequestPrincipalIntrospecter
     ) -> P:
         """Introspect an opaque principal such as a generic bearer token
         or a session identifier.

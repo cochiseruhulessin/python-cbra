@@ -35,7 +35,7 @@ Practically speaking, *authentication* may then be defined as follows:
 A **Subject** uses a combination of a **Principal** and a **Credential** to
 assert its identity. These concepts are reflected in the abstract interfaces
 specified by :mod:`cbra.types`, being :class:`~cbra.types.ICredential`,
-:class:`~cbra.types.IPrincipal` and :class:`~cbra.types.ISubject`. The default
+:class:`~cbra.types.IRequestPrincipal` and :class:`~cbra.types.ISubject`. The default
 implementation in :mod:`cbra.core.iam` supports RFC 9068 and
 OpenID Connect ID Tokens to authenticate requests, but can quite easily
 extended to support other mechanisms, like your own bearer token.

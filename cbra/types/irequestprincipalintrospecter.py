@@ -6,15 +6,14 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import pydantic
-
-from .iprincipal import IPrincipal
+from typing import Any
 
 
-class NullPrincipal(IPrincipal, pydantic.BaseModel):
+class IRequestPrincipalIntrospecter:
+    """Knows how to obtain details about a specific :class:`IRequestPrincipal`
+    implementation.
+    """
+    __module__: str
 
-    def is_anonymous(self) -> bool:
-        return True
-
-    def has_audience(self) -> bool:
-        return False
+    async def introspect(self, principal: Any) -> Any:
+        raise NotImplementedError

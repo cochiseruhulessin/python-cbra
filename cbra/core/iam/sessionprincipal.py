@@ -11,12 +11,12 @@ from typing import Any
 import pydantic
 from fastapi.security.utils import get_authorization_scheme_param
 
-from cbra.types import IPrincipal
+from cbra.types import IRequestPrincipal
 from ..conf import settings
 
 
-class SessionPrincipal(IPrincipal, pydantic.BaseModel):
-    """A :class:`IPrincipal` that is provided through a cookie.
+class SessionRequestPrincipal(IRequestPrincipal, pydantic.BaseModel):
+    """A :class:`IRequestPrincipal` that is provided through a cookie.
     """
     @pydantic.root_validator(pre=True)
     def preprocess(

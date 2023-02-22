@@ -12,8 +12,8 @@ import types
 from typing import Any
 
 from cbra.types import IEndpoint
-from cbra.types import IPrincipal
-from cbra.types import Principal
+from cbra.types import IRequestPrincipal
+from cbra.types import RequestPrincipal
 from .requesthandler import RequestHandler
 from .optionsrequesthandler import OptionsRequestHandler
 
@@ -66,14 +66,14 @@ class EndpointType(type):
                 namespace['allowed_http_methods'].append('OPTIONS')
 
         # Create a concrete Principal subclass. This is to allow
-        # thing like principal: RFC9068Principal | OIDCPrincipal.
+        # thing like principal: RFC9068RequestPrincipal | OIDCRequestPrincipal.
         if annotations.get('principal'):
-            EndpointPrincipal: type[Principal]
-            principal: types.UnionType | IPrincipal = annotations['principal']
+            EndpointPrincipal: type[RequestPrincipal]
+            principal: types.UnionType | IRequestPrincipal = annotations['principal']
             if isinstance(principal, types.UnionType):
                 EndpointPrincipal = annotations['principal'] = type(
                     f'{name}Principal',
-                    (Principal,),
+                    (RequestPrincipal,),
                     {'__annotations__': {'__root__': principal}}
                 )
                 namespace['principal'] = EndpointPrincipal.depends()

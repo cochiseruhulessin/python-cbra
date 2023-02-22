@@ -12,7 +12,7 @@ from typing import Awaitable
 import fastapi
 
 from .iauthorizationcontext import IAuthorizationContext
-from .iprincipal import IPrincipal
+from .irequestprincipal import IRequestPrincipal
 
 
 class IAuthorizationContextFactory:
@@ -22,12 +22,12 @@ class IAuthorizationContextFactory:
     async def authenticate(
         self,
         request: fastapi.Request,
-        principal: IPrincipal,
+        principal: IRequestPrincipal,
         providers: set[str] | None = None,
         subjects: set[str] | Awaitable[set[str]] | None  = None,
         claims: dict[str, Any] | None = None
     ) -> IAuthorizationContext:
         raise NotImplementedError
 
-    def validate_audience(self, principal: IPrincipal, allow: set[str]) -> None:
+    def validate_audience(self, principal: IRequestPrincipal, allow: set[str]) -> None:
         raise NotImplementedError

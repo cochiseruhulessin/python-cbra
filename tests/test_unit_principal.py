@@ -8,10 +8,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import pytest
 
-from cbra.types import NullPrincipal
-from cbra.types import Principal
-from cbra.types import OIDCPrincipal
-from cbra.types import RFC9068Principal
+from cbra.types import NullRequestPrincipal
+from cbra.types import RequestPrincipal
+from cbra.types import OIDCRequestPrincipal
+from cbra.types import RFC9068RequestPrincipal
 
 
 def test_parse_bearer_oidc():
@@ -24,10 +24,10 @@ def test_parse_bearer_oidc():
         'MifQ.R0KqeCRFNc4dRJCf6lBkH6AviYNa-t36xHkQD1vkG5eUaFJyB2OUjvQVS'
         'jP-QfHmoRUj5yV8zaBOpz1rl6fXHw'
     )
-    principal = Principal.parse_obj({
+    principal = RequestPrincipal.parse_obj({
         'headers': {'Authorization': f'Bearer {token}'}
     })
-    assert isinstance(principal.__root__, OIDCPrincipal)
+    assert isinstance(principal.__root__, OIDCRequestPrincipal)
 
 
 def test_parse_bearer_rfc9068():
@@ -41,10 +41,10 @@ def test_parse_bearer_rfc9068():
         'GHASGuTkOb2hnI9lDBZHNlFl-Tsl7fXeHbyc7IMvw1o7h4MeEFEubVPeTq-FHZzo'
         'aX0Wea6QWQ'
     )
-    principal = Principal.parse_obj({
+    principal = RequestPrincipal.parse_obj({
         'headers': {'Authorization': f'Bearer {token}'}
     })
-    assert isinstance(principal.__root__, RFC9068Principal)
+    assert isinstance(principal.__root__, RFC9068RequestPrincipal)
 
 
 
@@ -61,16 +61,16 @@ def test_parse_bearer_rfc9068():
     'Bearer foo',
     'Foo',
 ])
-def test_parse_bearer_malformed_becomes_nullprincipal(value: str):
+def test_parse_bearer_malformed_becomes_nullrequestprincipal(value: str):
     token = (
     )
-    principal = Principal.parse_obj({
+    principal = RequestPrincipal.parse_obj({
         'headers': {'Authorization': token}
     })
-    assert isinstance(principal.__root__, NullPrincipal)
+    assert isinstance(principal.__root__, NullRequestPrincipal)
 
 
-def test_bearer_untyped_jwt_is_nullprincipal():
+def test_bearer_untyped_jwt_is_nullrequestprincipal():
     token = (
         'eyJhbGciOiJFUzI1NiIsImtpZCI6IjgwNDFiM2VmYWRlYmVlMjNhOWY5MTZhZjU0'
         'MDBhYmJlIn0.eyJpc3MiOiJodHRwczovL2FjY291bnRzLndlYmlkZW50aXR5Lmlk'
@@ -80,13 +80,13 @@ def test_bearer_untyped_jwt_is_nullprincipal():
         'Y2xpZW50X2lkIjoiY2xpZW50X2lkIn0.P54GYkelEWnQGWgg8qP_CMZaOI_rlWEP'
         'wU1dh5WkZRL5Dx4jly94_wO6HTW4If1VzPKWFJiDNPNUqDr650iq_Q'
     )
-    principal = Principal.parse_obj({
+    principal = RequestPrincipal.parse_obj({
         'headers': {'Authorization': f'Bearer {token}'}
     })
-    assert isinstance(principal.__root__, NullPrincipal)
+    assert isinstance(principal.__root__, NullRequestPrincipal)
 
 
-def test_bearer_unaccepted_jwt_is_nullprincipal():
+def test_bearer_unaccepted_jwt_is_nullrequestprincipal():
     token = (
         'eyJhbGciOiJFUzI1NiIsInR5cCI6ImZvbyIsImtpZCI6IjgwNDFiM2VmYWRlYmVl'
         'MjNhOWY5MTZhZjU0MDBhYmJlIn0.eyJpc3MiOiJodHRwczovL2FjY291bnRzLndl'
@@ -97,7 +97,7 @@ def test_bearer_unaccepted_jwt_is_nullprincipal():
         'IdEJVwwGCHO_DS5JZlqs_8ynA8srOjY00hYB2cWLeJ6RIwcNRE2IPsSkwbmP6kGD'
         '6ym0wA'
     )
-    principal = Principal.parse_obj({
+    principal = RequestPrincipal.parse_obj({
         'headers': {'Authorization': f'Bearer {token}'}
     })
-    assert isinstance(principal.__root__, NullPrincipal)
+    assert isinstance(principal.__root__, NullRequestPrincipal)

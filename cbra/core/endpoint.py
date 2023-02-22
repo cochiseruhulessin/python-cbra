@@ -12,7 +12,7 @@ import fastapi
 
 from cbra.types import IAuthorizationContext
 from cbra.types import IEndpoint
-from cbra.types import Principal
+from cbra.types import RequestPrincipal
 from .iam import AuthorizationContextFactory
 from .endpointtype import EndpointType
 from .sessions import RequestSession
@@ -23,7 +23,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     __module__: str = 'cbra'
     allowed_http_methods: list[str]
     include_in_schema: bool = True
-    principal: Principal = Principal.depends()
+    principal: RequestPrincipal = RequestPrincipal.depends()
     ctx: IAuthorizationContext
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
     session: RequestSession = RequestSession.depends()

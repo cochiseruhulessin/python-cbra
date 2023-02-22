@@ -15,15 +15,15 @@ from headless.ext.oauth2 import Client
 from cbra.types import ICredential
 from cbra.types import ICredentialVerifier
 from cbra.types import IDependant
-from cbra.types import OIDCPrincipal
-from cbra.types import RFC9068Principal
-from cbra.types import SessionPrincipal
+from cbra.types import OIDCRequestPrincipal
+from cbra.types import RFC9068RequestPrincipal
+from cbra.types import SessionRequestPrincipal
 from cbra.types import JSONWebToken
 from ..ioc.config import TRUSTED_AUTHORIZATION_SERVERS
 
 
 class AuthenticationService(
-    ICredentialVerifier[RFC9068Principal|OIDCPrincipal],
+    ICredentialVerifier[RFC9068RequestPrincipal|OIDCRequestPrincipal],
     IDependant
 ):
     __module__: str = 'cbra.core.iam'
@@ -38,7 +38,7 @@ class AuthenticationService(
     @functools.singledispatchmethod # type: ignore
     async def verify(
         self,
-        principal: OIDCPrincipal | RFC9068Principal | SessionPrincipal,
+        principal: OIDCRequestPrincipal | RFC9068RequestPrincipal | SessionRequestPrincipal,
         credential: ICredential | None,
         providers: set[str] | None = None
     ) -> bool:
@@ -53,7 +53,7 @@ class AuthenticationService(
     @verify.register
     async def verify_oidc(
         self,
-        principal: OIDCPrincipal,
+        principal: OIDCRequestPrincipal,
         credential: JSONWebToken,
         providers: set[str] | None = None
     ) -> bool:
@@ -61,7 +61,7 @@ class AuthenticationService(
 
     async def verify_oauth_jwt(
         self,
-        principal: OIDCPrincipal | RFC9068Principal,
+        principal: OIDCRequestPrincipal | RFC9068RequestPrincipal,
         credential: JSONWebToken,
         providers: set[str] | None = None
     ) -> bool:
@@ -74,7 +74,7 @@ class AuthenticationService(
     @verify.register
     async def verify_session(
         self,
-        principal: SessionPrincipal,
+        principal: SessionRequestPrincipal,
         *args: Any,
         **kwargs: Any
     ) -> bool:
