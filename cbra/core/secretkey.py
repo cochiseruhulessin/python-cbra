@@ -40,8 +40,10 @@ class SecretKey(IDependant):
     @classmethod
     async def setup(
         cls: type[T],
-        secret_key: str | None = settings.SECRET_KEY
+        secret_key: str | None = None
     ) -> T:
+        if secret_key is None:
+            secret_key = settings.SECRET_KEY
         if secret_key and re.match(r'^(local|azure|google)\:', secret_key):
             raise NotImplementedError
         self = cls()

@@ -243,6 +243,7 @@ class Settings:
 
     __defaults__: dict[str, Any] = {
         'OAUTH2_CLIENTS': [],
+        'SECRET_KEY': bytes.hex(os.urandom(32)),
         'SESSION_COOKIE_AGE': 1209600,
         'SESSION_COOKIE_DOMAIN': None,
         'SESSION_COOKIE_HTTPONLY': True,
