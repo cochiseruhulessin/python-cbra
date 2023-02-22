@@ -17,6 +17,10 @@
 
 # -- Project information -----------------------------------------------------
 import os
+import sys
+from os.path import abspath
+from os.path import dirname
+from os.path import join
 
 project = 'CBRA'
 copyright = '2021-2023, Cochise Ruhulessin'
@@ -25,6 +29,10 @@ author = 'Cochise Ruhulessin'
 # The full version, including alpha/beta/rc tags
 release = os.getenv('SEMVER_RELEASE') or '0.0.1'
 
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.append(abspath(join(dirname(__file__), "_ext")))
 
 # -- General configuration ---------------------------------------------------
 
@@ -32,6 +40,7 @@ release = os.getenv('SEMVER_RELEASE') or '0.0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'djangodocs',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',

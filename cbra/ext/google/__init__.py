@@ -66,7 +66,7 @@ The following user-defined environment variables are supported.
   Secret Manager.
 
 
-.. env:: GOOGLE_DATASTORE_NAMESPACE
+.. envvar:: GOOGLE_DATASTORE_NAMESPACE
 
   The Google Datastore namespace in which entities for this
   application are persisted. Setting this variable is mandatory
