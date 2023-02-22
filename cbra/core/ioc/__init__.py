@@ -19,7 +19,7 @@ from .setting_ import Setting
 
 
 __all__: list[str] = [
-    'clone',
+    'override',
     'inject',
     'instance',
     'setting',
@@ -29,7 +29,7 @@ __all__: list[str] = [
 ]
 
 
-def clone(*args: Any, **kwargs: Any) -> Callable[..., Any]:
+def override(*args: Any, **kwargs: Any) -> Callable[..., Any]:
     """Injects the dependencies of the given callable."""
     return InheritDependenciesDecorator(*args, **kwargs)
 

@@ -40,6 +40,24 @@ An example is shown below:
     ]
 
 
+.. setting: OAUTH2_CLIENTS
+
+``OAUTH2_CLIENTS``
+==================
+The list of OAuth 2.x/OpenID Connect clients that are used by the
+application. Example:
+
+.. code:: python
+
+    OAUTH2_CLIENTS = [
+        {
+            'issuer: 'https://accounts.google.com',
+            'client_id': 'myclient',
+            'client_secret': 'mysecret'
+        }
+    ]
+
+
 .. setting: SECRET_KEY
 
 ``SECRET_KEY``
@@ -203,34 +221,45 @@ The list of trusted OAuth 2.x/OpenID Connect authorization servers.
 The :mod:`cbra.core.iam` framework will reject bearer tokens that
 are not issued by these servers.
 """
+import importlib
 import types
+import os
 from typing import cast
 from typing import Any
 
-from unimatrix.conf import settings as user # type: ignore
-
 
 class Settings:
-    user: types.ModuleType
-    SESSION_COOKIE_AGE: int = 1209600
-    SESSION_COOKIE_DOMAIN: str | None = None
-    SESSION_COOKIE_HTTPONLY: bool = True
-    SESSION_COOKIE_NAME: str = 'session'
-    SESSION_COOKIE_PATH: str = '/'
-    SESSION_COOKIE_SAMESITE: bool | str | None = 'Lax'
-    SESSION_COOKIE_SECURE: bool = True
-    TRUSTED_AUTHORIZATION_SERVERS: list[str] = []
+    user: types.ModuleType | None = None
+    OAUTH2_CLIENTS: list[Any]
+    SESSION_COOKIE_AGE: int
+    SESSION_COOKIE_DOMAIN: str | None
+    SESSION_COOKIE_HTTPONLY: bool
+    SESSION_COOKIE_NAME: str
+    SESSION_COOKIE_PATH: str
+    SESSION_COOKIE_SAMESITE: bool | str | None
+    SESSION_COOKIE_SECURE: bool
+    TRUSTED_AUTHORIZATION_SERVERS: list[str]
 
-    def __init__(self, user: types.ModuleType):
-        self.user = user
+    __defaults__: dict[str, Any] = {
+        'OAUTH2_CLIENTS': [],
+        'SESSION_COOKIE_AGE': 1209600,
+        'SESSION_COOKIE_DOMAIN': None,
+        'SESSION_COOKIE_HTTPONLY': True,
+        'SESSION_COOKIE_NAME': 'session',
+        'SESSION_COOKIE_PATH': '/',
+        'SESSION_COOKIE_SAMESITE': 'Lax',
+        'SESSION_COOKIE_SECURE': True,
+        'TRUSTED_AUTHORIZATION_SERVERS': []
+    }
 
     def __getattr__(self, __name: str) -> Any:
+        self.user = importlib.import_module(os.environ['PYTHON_SETTINGS_MODULE'])
         if str.upper(__name) != __name:
             raise AttributeError(f'No such setting: {__name}')
         try:
-            return getattr(self.user, __name, None) or self.__dict__[__name]
+            return getattr(self.user, __name, self.__defaults__[__name])
         except (AttributeError, KeyError):
             raise AttributeError(f'No such setting: {__name}')
 
 
-settings: Settings = cast(Any, Settings(user)) # type: ignore
+settings: Settings = cast(Any, Settings()) # type: ignore

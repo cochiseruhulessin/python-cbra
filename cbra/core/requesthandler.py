@@ -26,6 +26,7 @@ from cbra.types import IEndpoint
 from cbra.types import IntegerPathParameter
 from cbra.types import MutableSignature
 from cbra.types import PathParameter
+from cbra.types import StringPathParameter
 from cbra.types import UUIDPathParameter
 
 
@@ -54,6 +55,7 @@ class RequestHandler(Generic[E]):
     _method: str
     _path_types: dict[type, type[PathParameter]] = {
         int: IntegerPathParameter,
+        str: StringPathParameter,
         uuid.UUID: UUIDPathParameter
     }
     _signature: inspect.Signature | None
