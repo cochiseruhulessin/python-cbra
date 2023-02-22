@@ -72,6 +72,11 @@ def setup(app):
         rolename="lookup",
         indextemplate="pair: %s; field lookup type",
     )
+    app.add_crossref_type(
+        directivename="claim",
+        rolename="claim",
+        indextemplate="pair: %s; claim",
+    )
     app.add_object_type(
         directivename="django-admin",
         rolename="djadmin",
