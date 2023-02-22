@@ -25,8 +25,18 @@ The email address of an entity.
 
 Indicates if a trusted party verified an email address.
 
+
+``iat``
+=======
+.. claim:: iat
+
+Describes when an entity was created.
+
+
 ``iss``
 =======
+.. claim:: iss
+
 Identifies a claim issuer, such as an OAuth 2.x or OpenID Connect authorization
 server.
 

@@ -62,6 +62,139 @@ cryptographic signing, and should be set to either:
     execution vulnerabilities
 
 
+.. setting:: SESSION_COOKIE_AGE
+
+``SESSION_COOKIE_AGE``
+======================
+
+Default: ``1209600`` (2 weeks, in seconds)
+
+The age of session cookies, in seconds.
+
+
+.. setting:: SESSION_COOKIE_DOMAIN
+
+``SESSION_COOKIE_DOMAIN``
+=========================
+
+Default: ``None``
+
+The domain to use for session cookies. Set this to a string such as
+``"example.com"`` for cross-domain cookies, or use ``None`` for a standard
+domain cookie.
+
+Be cautious when updating this setting on a production site. If you update
+this setting to enable cross-domain cookies on a site that previously used
+standard domain cookies, existing user cookies will be set to the old
+domain. This may result in them being unable to log in as long as these cookies
+persist.
+
+
+.. setting:: SESSION_COOKIE_HTTPONLY
+
+``SESSION_COOKIE_HTTPONLY``
+===========================
+
+Default: ``True``
+
+Whether to use ``HttpOnly`` flag on the session cookie. If this is set to
+``True``, client-side JavaScript will not be able to access the session
+cookie.
+
+HttpOnly_ is a flag included in a Set-Cookie HTTP response header. It's part of
+the :rfc:`6265#section-4.1.2.6` standard for cookies and can be a useful way to
+mitigate the risk of a client-side script accessing the protected cookie data.
+
+This makes it less trivial for an attacker to escalate a cross-site scripting
+vulnerability into full hijacking of a user's session. There aren't many good
+reasons for turning this off. Your code shouldn't read session cookies from
+JavaScript.
+
+.. _HttpOnly: https://owasp.org/www-community/HttpOnly
+
+
+.. setting:: SESSION_COOKIE_NAME
+
+``SESSION_COOKIE_NAME``
+=======================
+
+Default: ``'session'``
+
+The name of the cookie to use for sessions. This can be whatever you want
+(as long as it's different from the other cookie names in your application).
+
+
+.. setting:: SESSION_COOKIE_PATH
+
+``SESSION_COOKIE_PATH``
+=======================
+
+Default: ``'/'``
+
+The path set on the session cookie. This should either match the URL path of your
+installation or be parent of that path.
+
+This is useful if you have multiple instances running under the same
+hostname. They can use different cookie paths, and each instance will only see
+its own session cookie.
+
+
+.. setting:: SESSION_COOKIE_SAMESITE
+
+``SESSION_COOKIE_SAMESITE``
+===========================
+
+Default: ``'Lax'``
+
+The value of the `SameSite`_ flag on the session cookie. This flag prevents the
+cookie from being sent in cross-site requests thus preventing CSRF attacks and
+making some methods of stealing session cookie impossible.
+
+Possible values for the setting are:
+
+* ``'Strict'``: prevents the cookie from being sent by the browser to the
+  target site in all cross-site browsing context, even when following a regular
+  link.
+
+  For example, for a GitHub-like website this would mean that if a logged-in
+  user follows a link to a private GitHub project posted on a corporate
+  discussion forum or email, GitHub will not receive the session cookie and the
+  user won't be able to access the project. A bank website, however, most
+  likely doesn't want to allow any transactional pages to be linked from
+  external sites so the ``'Strict'`` flag would be appropriate.
+
+* ``'Lax'`` (default): provides a balance between security and usability for
+  websites that want to maintain user's logged-in session after the user
+  arrives from an external link.
+
+  In the GitHub scenario, the session cookie would be allowed when following a
+  regular link from an external website and be blocked in CSRF-prone request
+  methods (e.g. ``POST``).
+
+* ``'None'`` (string): the session cookie will be sent with all same-site and
+  cross-site requests.
+
+* ``False``: disables the flag.
+
+.. _SameSite: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
+
+
+.. setting:: SESSION_COOKIE_SECURE
+
+``SESSION_COOKIE_SECURE``
+=========================
+
+Default: ``True``
+
+Whether to use a secure cookie for the session cookie. If this is set to
+``True``, the cookie will be marked as "secure", which means browsers may
+ensure that the cookie is only sent under an HTTPS connection.
+
+Leaving this setting off isn't a good idea because an attacker could capture an
+unencrypted session cookie with a packet sniffer and use the cookie to hijack
+the user's session.
+
+
 .. setting:: TRUSTED_AUTHORIZATION_SERVERS
 
 ``TRUSTED_AUTHORIZATION_SERVERS``
@@ -70,10 +203,34 @@ The list of trusted OAuth 2.x/OpenID Connect authorization servers.
 The :mod:`cbra.core.iam` framework will reject bearer tokens that
 are not issued by these servers.
 """
+import types
 from typing import cast
 from typing import Any
 
-from unimatrix.conf import settings # type: ignore
+from unimatrix.conf import settings as user # type: ignore
 
 
-settings: Any = cast(Any, settings)
+class Settings:
+    user: types.ModuleType
+    SESSION_COOKIE_AGE: int = 1209600
+    SESSION_COOKIE_DOMAIN: str | None = None
+    SESSION_COOKIE_HTTPONLY: bool = True
+    SESSION_COOKIE_NAME: str = 'session'
+    SESSION_COOKIE_PATH: str = '/'
+    SESSION_COOKIE_SAMESITE: bool | str | None = 'Lax'
+    SESSION_COOKIE_SECURE: bool = True
+    TRUSTED_AUTHORIZATION_SERVERS: list[str] = []
+
+    def __init__(self, user: types.ModuleType):
+        self.user = user
+
+    def __getattr__(self, __name: str) -> Any:
+        if str.upper(__name) != __name:
+            raise AttributeError(f'No such setting: {__name}')
+        try:
+            return getattr(self.user, __name, None) or self.__dict__[__name]
+        except (AttributeError, KeyError):
+            raise AttributeError(f'No such setting: {__name}')
+
+
+settings: Settings = cast(Any, Settings(user)) # type: ignore

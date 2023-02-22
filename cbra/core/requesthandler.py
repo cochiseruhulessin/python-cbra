@@ -333,7 +333,7 @@ class RequestHandler(Generic[E]):
         self,
         endpoint: IEndpoint,
         response: fastapi.Response | pydantic.BaseModel | None
-    ) -> fastapi.Response | pydantic.BaseModel | None:
+    ) -> fastapi.Response:
         if response is None:
             response = fastapi.Response(status_code=204)
         elif isinstance(response, pydantic.BaseModel):
@@ -385,7 +385,14 @@ class RequestHandler(Generic[E]):
         # to invoke the handler.
         endpoint: IEndpoint = self._class(**init)
         endpoint.__dict__.update(attrs)
-        return await self.process_response(
+        response = await self.process_response(
             endpoint,
             await endpoint.run_handler(self._func, **kwargs)
         )
+
+        # Persist the session only if there is a successful response.
+        if (200 <= response.status_code < 300) \
+        and endpoint.session.is_dirty():
+            await endpoint.session.add_to_response(response)
+
+        return response

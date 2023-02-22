@@ -33,6 +33,7 @@ class IPrincipal:
         return cls.parse_obj({ # type: ignore
             'request': request,
             'headers': request.headers,
+            'cookies': request.cookies,
             'content': (
                 await request.body()
                 if 'Content-Type' in request.headers

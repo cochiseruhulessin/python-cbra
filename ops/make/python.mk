@@ -39,7 +39,7 @@ cmd.lint.line-length ?= $(PYTHON) -m pylint --disable=all --enable=C0301 $(pytho
 cmd.lint.trailing-whitespace ?= $(PYTHON) -m pylint --disable=all --enable=C0303 $(python.lint.packages)
 cmd.localinstall ?= $(PIP_INSTALL) --target $(PYTHON_RUNTIME_LIBS) .[all]
 cmd.publish = $(cmd.twine) upload dist/*
-cmd.runtests = $(PYTHON) -m pytest -v
+cmd.runtests = $(PYTHON) -m pytest -v --log-level=DEBUG
 cmd.runtests += --cov-report term-missing:skip-covered
 cmd.runtests += --cov=$(or $(cmd.test.cover-package), $(PYTHON_PKG_NAME))
 cmd.runtests += --cov-append

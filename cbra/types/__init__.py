@@ -18,10 +18,13 @@ from .icursor import ICursor
 from .ideferred import IDeferred
 from .idependant import IDependant
 from .iendpoint import IEndpoint
+from .ihashable import IHashable
 from .integerpathparameter import IntegerPathParameter
 from .iroutable import IRoutable
 from .iprincipal import IPrincipal
 from .iprincipalintrospecter import IPrincipalIntrospecter
+from .isessionfactory import ISessionFactory
+from .isessionmanager import ISessionManager
 from .isubject import ISubject
 from .isubjectresolver import ISubjectResolver
 from .jsonwebtoken import JSONWebToken
@@ -37,6 +40,7 @@ from .oidcprincipal import OIDCPrincipal
 from .pathparameter import PathParameter
 from .principal import Principal
 from .rfc9068principal import RFC9068Principal
+from .session import Session
 from .unauthenticatedauthorizationcontext import UnauthenticatedAuthorizationContext
 from .uuidpathparameter import UUIDPathParameter
 
@@ -54,9 +58,12 @@ __all__: list[str] = [
     'IAuthorizationContextFactory',
     'IEndpoint',
     'IntegerPathParameter',
+    'IHashable',
     'IPrincipal',
     'IPrincipalIntrospecter',
     'IRoutable',
+    'ISessionFactory',
+    'ISessionManager',
     'ISubject',
     'ISubjectResolver',
     'JSONWebToken',
@@ -73,6 +80,7 @@ __all__: list[str] = [
     'PolymorphicIterable',
     'Principal',
     'RFC9068Principal',
+    'Session',
     'UnauthenticatedAuthorizationContext',
     'UUIDPathParameter',
 ]

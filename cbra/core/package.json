@@ -7,7 +7,7 @@
   "install_requires": [
     "ckms>=0.60.0",
     "fastapi",
-    "headless>=1.9.2",
+    "headless>=1.9.4",
     "inflect",
     "gunicorn",
     "pydantic",

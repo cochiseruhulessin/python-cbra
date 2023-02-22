@@ -10,6 +10,7 @@ import fastapi
 import uvicorn
 
 import cbra.core as cbra
+from cbra.core.sessions import RequestSession
 
 
 app: cbra.Application = cbra.Application()
@@ -18,10 +19,13 @@ app: cbra.Application = cbra.Application()
 @app.get('/')
 async def f(
     request: fastapi.Request,
-    key: cbra.SecretKey = cbra.ApplicationSecretKey
+    response: fastapi.Response,
+    session: RequestSession = fastapi.Depends()
 ):
-    print(key)
-    print(await key.hmac('foo'))
+    await session
+    session.set('sub', 'foo')
+    await session.add_to_response(response)
+    return session.data.dict()
 
 if __name__ == '__main__':
     uvicorn.run('__main__:app', reload=True) # type: ignore

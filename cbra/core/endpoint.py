@@ -15,6 +15,7 @@ from cbra.types import IEndpoint
 from cbra.types import Principal
 from .iam import AuthorizationContextFactory
 from .endpointtype import EndpointType
+from .sessions import RequestSession
 
 
 class Endpoint(IEndpoint, metaclass=EndpointType):
@@ -25,6 +26,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     principal: Principal = Principal.depends()
     ctx: IAuthorizationContext
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
+    session: RequestSession = RequestSession.depends()
 
     def __init__(self, **kwargs: Any):
         """Constructor. Called in the router; can contain helpful extra

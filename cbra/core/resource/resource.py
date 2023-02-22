@@ -13,6 +13,7 @@ import fastapi
 from cbra.types import Principal
 from cbra.types import IRoutable
 from ..iam import AuthorizationContextFactory
+from ..sessions import RequestSession
 from .iresource import IResource
 from .resourcemodel import ResourceModel
 from .resourcetype import ResourceType
@@ -25,6 +26,7 @@ class Resource(IResource, metaclass=ResourceType):
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
     model: type[ResourceModel]
     principal: Principal = Principal.depends()
+    session: RequestSession = RequestSession.depends()
 
     def __init_subclass__(cls, model: type[ResourceModel]):
         cls.model = model

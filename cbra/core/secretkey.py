@@ -14,6 +14,7 @@ from typing import TypeVar
 from ckms.core import parse_spec
 from ckms.core import Keychain
 from ckms.utils import b64encode_str
+from ckms.utils import b64decode
 
 from cbra.types import IDependant
 from .ioc import setting
@@ -24,7 +25,8 @@ SIGNING_KEY_NAME: str = 'sig'
 
 class SecretKey(IDependant):
     """The key used by the application to perform various signing operations,
-    such as signing a session cookie.
+    such as signing a session cookie. Only one instance per application should
+    be created, since it used a single instance of its key.
     """
     __module__: str = 'cbra.core.params'
     signing_key_name: str = SIGNING_KEY_NAME
@@ -60,11 +62,16 @@ class SecretKey(IDependant):
     def __init__(self):
         self.keychain = SecretKey.keychain
 
-    async def hmac(self, value: bytes | str, encoding: str = 'utf-8') -> str:
-        """Compute a HMAC of the given value."""
+    async def sign(self, value: bytes | str, encoding: str = 'utf-8') -> str:
+        """Sign the given value."""
         if isinstance(value, str):
             value = str.encode(value, encoding=encoding)
         return b64encode_str(await self.signing_key.sign(value))
+
+    async def verify(self, value: bytes | str, message: bytes) -> bool:
+        if isinstance(value, str):
+            value = b64decode(value)
+        return await self.signing_key.verify(value, message)
 
     @classmethod
     def __inject__(cls: type[T]) -> Callable[..., Awaitable[T] | T]:

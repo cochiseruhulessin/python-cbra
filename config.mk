@@ -30,6 +30,7 @@ build.debian.packages += libxml2-dev libxslt-dev
 GOOGLE_LB_NAME = docs-cochise-io
 GOOGLE_LB_PROJECT = cochise-mye9xe
 LOG_LEVEL=DEBUG
+LOGLEVEL=DEBUG
 OS_RELEASE_ID ?= debian
 OS_RELEASE_VERSION ?= 11
 export PYTHONPATH=$(PYTHONPATH):./examples/orderapp

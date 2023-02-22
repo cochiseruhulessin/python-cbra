@@ -19,6 +19,7 @@ from .abortable import Abortable
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
 from .iprincipal import IPrincipal
 from .iroutable import IRoutable
+from .isessionmanager import ISessionManager
 from .forbidden import Forbidden
 from .notauthorized import NotAuthorized
 
@@ -33,6 +34,7 @@ class IEndpoint:
     handlers: list[IRoutable]
     include_in_schema: bool = True
     logger: logging.Logger = logging.getLogger('uvicorn')
+    session: ISessionManager[Any]
 
     #: The set of permissions supported by this endpoint. These must be
     #: defined beforehand to limit the number of calls to remote IAM
