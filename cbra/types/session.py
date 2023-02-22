@@ -15,20 +15,15 @@ from typing import Awaitable
 from typing import Callable
 from typing import TypeVar
 
-import pydantic
-
 from .isessiondata import ISessionData
 from .sessionclaims import SessionClaims
+from .sessionmodel import SessionModel
 
 
 T = TypeVar('T', bound='Session')
 
 
-class Session(pydantic.BaseModel, ISessionData[SessionClaims]):
-    id: str
-    iat: int
-    claims: SessionClaims | None = None
-    hmac: str | None = None
+class Session(SessionModel, ISessionData[SessionClaims]): # type: ignore
 
     @classmethod
     def new(cls: type[T]) -> T:
@@ -37,15 +32,6 @@ class Session(pydantic.BaseModel, ISessionData[SessionClaims]):
             id=secrets.token_urlsafe(48),
             iat=int(now.timestamp())
         )
-
-    @classmethod
-    def parse_cookie(cls: type[T], value: str | None) -> T | None:
-        if value is None: return None
-        try:
-            serialized = base64.urlsafe_b64decode(str.encode(value, 'ascii'))
-            return cls.parse_raw(serialized)
-        except Exception:
-            return None
 
     def as_cookie(self) -> str:
         assert self.hmac is not None
@@ -66,6 +52,17 @@ class Session(pydantic.BaseModel, ISessionData[SessionClaims]):
             self.hmac = None
             setattr(self.claims, key, value)
         return modified
+
+    def update(self, claims: dict[str, Any] | SessionClaims) -> None:
+        if isinstance(claims, dict):
+            claims = SessionClaims.parse_obj(claims)
+        if self.claims is None:
+            self.claims = SessionClaims()
+        self.claims = SessionClaims.parse_obj({
+            **self.claims.dict(),
+            **claims.dict()
+        })
+        self.hmac = None
 
     async def sign(
         self,

@@ -8,6 +8,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import functools
 import warnings
+from typing import Any
 
 from headless.ext.oauth2 import Client
 
@@ -16,6 +17,7 @@ from cbra.types import ICredentialVerifier
 from cbra.types import IDependant
 from cbra.types import OIDCPrincipal
 from cbra.types import RFC9068Principal
+from cbra.types import SessionPrincipal
 from cbra.types import JSONWebToken
 from ..ioc.config import TRUSTED_AUTHORIZATION_SERVERS
 
@@ -36,7 +38,7 @@ class AuthenticationService(
     @functools.singledispatchmethod # type: ignore
     async def verify(
         self,
-        principal: OIDCPrincipal | RFC9068Principal,
+        principal: OIDCPrincipal | RFC9068Principal | SessionPrincipal,
         credential: ICredential | None,
         providers: set[str] | None = None
     ) -> bool:
@@ -68,3 +70,18 @@ class AuthenticationService(
             return False
         async with Client(issuer=principal.iss) as client:
             return await client.verify(str(credential))
+
+    @verify.register
+    async def verify_session(
+        self,
+        principal: SessionPrincipal,
+        *args: Any,
+        **kwargs: Any
+    ) -> bool:
+        """A session principal **with clains** is always verified
+        because signature validation happens when parsing it
+        from the cookie (default implementation). Other implementations
+        should likewise assume that if a session object is passed to
+        this method, it has been priorly verified.
+        """
+        return bool(principal.claims)

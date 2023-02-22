@@ -16,6 +16,7 @@ from cbra.types import NullPrincipal
 from cbra.types import NullSubject
 from cbra.types import OIDCPrincipal
 from cbra.types import RFC9068Principal
+from cbra.types import SessionPrincipal
 from .subject import Subject
 
 
@@ -68,5 +69,24 @@ class SubjectResolver(ISubjectResolver):
         return Subject(
             email=None,
             id=principal.sub,
+            principal=principal
+        )
+
+    @resolve.register
+    async def _resolve_session(
+        self,
+        principal: SessionPrincipal
+    ) -> ISubject:
+        return await self.resolve_session(principal)
+
+    async def resolve_session(
+        self,
+        principal: SessionPrincipal
+    ) -> ISubject:
+        assert principal.claims is not None
+        assert principal.claims.sub is not None
+        return Subject(
+            id=principal.claims.sub,
+            email=principal.claims.email,
             principal=principal
         )

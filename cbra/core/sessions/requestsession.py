@@ -41,9 +41,20 @@ class RequestSession(IDeferred, IDependant, ISessionFactory[Session], ISessionMa
 
     async def add_to_response(self, response: fastapi.Response) -> None:
         await self.data.sign(self.key.sign)
+        if settings.SESSION_COOKIE_SAMESITE is False:
+            samesite = None
+        else:
+            samesite = settings.SESSION_COOKIE_SAMESITE
+        assert samesite is None or isinstance(samesite, str) # nosec
         response.set_cookie(
             key=settings.SESSION_COOKIE_NAME,
-            value=self.data.as_cookie()
+            value=self.data.as_cookie(),
+            domain=settings.SESSION_COOKIE_DOMAIN,
+            max_age=settings.SESSION_COOKIE_AGE,
+            httponly=settings.SESSION_COOKIE_HTTPONLY,
+            secure=settings.SESSION_COOKIE_SECURE,
+            path=settings.SESSION_COOKIE_PATH,
+            samesite=samesite # type: ignore
         )
 
     async def clear(self) -> None:

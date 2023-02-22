@@ -6,6 +6,9 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from typing import Callable
+from typing import TypeVar
+
 from pydantic import Field
 
 from .application import Application
@@ -24,8 +27,11 @@ from .resource import Update
 from .secretkey import SecretKey
 
 
+T = TypeVar('T')
+
 
 __all__: list[str] = [
+    'describe',
     'inject',
     'instance',
     'ioc',
@@ -49,3 +55,22 @@ __all__: list[str] = [
 inject = ioc.inject
 instance = ioc.instance
 permission = Endpoint.require_permission
+
+
+class describe:
+    status_code: int = 200
+
+    def __init__(
+        self,
+        status_code: int = 200
+    ) -> None:
+        self.status_code = status_code
+
+    def __call__(
+        self,
+        func: Callable[..., T]
+    ) -> Callable[..., T]:
+        if not hasattr(func, 'params'):
+            func.params = {} # type: ignore
+        func.params.update(self.__dict__) # type: ignore
+        return func

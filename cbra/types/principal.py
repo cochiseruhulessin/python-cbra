@@ -18,6 +18,7 @@ from .isubject import ISubject
 from .nullprincipal import NullPrincipal
 from .oidcprincipal import OIDCPrincipal
 from .rfc9068principal import RFC9068Principal
+from .sessionprincipal import SessionPrincipal
 
 
 class Principal(IPrincipal, pydantic.BaseModel):
@@ -25,6 +26,7 @@ class Principal(IPrincipal, pydantic.BaseModel):
     __root__: Union[
         RFC9068Principal,
         OIDCPrincipal,
+        SessionPrincipal,
         NullPrincipal
     ]
 

@@ -16,8 +16,8 @@ from ckms.core import Keychain
 from ckms.utils import b64encode_str
 from ckms.utils import b64decode
 
+from cbra.core.conf import settings
 from cbra.types import IDependant
-from .ioc import setting
 
 T = TypeVar('T', bound='SecretKey')
 SIGNING_KEY_NAME: str = 'sig'
@@ -40,7 +40,7 @@ class SecretKey(IDependant):
     @classmethod
     async def setup(
         cls: type[T],
-        secret_key: str | None = setting('SECRET_KEY', default='')
+        secret_key: str | None = settings.SECRET_KEY
     ) -> T:
         if secret_key and re.match(r'^(local|azure|google)\:', secret_key):
             raise NotImplementedError

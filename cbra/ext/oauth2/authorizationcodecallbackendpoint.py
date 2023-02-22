@@ -19,6 +19,7 @@ from headless.ext import oauth2
 import cbra.core as cbra
 from cbra.core.conf import settings
 from .types import RedirectParameters
+from .types import ResponseValidationFailure
 
 
 class AuthorizationCodeCallbackEndpoint(cbra.Endpoint):
@@ -26,6 +27,10 @@ class AuthorizationCodeCallbackEndpoint(cbra.Endpoint):
     authorization server.
     """
     __module__: str = 'cbra.ext.oauth2'
+    name: str = 'oauth2.callback'
+    nonce_cookie_name: str = 'oidc.nonce'
+    redirect_cookie_name: str = 'oauth2.redirect-uri'
+    state_cookie_name: str = 'oauth2.state'
     status_code: int = 303
     summary: str = 'Redirection Endpoint'
     tags: list[str] = ['OAuth 2.x/OpenID Connect']
@@ -33,6 +38,38 @@ class AuthorizationCodeCallbackEndpoint(cbra.Endpoint):
     async def get(
         self,
         client_id: str,
+        state: str | None = fastapi.Cookie(
+            default=None,
+            title='State',
+            alias='oauth2.state',
+            description=(
+                'The state that was sent with the authorization request. '
+                'If provided, then it must match the `state` query '
+                'parameter.'
+            )
+        ),
+        redirect_uri: str | None = fastapi.Cookie(
+            default=None,
+            title='Redirect URI',
+            alias='oauth2.redirect-uri',
+            description=(
+                'The `redirect_uri` parameter from the initial authorization '
+                'request. This value is required if the server does not have '
+                'other mechanisms to determine the original redirect URI.'
+            )
+        ),
+        nonce: str | None = fastapi.Cookie(
+            default=None,
+            title='Nonce',
+            alias='oidc.nonce',
+            description=(
+                'The state that was sent with the authorization request. '
+                'If provided, then it must match the `nonce` claim '
+                'in the ID token. When used with a token endpoint response '
+                'that does not supply an ID token, this parameter is '
+                'ignored.'
+            )
+        ),
         params: RedirectParameters = RedirectParameters.depends()
     ):
         client = await self.get_client(client_id)
@@ -46,16 +83,45 @@ class AuthorizationCodeCallbackEndpoint(cbra.Endpoint):
                 redirect_uri=(
                     f'{self.request.url.scheme}://'
                     f'{self.request.url.netloc}{self.request.url.path}'
-                )
+                ),
+                state=state
             )
+            await client.verify_response(at)
+            if at.id_token and not await client.verify_oidc(at.id_token, nonce=nonce):
+                raise ResponseValidationFailure("Invalid OIDC token in response.")
             await self._on_success(client, at)
+
+        self.delete_cookie(self.nonce_cookie_name)
+        self.delete_cookie(self.redirect_cookie_name)
+        self.delete_cookie(self.state_cookie_name)
+        return fastapi.responses.RedirectResponse(
+            status_code=303,
+            url=redirect_uri or '/'
+        )
 
     async def _on_success(
         self,
         client: oauth2.Client,
-        at: oauth2.TokenResponse
+        at: oauth2.TokenResponse,
     ) -> None:
-        raise NotImplementedError(at)
+        id_token = None
+        if at.id_token is not None:
+            id_token = oauth2.OIDCToken.parse_jwt(
+                token=at.id_token,
+                email_verified=client.trust_email
+            )
+        await self.on_success(client, at.access_token, id_token=id_token)
+
+    async def on_success(
+        self,
+        client: oauth2.Client,
+        access_token: oauth2.BearerTokenCredential,
+        id_token: oauth2.OIDCToken | None = None
+    ) -> None:
+        """Obtained when a valid response with a valid, usable token was
+        received from the authorization server.
+        """
+        raise NotImplementedError
 
     async def get_client(self, client_id: str) -> oauth2.Client | None:
         """Return a preconfigured OAuth 2.x/OpenID Connect client,

@@ -6,18 +6,17 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from typing import Any
+import fastapi
 
-import pydantic
-from headless.ext import oauth2
+from cbra.types import Abortable
 
 
-class JARMAuthorizeResponse(pydantic.BaseModel):
-    jwt: str
+class ResponseValidationFailure(Abortable):
+    status_code: int = 403
+    reason: str
 
-    async def obtain(
-        self,
-        client: oauth2.Client,
-        **kwargs: Any
-    ) -> oauth2.TokenResponse:
-        raise NotImplementedError
+    def __init__(self, reason: str):
+        self.reason = reason
+
+    async def as_response(self) -> fastapi.Response:
+        return fastapi.responses.PlainTextResponse(content=self.reason)

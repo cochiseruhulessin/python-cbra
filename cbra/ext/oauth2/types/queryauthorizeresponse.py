@@ -11,6 +11,8 @@ from typing import Any
 import pydantic
 from headless.ext import oauth2
 
+from .responsevalidationfailure import ResponseValidationFailure
+
 
 class QueryAuthorizeResponse(pydantic.BaseModel):
     code: str
@@ -19,8 +21,13 @@ class QueryAuthorizeResponse(pydantic.BaseModel):
     async def obtain(
         self,
         client: oauth2.Client,
+        state: str | None,
         **kwargs: Any
     ) -> oauth2.TokenResponse:
+        if state != self.state:
+            raise ResponseValidationFailure(
+                "The state parameters do not match."
+            )
         return await client.token(
             oauth2.AuthorizationEndpointResponse.parse_obj(self.dict()).__root__,
             **kwargs

@@ -80,6 +80,10 @@ class RequestHandler(Generic[E]):
         assert self._signature is not None
         return self._signature
 
+    @property # type: ignore
+    def __doc__(self) -> str | None:
+        return self._func.__doc__
+
     def __init__(
         self,
         name: str,
@@ -290,12 +294,14 @@ class RequestHandler(Generic[E]):
                 'response_model': None,
                 'status_code': 204
             })
+        kwargs.setdefault('name', cls.name)
+        kwargs.update(getattr(self._func, 'params', {}))
         router.add_api_route(
             endpoint=self,
             methods=[self.method],
             include_in_schema=self._class.include_in_schema\
                 and self.include_in_schema,
-            **kwargs
+            **kwargs,
         )
 
     def can_inject(self, p: Parameter | Any, where: str) -> bool:
@@ -393,8 +399,14 @@ class RequestHandler(Generic[E]):
         )
 
         # Persist the session only if there is a successful response.
-        if (200 <= response.status_code < 300) \
+        if (200 <= response.status_code < 400) \
         and endpoint.session.is_dirty():
             await endpoint.session.add_to_response(response)
+
+        # Copy the headers from the endpoint response.
+        response.raw_headers = [
+            *response.raw_headers,
+            *endpoint.response.raw_headers
+        ]
 
         return response

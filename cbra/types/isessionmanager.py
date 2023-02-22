@@ -6,6 +6,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import copy
 from typing import Any
 from typing import Generic
 from typing import TypeVar
@@ -26,13 +27,18 @@ class ISessionManager(Generic[M]):
 
     @property
     def claims(self) -> SessionClaims:
-        return self.data.claims
+        # Ensure that the user does not circumvent the setter.
+        return copy.deepcopy(self.data.claims or SessionClaims())
 
     def get(self, key: str) -> Any:
         return self.data.get(key)
 
     def set(self, key: str, value: Any) -> None:
         self.dirty = self.data.set(key, value)
+
+    def update(self, claims: dict[str, Any]) -> None:
+        self.dirty = True
+        self.data.update(claims)
 
     def is_dirty(self) -> bool:
         return self.dirty

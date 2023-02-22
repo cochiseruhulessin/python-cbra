@@ -41,6 +41,8 @@ from .pathparameter import PathParameter
 from .principal import Principal
 from .rfc9068principal import RFC9068Principal
 from .session import Session
+from .sessionmodel import SessionModel
+from .sessionprincipal import SessionPrincipal
 from .stringpathparameter import StringPathParameter
 from .unauthenticatedauthorizationcontext import UnauthenticatedAuthorizationContext
 from .uuidpathparameter import UUIDPathParameter
@@ -82,6 +84,8 @@ __all__: list[str] = [
     'Principal',
     'RFC9068Principal',
     'Session',
+    'SessionModel',
+    'SessionPrincipal',
     'StringPathParameter',
     'UnauthenticatedAuthorizationContext',
     'UUIDPathParameter',

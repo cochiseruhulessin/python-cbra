@@ -39,6 +39,9 @@ class ISessionData(Generic[C], IHashable):
         """
         raise NotImplementedError
 
+    def update(self, claims: dict[str, Any]) -> None:
+        raise NotImplementedError
+
     async def sign(
         self,
         sign: Callable[[bytes], Awaitable[str]]

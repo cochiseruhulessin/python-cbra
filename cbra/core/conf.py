@@ -231,6 +231,7 @@ from typing import Any
 class Settings:
     user: types.ModuleType | None = None
     OAUTH2_CLIENTS: list[Any]
+    SECRET_KEY: str
     SESSION_COOKIE_AGE: int
     SESSION_COOKIE_DOMAIN: str | None
     SESSION_COOKIE_HTTPONLY: bool
@@ -253,13 +254,18 @@ class Settings:
     }
 
     def __getattr__(self, __name: str) -> Any:
-        self.user = importlib.import_module(os.environ['PYTHON_SETTINGS_MODULE'])
+        try:
+            self.user = importlib.import_module(os.environ['PYTHON_SETTINGS_MODULE'])
+        except (ImportError, KeyError):
+            self.user = None
         if str.upper(__name) != __name:
             raise AttributeError(f'No such setting: {__name}')
         try:
-            return getattr(self.user, __name, self.__defaults__[__name])
-        except (AttributeError, KeyError):
-            raise AttributeError(f'No such setting: {__name}')
+            return getattr(self.user, __name)
+        except AttributeError:
+            if __name not in self.__defaults__:
+                raise AttributeError(f'No such setting: {__name}')
+            return self.__defaults__[__name]
 
 
 settings: Settings = cast(Any, Settings()) # type: ignore

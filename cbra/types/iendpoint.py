@@ -8,9 +8,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import functools
 import logging
+from datetime import datetime
 from typing import Any
 from typing import Awaitable
 from typing import Callable
+from typing import Literal
 from typing import TypeVar
 
 import fastapi
@@ -33,6 +35,7 @@ class IEndpoint:
     context_factory: IAuthorizationContextFactory
     handlers: list[IRoutable]
     include_in_schema: bool = True
+    name: str | None = None
     logger: logging.Logger = logging.getLogger('uvicorn')
     session: ISessionManager[Any]
 
@@ -128,3 +131,30 @@ class IEndpoint:
     def has_permission(self, name: str) -> bool:
         """Return a boolean if the request has the given permission."""
         return self.ctx.has_permission(name)
+
+    def set_cookie(
+        self,
+        key: str,
+        value: str = "",
+        max_age: int | None = None,
+        expires: datetime | str| int | None = None,
+        path: str = "/",
+        domain: str | None = None,
+        secure: bool = False,
+        httponly: bool = False,
+        samesite: Literal["lax", "strict", "none"] | None = "lax",
+    ) -> None:
+        self.response.set_cookie(
+            key=key,
+            value=value,
+            max_age=max_age,
+            expires=expires,
+            path=path,
+            domain=domain,
+            secure=secure,
+            httponly=httponly,
+            samesite=samesite
+        )
+
+    def delete_cookie(self, key: str) -> None:
+        return self.set_cookie(key, expires=0, max_age=0)

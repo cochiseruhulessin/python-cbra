@@ -13,3 +13,7 @@ class ICredential:
     to establish the identity of a subject.
     """
     __module__: str = 'cbra.types'
+
+    def is_verified(self) -> bool:
+        """Some credentials are verified simply by existing."""
+        return False
