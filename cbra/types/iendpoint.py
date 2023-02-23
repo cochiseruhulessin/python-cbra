@@ -156,5 +156,5 @@ class IEndpoint:
             samesite=samesite
         )
 
-    def delete_cookie(self, key: str) -> None:
-        return self.set_cookie(key, expires=0, max_age=0)
+    def delete_cookie(self, key: str, path: str = "/") -> None:
+        return self.set_cookie(key, expires=0, max_age=0, path=path)
