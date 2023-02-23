@@ -52,8 +52,22 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         url = request.url
         allow = {
             f'{url.scheme}://{url.netloc}',
-            f'{url.scheme}://{url.netloc}{settings.ASGI_ROOT_PATH or ""}{url.path}'
+            str(url)
         }
+
+        # If the ASGI_ROOT_PATH setting is defined, then we have a problem
+        # with Eventarc and Cloud Scheduler, which use the URL without
+        # the prefix. For now the solution is to also allow a URL with
+        # the ASGI_ROOT_PATH stripped from the path, but its quite a
+        # hack and must be fixed (TODO). Also we must validate that
+        # the path starts with a slash somewhere else.
+        if settings.ASGI_ROOT_PATH:
+            if not str.startswith(settings.ASGI_ROOT_PATH, '/'):
+                raise ValueError('ASGI_ROOT_PATH must begin with a slash.')
+            if str.endswith(settings.ASGI_ROOT_PATH, '/'):
+                raise ValueError('ASGI_ROOT_PATH must not end with a slash.')
+            path = str.lstrip(url.path, settings.ASGI_ROOT_PATH)
+            allow.add(f'{url.scheme}://{url.netloc}{path}')
         return allow
 
     async def authenticate(
