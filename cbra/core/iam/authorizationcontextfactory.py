@@ -67,6 +67,8 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
             if str.endswith(settings.ASGI_ROOT_PATH, '/'):
                 raise ValueError('ASGI_ROOT_PATH must not end with a slash.')
             path = str.lstrip(url.path, settings.ASGI_ROOT_PATH)
+            if not str.startswith(path, '/'):
+                path = f'/{path}'
             allow.add(f'{url.scheme}://{url.netloc}{path}')
         return allow
 

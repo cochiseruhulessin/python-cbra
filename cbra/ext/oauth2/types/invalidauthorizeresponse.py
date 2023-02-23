@@ -6,19 +6,17 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from typing import Any
+import fastapi
 
-import pydantic
-from headless.ext import oauth2
-
-from .invalidauthorizeresponse import InvalidAuthorizeResponse
+from cbra.types import Abortable
 
 
-class UnsupportedAuthorizationResponse(pydantic.BaseModel):
+class InvalidAuthorizeResponse(Abortable):
+    status_code: int = 400
+    reason: str = (
+        "The authorization server returned an unsupported or "
+        "unrecognized response."
+    )
 
-    async def obtain(
-        self,
-        client: oauth2.Client,
-        **kwargs: Any
-    ) -> oauth2.TokenResponse:
-        raise InvalidAuthorizeResponse
+    async def as_response(self) -> fastapi.Response:
+        return fastapi.responses.PlainTextResponse(content=self.reason)
