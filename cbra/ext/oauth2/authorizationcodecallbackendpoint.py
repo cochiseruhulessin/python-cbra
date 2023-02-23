@@ -91,6 +91,7 @@ class AuthorizationCodeCallbackEndpoint(AuthorizationServerEndpoint):
                 raise ResponseValidationFailure("Invalid OIDC token in response.")
             await self._on_success(client, at)
 
+        # TODO: Test this
         self.delete_cookie(self.nonce_cookie_name, path=self.request.url.path)
         self.delete_cookie(self.redirect_cookie_name, path=self.request.url.path)
         self.delete_cookie(self.state_cookie_name, path=self.request.url.path)

@@ -9,6 +9,7 @@
 from .jarmauthorizeresponse import JARMAuthorizeResponse
 from .queryauthorizeresponse import QueryAuthorizeResponse
 from .loginresponse import LoginResponse
+from .redirecturi import RedirectURI
 from .redirectparameters import RedirectParameters
 from .responsemodenotsupported import ResponseModeNotSupported
 from .responsevalidationfailure import ResponseValidationFailure
@@ -19,6 +20,7 @@ __all__: list[str] = [
     'JARMAuthorizeResponse',
     'LoginResponse',
     'QueryAuthorizeResponse',
+    'RedirectURI',
     'RedirectParameters',
     'ResponseModeNotSupported',
     'ResponseValidationFailure',
