@@ -71,7 +71,9 @@ class RedirectURI:
 
         return cls(p)
 
-    def __init__(self, value: urllib.parse.ParseResult):
+    def __init__(self, value: urllib.parse.ParseResult | str):
+        if isinstance(value, str):
+            value = urllib.parse.urlparse(value)
         self.value = value
         self.params = {}
 

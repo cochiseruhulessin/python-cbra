@@ -60,3 +60,18 @@ def test_create_redirect_uri():
     q = dict(urllib.parse.parse_qsl(p.query))
     assert 'foo' in q
     assert q.get('foo') == 'bar'
+
+
+def test_serialize_model():
+    class M(pydantic.BaseModel):
+        redirect_uri: RedirectURI
+
+        class Config:
+            json_encoders: dict[type, Any] = {
+                RedirectURI: str
+            }
+
+    obj = M.parse_obj({
+        'redirect_uri': 'https://www.google.com/callback'
+    })
+    obj.json()
