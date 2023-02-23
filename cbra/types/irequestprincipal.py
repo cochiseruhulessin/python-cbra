@@ -41,6 +41,10 @@ class IRequestPrincipal:
             )
         })
 
+    def get_audience(self) -> set[str]:
+        """Return the audience(s) of the principal."""
+        raise NotImplementedError
+
     def get_credential(self) -> ICredential | None:
         """Return the credential from which the principal was instantiated."""
         raise NotImplementedError

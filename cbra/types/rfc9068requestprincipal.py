@@ -39,6 +39,12 @@ class RFC9068RequestPrincipal(HTTPHeaderPrincipal, JSONWebTokenPrincipal):
         values.update(cls.parse_jwt(value, accept={"application/at+jwt", "at+jwt"}))
         return values
 
+    def get_audience(self) -> set[str]:
+        audience = self.aud
+        if isinstance(audience, str):
+            audience = {audience}
+        return set(audience)
+
     def get_credential(self) -> ICredential | None:
         return JSONWebToken(self.token)
 

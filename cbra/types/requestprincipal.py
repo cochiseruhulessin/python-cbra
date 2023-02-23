@@ -30,6 +30,9 @@ class RequestPrincipal(IRequestPrincipal, pydantic.BaseModel):
         NullRequestPrincipal
     ]
 
+    def get_audience(self) -> set[str]:
+        return self.__root__.get_audience()
+
     def get_credential(self) -> ICredential | None:
         return self.__root__.get_credential()
 
