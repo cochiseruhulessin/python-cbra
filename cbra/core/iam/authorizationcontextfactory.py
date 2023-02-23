@@ -113,6 +113,8 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         if not principal.validate_audience(allow):
             self.logger.critical(
                 'Received a principal/credential combination with an '
-                'audience that is not accepted by the server.',
+                'audience that is not accepted by the server (allowed'
+                ': %s)',
+                str.join(', ', allow),
             )
             raise Forbidden
