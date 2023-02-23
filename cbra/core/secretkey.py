@@ -38,12 +38,8 @@ class SecretKey(IDependant):
         return self.keychain.get(self.signing_key_name)
 
     @classmethod
-    async def setup(
-        cls: type[T],
-        secret_key: str | None = None
-    ) -> T:
-        if secret_key is None:
-            secret_key = settings.SECRET_KEY
+    async def setup(cls: type[T]) -> T:
+        secret_key = settings.SECRET_KEY
         if secret_key and re.match(r'^(local|azure|google)\:', secret_key):
             raise NotImplementedError
         self = cls()

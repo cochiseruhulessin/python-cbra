@@ -8,9 +8,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from .authorizationcodecallbackendpoint import AuthorizationCodeCallbackEndpoint
 from .loginendpoint import LoginEndpoint
+from .oidcregistrationendpoint import OIDCRegistrationEndpoint
 
 
 __all__: list[str] = [
     'AuthorizationCodeCallbackEndpoint',
-    'LoginEndpoint'
+    'LoginEndpoint',
+    'OIDCRegistrationEndpoint',
 ]

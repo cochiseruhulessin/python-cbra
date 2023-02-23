@@ -40,17 +40,19 @@ class UserOnboardingService:
             seen=self.timestamp
         )
 
-    async def oidc(self, token: OIDCToken) -> types.Subject:
+    async def oidc(self, token: OIDCToken) -> tuple[types.Subject, bool]:
         """Onboard or update a subject using an validated and trusted
         OpenID Connect ID Token.
         """
         subject = None
         found = await self.subjects.find_by_principals(token.principals)
+        onboarded = False
         if len(found) > 1:
             # The ID token identified multiple subjects and is thus unusable
             # to establish the identity
             raise NotImplementedError(found)
         if not found:
+            onboarded = True
             subject = self.initialize()
             await self.subjects.persist(subject)
             subject.add_principal(
@@ -72,7 +74,7 @@ class UserOnboardingService:
             raise NotImplementedError("Missing Subject for Principal(s)")
         assert subject is not None
         await self.update(subject, token.iss, token.principals)
-        return subject
+        return subject, onboarded
 
     async def update(self, subject: types.Subject, iss: str, principals: Any) -> None:
         assert subject.uid is not None
