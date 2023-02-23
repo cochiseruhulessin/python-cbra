@@ -12,6 +12,7 @@ from typing import Awaitable
 
 import fastapi
 
+from cbra.core.conf import settings
 from cbra.types import Forbidden
 from cbra.types import IAuthorizationContextFactory
 from cbra.types import IDependant
@@ -47,6 +48,14 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         self.authentication = authentication
         self.resolver = resolver
 
+    def allowed_audience(self, request: fastapi.Request) -> set[str]:
+        url = request.url
+        allow = {
+            f'{url.scheme}://{url.netloc}',
+            f'{url.scheme}://{url.netloc}{settings.ASGI_ROOT_PATH or ""}{url.path}'
+        }
+        return allow
+
     async def authenticate(
         self,
         request: fastapi.Request,
@@ -63,10 +72,7 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
         )
         if principal.has_audience():
             url = request.url
-            self.validate_audience(principal, {
-                f'{url.scheme}://{url.netloc}',
-                str(url)
-            })
+            self.validate_audience(principal, self.allowed_audience(request))
 
         unauthenticated= UnauthenticatedAuthorizationContext(remote_host=remote_host)
         if not subject.is_authenticated():
