@@ -40,6 +40,18 @@ An example is shown below:
     ]
 
 
+.. setting: DEPLOYMENT_ENV
+
+``DEPLOYMENT_ENV``
+==================
+
+Default: ``'production'``
+
+The current deployment environment. This defaults to the string
+``production`` in order to prevent applications being deployed
+with less secure settings from other environments.
+
+
 .. setting: OAUTH2_CLIENTS
 
 ``OAUTH2_CLIENTS``
@@ -240,6 +252,7 @@ from typing import Any
 
 class Settings:
     user: types.ModuleType | None = None
+    DEPLOYMENT_ENV: str
     OAUTH2_CLIENTS: list[Any]
     OAUTH2_ISSUER: str
     SECRET_KEY: str
@@ -253,6 +266,7 @@ class Settings:
     TRUSTED_AUTHORIZATION_SERVERS: list[str]
 
     __defaults__: dict[str, Any] = {
+        'DEPLOYMENT_ENV': os.environ.get('DEPLOYMENT_ENV') or 'production',
         'OAUTH2_CLIENTS': [],
         'OAUTH2_ISSUER': None,
         'SECRET_KEY': bytes.hex(os.urandom(32)),
