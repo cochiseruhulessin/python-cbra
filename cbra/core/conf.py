@@ -105,6 +105,8 @@ cryptographic signing, and should be set to either:
 * a string holding a unique, unpredictable value.
 * a reference to a key.
 
+This value may also be provided as an environment variable.
+
 .. warning::
 
     **Keep this value secret.**
@@ -283,7 +285,7 @@ class Settings:
         'DEPLOYMENT_ENV': os.environ.get('DEPLOYMENT_ENV') or 'production',
         'OAUTH2_CLIENTS': [],
         'OAUTH2_ISSUER': None,
-        'SECRET_KEY': bytes.hex(os.urandom(32)),
+        'SECRET_KEY': os.environ.get('SECRET_KEY') or bytes.hex(os.urandom(32)),
         'SESSION_COOKIE_AGE': 1209600,
         'SESSION_COOKIE_DOMAIN': None,
         'SESSION_COOKIE_HTTPONLY': True,
