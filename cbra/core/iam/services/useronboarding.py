@@ -55,6 +55,7 @@ class UserOnboardingService:
             onboarded = True
             subject = self.initialize()
             await self.subjects.persist(subject)
+            assert subject.uid is not None
             subject.add_principal(
                 issuer=self.issuer,
                 value=types.PublicIdentifier(
