@@ -73,6 +73,9 @@ class UserOnboardingService:
         if not subject:
             raise NotImplementedError("Missing Subject for Principal(s)")
         assert subject is not None
+        principals = token.principals
+        if not token.email_verified and token.email:
+            principals.remove(token.email)
         await self.update(subject, token.iss, token.principals)
         return subject, onboarded
 
