@@ -46,7 +46,6 @@ class RedirectURI:
         p = urllib.parse.urlparse(v)
         if not p.scheme or not p.netloc:
             raise ValueError('not a valid URL.')
-
         if p.query:
             raise ValueError('query parameters must not be used.')
         if p.fragment:
