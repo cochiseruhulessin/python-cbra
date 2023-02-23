@@ -16,6 +16,7 @@ from fastapi.routing import DecoratedCallable
 from fastapi.params import Depends
 
 from cbra.types import Abortable
+from .conf import settings
 from .endpoint import Endpoint
 from .resource import Resource
 from .ioc import Container
@@ -37,6 +38,7 @@ class Application(FastAPI):
         handlers: dict[type, Any] = kwargs.setdefault('exception_handlers', {})
         handlers[Abortable] = self.on_aborted
 
+        kwargs.setdefault('root_path', settings.ASGI_ROOT_PATH)
         super().__init__(*args, **kwargs)
 
     def add(

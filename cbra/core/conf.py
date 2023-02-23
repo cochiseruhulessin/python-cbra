@@ -18,6 +18,18 @@ This document lists the recognized symbol names for use with
 .. module:: cbra.core.conf.settings
 
 
+.. setting:: ASGI_ROOT_PATH
+
+``ASGI_ROOT_PATH``
+==================
+
+Default: ``None``
+
+The root path of the application. Use this setting when running behind
+a proxy and the application is served from something else than ``/``
+e.g. ``/api/v1``.
+
+
 .. setting:: DEPENDENCIES
 
 ``DEPENDENCIES``
@@ -252,6 +264,7 @@ from typing import Any
 
 class Settings:
     user: types.ModuleType | None = None
+    ASGI_ROOT_PATH: str | None
     DEPLOYMENT_ENV: str
     OAUTH2_CLIENTS: list[Any]
     OAUTH2_ISSUER: str
@@ -266,6 +279,7 @@ class Settings:
     TRUSTED_AUTHORIZATION_SERVERS: list[str]
 
     __defaults__: dict[str, Any] = {
+        'ASGI_ROOT_PATH': os.environ.get('ASGI_ROOT_PATH'),
         'DEPLOYMENT_ENV': os.environ.get('DEPLOYMENT_ENV') or 'production',
         'OAUTH2_CLIENTS': [],
         'OAUTH2_ISSUER': None,
