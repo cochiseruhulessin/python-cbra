@@ -18,7 +18,13 @@ from pydantic.validators import str_validator
 T = TypeVar('T', bound='RedirectURI')
 
 
-class RedirectURI:
+OOB_URLS: set[str] = {
+    "urn:ietf:wg:oauth:2.0:oob",
+    "urn:ietf:wg:oauth:2.0:oob:auto"
+}
+
+
+class RedirectURI(str):
     __module__: str = 'cbra.ext.oauth2.types'
     value: urllib.parse.ParseResult
     params: dict[str, str]
@@ -43,6 +49,9 @@ class RedirectURI:
     def validate(cls: type[T], v: str) -> T:
         if len(v) > 2048:
             raise ValueError("value is too long to be a valid URL.")
+        if v in OOB_URLS:
+            raise ValueError('OOB is a security risk.')
+
         p = urllib.parse.urlparse(v)
         if not p.scheme or not p.netloc:
             raise ValueError('not a valid URL.')
@@ -71,20 +80,11 @@ class RedirectURI:
 
         return cls(p)
 
-    def __init__(self, value: urllib.parse.ParseResult | str):
-        if isinstance(value, str):
-            value = urllib.parse.urlparse(value)
-        self.value = value
-        self.params = {}
-
     def redirect(self, **params: str) -> str:
         """Create a redirect URI with the given params."""
-        p = list(self.value)
+        p = list(urllib.parse.urlparse(self))
         p[4] = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
         return urllib.parse.urlunparse(p)
-
-    def __str__(self) -> str:
-        return urllib.parse.urlunparse(self.value)
 
     def __repr__(self) -> str: # pragma: no cover
         return f'RedirectURI({self})'

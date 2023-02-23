@@ -42,6 +42,8 @@ def test_valid_values(value: Any):
     'https://localhost:8000/callback?foo=bar',
     'https://localhost:8000/callback#fragment',
     'http://1.1.1.1/callback',
+    "urn:ietf:wg:oauth:2.0:oob",
+    "urn:ietf:wg:oauth:2.0:oob:auto",
 ])
 def test_invalid_values(value: Any):
     with pytest.raises((pydantic.errors.PydanticTypeError, ValueError)):
@@ -50,7 +52,7 @@ def test_invalid_values(value: Any):
 
 
 def test_cast_to_string():
-    url = RedirectURI(urllib.parse.urlparse('https://rp.example.com'))
+    url = RedirectURI('https://rp.example.com')
     assert str(url) == 'https://rp.example.com'
 
 
