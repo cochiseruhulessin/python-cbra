@@ -36,7 +36,7 @@ def test_valid_values(value: Any):
     "invalid",
     None,
     'a' * 2049,
-    'http://www.google.com/callback',
+    'http://rp.example.com/callback',
     'http://localhost:8000/callback',
     'https://localhost:8000/callback',
     'https://localhost:8000/callback?foo=bar',
@@ -50,12 +50,12 @@ def test_invalid_values(value: Any):
 
 
 def test_cast_to_string():
-    url = RedirectURI(urllib.parse.urlparse('https://www.google.com'))
-    assert str(url) == 'https://www.google.com'
+    url = RedirectURI(urllib.parse.urlparse('https://rp.example.com'))
+    assert str(url) == 'https://rp.example.com'
 
 
 def test_create_redirect_uri():
-    url = RedirectURI(urllib.parse.urlparse('https://www.google.com'))
+    url = RedirectURI(urllib.parse.urlparse('https://rp.example.com'))
     p = urllib.parse.urlparse(url.redirect(foo='bar'))
     q = dict(urllib.parse.parse_qsl(p.query))
     assert 'foo' in q
@@ -72,6 +72,6 @@ def test_serialize_model():
             }
 
     obj = M.parse_obj({
-        'redirect_uri': 'https://www.google.com/callback'
+        'redirect_uri': 'https://rp.example.com/callback'
     })
     obj.json()
