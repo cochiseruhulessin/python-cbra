@@ -16,10 +16,20 @@ from .icredential import ICredential
 from .irequestprincipal import IRequestPrincipal
 from .sessionclaims import SessionClaims
 from .sessionmodel import SessionModel
+from .subjectidentifier import SubjectIdentifier
 
 
 class SessionRequestPrincipal(IRequestPrincipal, ICredential, SessionModel):
     claims: SessionClaims
+
+    @property
+    def subject(self) -> SubjectIdentifier | None:
+        if not self.claims.iss or not self.claims.sub:
+            return None
+        return SubjectIdentifier(
+            iss=self.claims.iss,
+            sub=self.claims.sub
+        )
 
     @pydantic.root_validator(pre=True)
     def preprocess(

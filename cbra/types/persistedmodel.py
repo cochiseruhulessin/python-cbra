@@ -6,20 +6,12 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import fastapi
+from types import NotImplementedType
 
-from cbra.core.conf import settings
-from ..secretkey import SecretKey
-
-
-__all__: list[str] = [
-    'ApplicationSecretKey'
-]
-
-ApplicationSecretKey: SecretKey = SecretKey.depends()
+from .basemodel import BaseModel
+from .modelautoassignedidentity import ModelAutoAssignedIdentity
 
 
-def current_issuer(request: fastapi.Request) -> str:
-    return settings.OAUTH2_ISSUER\
-        or f'{request.url.scheme}://{request.url.netloc}'
-CurrentIssuer: str = fastapi.Depends(current_issuer)
+class PersistedModel(BaseModel):
+    __abstract__: bool = True
+    __surrogate__: ModelAutoAssignedIdentity | NotImplementedType | None | int

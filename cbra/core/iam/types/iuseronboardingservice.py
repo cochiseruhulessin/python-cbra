@@ -6,20 +6,14 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import fastapi
+from typing import Protocol
 
-from cbra.core.conf import settings
-from ..secretkey import SecretKey
+from headless.ext.oauth2.models import OIDCToken
 
-
-__all__: list[str] = [
-    'ApplicationSecretKey'
-]
-
-ApplicationSecretKey: SecretKey = SecretKey.depends()
+from .subject import Subject
 
 
-def current_issuer(request: fastapi.Request) -> str:
-    return settings.OAUTH2_ISSUER\
-        or f'{request.url.scheme}://{request.url.netloc}'
-CurrentIssuer: str = fastapi.Depends(current_issuer)
+class IUserOnboardingService(Protocol):
+    def initialize(self) -> Subject: ...
+    async def oidc(self, token: OIDCToken) -> Subject: ...
+    async def update(self, subject: Subject) -> None: ...

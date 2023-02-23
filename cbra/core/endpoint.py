@@ -6,6 +6,8 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from datetime import datetime
+from datetime import timezone
 from typing import Any
 
 import fastapi
@@ -27,6 +29,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     ctx: IAuthorizationContext
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
     session: RequestSession = RequestSession.depends()
+    timestamp: datetime
 
     def __init__(self, **kwargs: Any):
         """Constructor. Called in the router; can contain helpful extra
@@ -36,6 +39,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
         # instance, or raise an error.
         for key, value in kwargs.items():
             setattr(self, key, value)
+        self.timestamp = datetime.now(timezone.utc)
 
     @classmethod
     def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:

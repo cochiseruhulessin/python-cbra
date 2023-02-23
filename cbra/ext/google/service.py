@@ -30,4 +30,10 @@ class Service(Application):
                     namespace=GOOGLE_DATASTORE_NAMESPACE
                 )
             )
+            self.container.provide('SubjectResolver', {
+                'qualname': 'cbra.ext.google.DatastoreSubjectResolver'
+            })
+            self.container.provide('SubjectRepository', {
+                'qualname': 'cbra.ext.google.DatastoreSubjectRepository'
+            })
         self.add(AortaEndpoint, path="/.well-known/aorta")

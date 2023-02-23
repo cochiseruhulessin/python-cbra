@@ -33,8 +33,6 @@ class Requirement:
         return False
 
     def add_to_container(self, container: Container) -> None:
-        if self.missing == NotImplemented:
-            raise NotImplementedError
         if self.ref is not None:
             return
         try:

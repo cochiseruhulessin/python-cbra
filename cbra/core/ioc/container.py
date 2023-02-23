@@ -51,6 +51,10 @@ class Container:
             singleton=True
         )
 
+    def provide(self, name: str, spec: dict[str, Any]) -> None:
+        self.injected[name] = Dependency.parse_obj({**spec, 'name': name})
+        self.injected[name].resolve()
+
     def require(self, name: str) -> Dependency:
         if name not in self.injected:
             raise DependencyNotSatisfied

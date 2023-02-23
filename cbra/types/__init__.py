@@ -7,6 +7,8 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from .abortable import Abortable
+from .basemodel import BaseModel
+from .basemodel import BaseModelMetaclass
 from .conflict import Conflict
 from .forbidden import Forbidden
 from .hints import PolymorphicIterable
@@ -19,6 +21,7 @@ from .ideferred import IDeferred
 from .idependant import IDependant
 from .iendpoint import IEndpoint
 from .ihashable import IHashable
+from .imodelrepository import IModelRepository
 from .integerpathparameter import IntegerPathParameter
 from .iroutable import IRoutable
 from .irequestprincipal import IRequestPrincipal
@@ -38,18 +41,22 @@ from .notfound import NotFound
 from .operation import Operation
 from .oidcrequestprincipal import OIDCRequestPrincipal
 from .pathparameter import PathParameter
+from .persistedmodel import PersistedModel
 from .requestprincipal import RequestPrincipal
 from .rfc9068requestprincipal import RFC9068RequestPrincipal
 from .session import Session
 from .sessionmodel import SessionModel
 from .sessionrequestprincipal import SessionRequestPrincipal
 from .stringpathparameter import StringPathParameter
+from .subjectidentifier import SubjectIdentifier
 from .unauthenticatedauthorizationcontext import UnauthenticatedAuthorizationContext
 from .uuidpathparameter import UUIDPathParameter
 
 
 __all__: list[str] = [
     'Abortable',
+    'BaseModel',
+    'BaseModelMetaclass',
     'Conflict',
     'Forbidden',
     'ICredential',
@@ -60,6 +67,7 @@ __all__: list[str] = [
     'IAuthorizationContext',
     'IAuthorizationContextFactory',
     'IEndpoint',
+    'IModelRepository',
     'IntegerPathParameter',
     'IHashable',
     'IRequestPrincipalIntrospecter',
@@ -80,12 +88,14 @@ __all__: list[str] = [
     'Operation',
     'OIDCRequestPrincipal',
     'PathParameter',
+    'PersistedModel',
     'PolymorphicIterable',
     'RequestPrincipal',
     'RFC9068RequestPrincipal',
     'Session',
     'SessionModel',
     'SessionRequestPrincipal',
+    'SubjectIdentifier',
     'StringPathParameter',
     'UnauthenticatedAuthorizationContext',
     'UUIDPathParameter',

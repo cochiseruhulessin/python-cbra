@@ -16,7 +16,6 @@ from cbra.types import ISessionFactory
 from cbra.types import ISessionManager
 from cbra.types import Session
 from ..params import ApplicationSecretKey
-from ..params import SESSION_COOKIE_NAME
 from ..secretkey import SecretKey
 
 
@@ -31,10 +30,9 @@ class RequestSession(IDeferred, IDependant, ISessionFactory[Session], ISessionMa
     def __init__(
         self,
         request: fastapi.Request,
-        key: SecretKey = ApplicationSecretKey,
-        cookie_name: str = SESSION_COOKIE_NAME
+        key: SecretKey = ApplicationSecretKey
     ) -> None:
-        self.cookie_name = cookie_name
+        self.cookie_name = settings.SESSION_COOKIE_NAME
         self.key = key
         self.request = request
         self.data = IDeferred.defer(self, 'data')

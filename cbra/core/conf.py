@@ -58,6 +58,16 @@ application. Example:
     ]
 
 
+.. setting: OAUTH2_ISSUER
+
+``OAUTH2_ISSUER``
+=================
+
+  Default: ``None``
+
+  The issuer identifier used by this server.
+
+
 .. setting: SECRET_KEY
 
 ``SECRET_KEY``
@@ -231,6 +241,7 @@ from typing import Any
 class Settings:
     user: types.ModuleType | None = None
     OAUTH2_CLIENTS: list[Any]
+    OAUTH2_ISSUER: str
     SECRET_KEY: str
     SESSION_COOKIE_AGE: int
     SESSION_COOKIE_DOMAIN: str | None
@@ -243,6 +254,7 @@ class Settings:
 
     __defaults__: dict[str, Any] = {
         'OAUTH2_CLIENTS': [],
+        'OAUTH2_ISSUER': None,
         'SECRET_KEY': bytes.hex(os.urandom(32)),
         'SESSION_COOKIE_AGE': 1209600,
         'SESSION_COOKIE_DOMAIN': None,

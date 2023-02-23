@@ -6,20 +6,17 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import fastapi
+from datetime import datetime
+from typing import Any
+from typing import Protocol
 
-from cbra.core.conf import settings
-from ..secretkey import SecretKey
-
-
-__all__: list[str] = [
-    'ApplicationSecretKey'
-]
-
-ApplicationSecretKey: SecretKey = SecretKey.depends()
+from cbra.types import ISessionManager
+from .principaltype import PrincipalType
 
 
-def current_issuer(request: fastapi.Request) -> str:
-    return settings.OAUTH2_ISSUER\
-        or f'{request.url.scheme}://{request.url.netloc}'
-CurrentIssuer: str = fastapi.Depends(current_issuer)
+class Subject(Protocol):
+    uid: int | None
+    seen: datetime
+
+    def add_principal(self, issuer: str, value: PrincipalType, asserted: datetime) -> None: ...
+    def add_to_session(self, session: ISessionManager[Any]) -> None: ...

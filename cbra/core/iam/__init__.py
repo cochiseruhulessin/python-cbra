@@ -130,10 +130,14 @@ ID Token from Google:
 from .authenticatedcontext import AuthenticatedContext
 from .authenticationservice import AuthenticationService
 from .authorizationcontextfactory import AuthorizationContextFactory
+from .isubjectrepository import ISubjectRepository
+from .subjectresolver import SubjectResolver
 
 
 __all__: list[str] = [
     'AuthenticatedContext',
     'AuthenticationService',
     'AuthorizationContextFactory',
+    'ISubjectRepository',
+    'SubjectResolver',
 ]

@@ -72,7 +72,7 @@ The following user-defined environment variables are supported.
   application are persisted. Setting this variable is mandatory
   when using :class:`~cbra.ext.google.DatastoreRepository`.
 """
-# Copyright (C) 2022 Cochise Ruhulessin
+# Copyright (C) 2023 Cochise Ruhulessin
 #
 # All rights reserved. No warranty, explicit or implicit, provided. In
 # no event shall the author(s) be liable for any claim or damages.
@@ -80,6 +80,9 @@ The following user-defined environment variables are supported.
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from .datastorerepository import DatastoreRepository
+from .datastoresubjectrepository import DatastoreSubjectRepository
+from .datastoresubjectresolver import DatastoreSubjectResolver
 from .eventarcendpoint import EventarcEndpoint
 from .googleendpoint import GoogleEndpoint
 from .googlepubsubtransport import GooglePubsubTransport
@@ -89,6 +92,9 @@ from .service import Service
 
 
 __all__: list[str] = [
+    'DatastoreRepository',
+    'DatastoreSubjectResolver',
+    'DatastoreSubjectRepository',
     'EventarcEndpoint',
     'GoogleEndpoint',
     'GooglePubsubTransport',

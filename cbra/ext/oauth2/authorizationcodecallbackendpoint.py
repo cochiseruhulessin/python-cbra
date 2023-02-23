@@ -16,13 +16,13 @@ Integrating an OAuth 2.x authorization server
 import fastapi
 from headless.ext import oauth2
 
-import cbra.core as cbra
 from cbra.core.conf import settings
+from .endpoint import AuthorizationServerEndpoint
 from .types import RedirectParameters
 from .types import ResponseValidationFailure
 
 
-class AuthorizationCodeCallbackEndpoint(cbra.Endpoint):
+class AuthorizationCodeCallbackEndpoint(AuthorizationServerEndpoint):
     """Handles a redirect from an OAuth 2.x/OpenID Connect
     authorization server.
     """
