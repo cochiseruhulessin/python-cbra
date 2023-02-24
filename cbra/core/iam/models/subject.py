@@ -35,11 +35,18 @@ class Subject(PersistedModel):
         self,
         issuer: str,
         value: PrincipalType,
-        asserted: datetime
+        asserted: datetime,
+        trust: bool = False
     ) -> None:
         assert self.uid is not None
-        principal = Principal.new(self.uid, issuer, value, asserted=asserted)
-        self.principals.add(principal)
+        new = Principal.new(self.uid, issuer, value, asserted=asserted, trust=trust)
+        old = None
+        if new in self.principals:
+            # TODO: ugly
+            principals = list(self.principals)
+            old = principals[principals.index(new)]
+        if old is None or not old.trust:
+            self.principals.add(new)
 
     def add_to_session(self, session: ISessionManager[Any]) -> None:
         raise NotImplementedError

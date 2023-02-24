@@ -37,17 +37,24 @@ class Principal(PersistedModel):
     asserted: datetime
     suspended: bool = False
 
+    #: Indicates if the :class:`Principal` is trusted, meaning that we trust
+    #: it is correct and is never overwritten with an *untrusted* principal
+    #: of the same type.
+    trust: bool = False
+
     @classmethod
     def new(
         cls,
         subject: int,
         issuer: str,
         principal: PrincipalType,
-        asserted: datetime
+        asserted: datetime,
+        trust: bool = False
     ):
         return cls.parse_obj({
             'asserted': asserted,
             'subject': subject,
+            'trust': trust,
             'spec': {
                 'iss': issuer,
                 'kind': type(principal).__name__,
