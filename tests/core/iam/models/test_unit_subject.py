@@ -9,7 +9,6 @@
 from datetime import datetime
 from datetime import timezone
 
-import pytest
 from canonical import EmailAddress
 
 from cbra.core.iam.models import Subject
@@ -26,4 +25,20 @@ def test_trusted_principal_does_not_get_overwritten_by_untrusted():
 
     subject.add_principal(iss, email, now, False)
     new = list(subject.principals)[0]
+    assert old == new
+    assert new.trust
+
+
+def test_trusted_principal_overwrites_untrusted():
+    now = datetime.now(timezone.utc)
+    iss = 'https://python-cbra.dev.cochise.io'
+    email = EmailAddress('foo@bar.baz')
+    subject = Subject(kind='User', uid=1, created=now, seen=now)
+    subject.add_principal(iss, email, now, False)
+    old = list(subject.principals)[0]
+    assert not old.trust
+
+    subject.add_principal(iss, email, now, True)
+    new = list(subject.principals)[0]
+    assert old == new
     assert new.trust
