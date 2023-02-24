@@ -8,6 +8,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Protocol
 
+from canonical import EmailAddress
 from headless.ext.oauth2.models import OIDCToken
 
 from .subject import Subject
@@ -15,5 +16,6 @@ from .subject import Subject
 
 class IUserOnboardingService(Protocol):
     def initialize(self) -> Subject: ...
+    async def email(self, issuer: str, email: EmailAddress) -> tuple[Subject, bool]: ...
     async def oidc(self, token: OIDCToken) -> tuple[Subject, bool]: ...
     async def update(self, subject: Subject) -> None: ...

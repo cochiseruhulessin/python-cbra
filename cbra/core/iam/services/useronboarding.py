@@ -10,6 +10,7 @@ from datetime import datetime
 from datetime import timezone
 from typing import Any
 
+from canonical import EmailAddress
 from headless.ext.oauth2.models import OIDCToken
 
 from cbra.core.ioc import instance
@@ -39,6 +40,34 @@ class UserOnboardingService:
             created=self.timestamp,
             seen=self.timestamp
         )
+    
+    async def email(
+        self,
+        issuer: str,
+        email: EmailAddress
+    ) -> tuple[types.Subject, bool]:
+        """Onboard or update a subject using an validated and trusted
+        email address.
+        """
+        onboarded = False
+        subject = await self.subjects.get(email)
+        if not subject:
+            onboarded = True
+            subject = self.initialize()
+            await self.subjects.persist(subject)
+            assert subject.uid is not None
+            subject.add_principal(
+                issuer=self.issuer,
+                value=types.PublicIdentifier(
+                    iss=self.issuer,
+                    sub=str(subject.uid)
+                ),
+                asserted=self.timestamp
+            )
+        else:
+            onboarded = False
+        await self.update(subject, issuer, [email])
+        return subject, onboarded
 
     async def oidc(self, token: OIDCToken) -> tuple[types.Subject, bool]:
         """Onboard or update a subject using an validated and trusted
