@@ -135,11 +135,11 @@ class UserOnboardingService:
             can_use = (len(found) == 1) and (found.pop() == subject.uid)
         return can_use
 
-    async def update(self, subject: types.Subject, iss: str, principals: Any) -> None:
+    async def update(self, subject: types.Subject, iss: str, principals: Any, trust: bool = False) -> None:
         assert subject.uid is not None
         subject.seen = self.timestamp
         for principal in principals:
             if subject.has_principal(principal):
                 continue
-            subject.add_principal(iss, principal, self.timestamp)
+            subject.add_principal(iss, principal, self.timestamp, trust=trust)
         await self.subjects.persist(subject)
