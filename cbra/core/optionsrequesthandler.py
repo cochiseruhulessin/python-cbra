@@ -15,7 +15,7 @@ from .requesthandler import RequestHandler
 
 
 class OptionsRequestHandler(RequestHandler[IEndpoint]):
-    include_in_schema: bool = False
+    include_in_schema: bool = True
 
     def __init__(
         self,

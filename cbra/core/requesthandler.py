@@ -287,6 +287,8 @@ class RequestHandler(Generic[E]):
         **kwargs: Any
     ) -> None:
         assert self._class is not None
+        if self.method == 'OPTIONS':
+            kwargs.update({'response_model': None, 'status_code': 200})
         if self._handler_sig.return_annotation == None:
             # Ensure that a proper response code is presented to
             # FastAPI if the handler does not return anything.

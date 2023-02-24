@@ -59,10 +59,12 @@ permission = Endpoint.require_permission
 
 class describe:
     status_code: int = 200
+    summary: str | None = None
 
     def __init__(
         self,
-        status_code: int = 200
+        status_code: int = 200,
+        summary: str | None = None
     ) -> None:
         self.status_code = status_code
 
@@ -72,5 +74,8 @@ class describe:
     ) -> Callable[..., T]:
         if not hasattr(func, 'params'):
             func.params = {} # type: ignore
-        func.params.update(self.__dict__) # type: ignore
+        func.params.update({ # type: ignore
+            k: v for k, v in self.__dict__.items()
+            if v is not None
+        })
         return func
