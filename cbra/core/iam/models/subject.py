@@ -45,7 +45,13 @@ class Subject(PersistedModel):
             # TODO: ugly
             principals = list(self.principals)
             old = principals[principals.index(new)]
-        if old is None or not old.trust:
+        must_add = any([
+            old is None,
+            old is not None and not old.trust
+        ])
+        if must_add:
+            if old is not None:
+                self.principals.remove(old)
             self.principals.add(new)
 
     def add_to_session(self, session: ISessionManager[Any]) -> None:
