@@ -15,6 +15,7 @@ import pydantic
 from cbra.types import PersistedModel
 from ..types import PrincipalType
 
+from ..principalhasher import PrincipalHasher
 from .emailprincipal import EmailPrincipal
 from .externalprincipal import ExternalPrincipal
 from .publicidentifierprincipal import PublicIdentifierPrincipal
@@ -26,16 +27,21 @@ PrincipalSpecType: TypeAlias = Union[
     PublicIdentifierPrincipal
 ]
 
+hasher: PrincipalHasher = PrincipalHasher()
+
 
 class Principal(PersistedModel):
     id: int | None = pydantic.Field(
         default=None,
         auto_assign=True
     )
-    spec: PrincipalSpecType = pydantic.Field(..., primary_key=True)
+    spec: PrincipalSpecType
     subject: int
     asserted: datetime
     suspended: bool = False
+
+    #: A hash value created from the spec. For internal use only.
+    key: str = pydantic.Field(..., primary_key=True)
 
     #: Indicates if the :class:`Principal` is trusted, meaning that we trust
     #: it is correct and is never overwritten with an *untrusted* principal
@@ -55,6 +61,7 @@ class Principal(PersistedModel):
             'asserted': asserted,
             'subject': subject,
             'trust': trust,
+            'key': hasher.hash(principal),
             'spec': {
                 'iss': issuer,
                 'kind': type(principal).__name__,

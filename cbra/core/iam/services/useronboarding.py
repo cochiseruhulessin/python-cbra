@@ -41,16 +41,14 @@ class UserOnboardingService:
             seen=self.timestamp
         )
     
-    async def email(
+    async def sync(
         self,
         issuer: str,
-        email: EmailAddress
+        principal: types.PrincipalType
     ) -> tuple[types.Subject, bool]:
-        """Onboard or update a subject using an validated and trusted
-        email address.
-        """
+        """Add or create a user with the given *immutable* principal."""
         onboarded = False
-        subject = await self.subjects.get(email)
+        subject = await self.subjects.get(principal)
         if not subject:
             onboarded = True
             subject = self.initialize()
@@ -64,10 +62,20 @@ class UserOnboardingService:
                 ),
                 asserted=self.timestamp
             )
+            await self.update(subject, issuer, [principal])
         else:
             onboarded = False
-        await self.update(subject, issuer, [email])
         return subject, onboarded
+
+    async def email(
+        self,
+        issuer: str,
+        email: EmailAddress
+    ) -> tuple[types.Subject, bool]:
+        """Onboard or update a subject using an validated and trusted
+        email address.
+        """
+        raise NotImplementedError
 
     async def oidc(self, token: OIDCToken) -> tuple[types.Subject, bool]:
         """Onboard or update a subject using an validated and trusted
@@ -104,14 +112,34 @@ class UserOnboardingService:
             raise NotImplementedError("Missing Subject for Principal(s)")
         assert subject is not None
         principals = token.principals
-        if not token.email_verified and token.email:
+        if token.email_verified and token.email:
+            # Arbitrarily overwrite the email address here if it is trusted,
+            # since we might have received it from other sources.
+            subject.add_principal(token.iss, token.email, self.timestamp, trust=True)
+            subject.seen = self.timestamp
             principals.remove(token.email)
-        await self.update(subject, token.iss, token.principals)
+        await self.update(subject, token.iss, principals)
         return subject, onboarded
+
+    async def can_use(
+        self,
+        subject: Subject,
+        principals: list[types.PrincipalType]
+    ) -> bool:
+        """Return a boolean indicating if the principals can be used
+        by the subject.
+        """
+        found = await self.subjects.find_by_principals(principals)
+        can_use = not found
+        if found:
+            can_use = (len(found) == 1) and (found.pop() == subject.uid)
+        return can_use
 
     async def update(self, subject: types.Subject, iss: str, principals: Any) -> None:
         assert subject.uid is not None
         subject.seen = self.timestamp
         for principal in principals:
+            if subject.has_principal(principal):
+                continue
             subject.add_principal(iss, principal, self.timestamp)
         await self.subjects.persist(subject)

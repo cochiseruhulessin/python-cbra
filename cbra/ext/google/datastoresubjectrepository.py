@@ -11,7 +11,6 @@ from typing import Any
 from typing import AsyncGenerator
 
 from canonical import EmailAddress
-from google.cloud.datastore import Entity
 from google.cloud.datastore import Query
 from headless.ext.oauth2.models import SubjectIdentifier
 
@@ -93,6 +92,7 @@ class DatastoreSubjectRepository(
     async def persist(self, instance: Subject) -> Subject:
         await self.put(instance, exclude={'principals', 'uid'})
         assert instance.uid is not None
+        await self.delete([self.model_key(x) for x in instance._removed_principals]) # type: ignore
         for principal in instance.principals:
             await self.put(principal, exclude={'id'})
         return instance
@@ -103,7 +103,7 @@ class DatastoreSubjectRepository(
         principal: EmailAddress | SubjectIdentifier,
         query: Query
     ) -> None:
-        raise NotImplementedError
+        raise NotImplementedError(type(principal).__name__)
 
     @filter_principal.register
     def filter_emailaddress(

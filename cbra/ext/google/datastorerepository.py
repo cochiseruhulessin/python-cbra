@@ -52,6 +52,10 @@ class DatastoreRepository(Runner):
                 )
             )
         ]
+    
+    async def delete(self, keys: Key | list[Key]) -> None:
+        func = self.client.delete if isinstance(keys, Key) else self.client.delete_multi # type: ignore
+        return await self.run_in_executor(functools.partial(func, keys)) # type: ignore
 
     async def execute(self, query: Query, _R: type[R]) -> AsyncGenerator[R, None]:
         if _R == Key:
@@ -78,6 +82,13 @@ class DatastoreRepository(Runner):
         if isinstance(entity_id, (int, str)):
             key = self.client.key(kind, entity_id, parent=parent) # type: ignore
         return key
+    
+    def model_key(self, instance: PersistedModel) -> Key:
+        Model: type[PersistedModel] = type(instance)
+        spec = Model.__surrogate__ # type: ignore
+        if spec == NotImplemented: # type: ignore
+            raise NotImplementedError
+        return self.key(Model.__name__, getattr(instance, spec.attname)) # type: ignore
 
     async def get_entity_by_key(self, key: Key) -> Entity | None:
         return await self.run_in_executor(

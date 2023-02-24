@@ -11,10 +11,8 @@ from typing import Any
 from typing import AsyncGenerator
 from typing import Protocol
 
-from canonical import EmailAddress
-from headless.ext.oauth2 import OIDCToken
-
 from .principal import Principal
+from .principaltype import PrincipalType
 from .subject import Subject
 
 
@@ -23,6 +21,6 @@ class ISubjectRepository(Protocol):
     __module__: str = 'cbra.core.iam'
 
     async def find_by_principals(self, principals: list[Any]) -> set[int]: ...
-    async def get(self, principal: int | EmailAddress | OIDCToken) -> Subject: ...
+    async def get(self, principal: int | PrincipalType) -> Subject: ...
     async def persist(self, subject: Subject) -> Subject: ...
     def get_principals(self, subject_id: int) -> AsyncGenerator[Principal, None]: ...

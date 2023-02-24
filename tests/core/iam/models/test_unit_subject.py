@@ -42,3 +42,35 @@ def test_trusted_principal_overwrites_untrusted():
     new = list(subject.principals)[0]
     assert old == new
     assert new.trust
+
+
+def test_has_principal():
+    now = datetime.now(timezone.utc)
+    iss = 'https://python-cbra.dev.cochise.io'
+    email = EmailAddress('foo@bar.baz')
+    subject = Subject(kind='User', uid=1, created=now, seen=now)
+    subject.add_principal(iss, email, now, False)
+    assert subject.has_principal(email)
+
+
+def test_add_email_from_different_issuers():
+    now = datetime.now(timezone.utc)
+    i1 = "https://accounts.google.com"
+    i2 = "https://outlook.microsoft.com"
+    email = EmailAddress('foo@bar.baz')
+    subject = Subject(kind='User', uid=1, created=now, seen=now)
+    subject.add_principal(i1, email, now, False)
+    subject.add_principal(i2, email, now, False)
+    assert len(subject.principals) == 1
+
+
+def test_override_email_with_trusted_issuer():
+    now = datetime.now(timezone.utc)
+    i1 = "https://accounts.google.com"
+    i2 = "https://outlook.microsoft.com"
+    email = EmailAddress('foo@bar.baz')
+    subject = Subject(kind='User', uid=1, created=now, seen=now)
+    subject.add_principal(i1, email, now, False)
+    subject.add_principal(i2, email, now, True)
+    assert len(subject.principals) == 1
+    assert subject.principals.pop().spec.iss == i2

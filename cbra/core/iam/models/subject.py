@@ -31,6 +31,10 @@ class Subject(PersistedModel):
 
     principals: set[Principal] = set()
 
+    #: TODO: The PeristedModel must be refactored to register attribute mutations
+    #: so that the storage backend can detect if it needs to delete something.
+    _removed_principals: list[Principal] = pydantic.PrivateAttr([])
+
     def add_principal(
         self,
         issuer: str,
@@ -51,8 +55,19 @@ class Subject(PersistedModel):
         ])
         if must_add:
             if old is not None:
+                self._removed_principals.append(old)
                 self.principals.remove(old)
             self.principals.add(new)
 
     def add_to_session(self, session: ISessionManager[Any]) -> None:
         raise NotImplementedError
+    
+    def has_principal(self, principal: PrincipalType) -> bool:
+        p = Principal.new(
+            0,
+            '',
+            principal,
+            asserted=datetime.now(),
+            trust=False
+        )
+        return p in self.principals
