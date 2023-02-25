@@ -9,11 +9,14 @@
 from typing import get_args
 from typing import Callable
 
+import fastapi
+from headless.ext.picqer import Client
+from headless.ext.picqer import DefaultClient
+from headless.ext.picqer.v1 import Webhook
+
 import cbra.core
 from cbra import types
 from cbra.core.conf import settings
-from headless.ext.picqer import Client
-from headless.ext.picqer.v1 import Webhook
 
 from .webhooksignature import WebhookSignature
 from .webhookresponse import WebhookResponse
@@ -23,6 +26,7 @@ from .v1 import PicqerWebhookMessage
 
 class PicqerWebhookEndpoint(cbra.core.Endpoint):
     __module__: str = 'cbra.ext.picqer'
+    client: Client = fastapi.Depends(DefaultClient)
     tags: list[str] = ['Integrations']
     name: str = 'picqer.webhooks'
     summary: str = 'Picqer Webhooks'
@@ -88,8 +92,12 @@ class PicqerWebhookEndpoint(cbra.core.Endpoint):
             return self.reject(reason=f"This server does not implement {dto.event}")
         func = getattr(self, attname)
         try:
-            return await func()
+            return await func(dto) or WebhookResponse(
+                accepted=True,
+                success=True
+            )
         except Exception:
+            self.logger.exception("Caught fatal exception while handling webhook message")
             return WebhookResponse(
                 accepted=True,
                 success=False
