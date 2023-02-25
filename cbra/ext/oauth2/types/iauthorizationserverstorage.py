@@ -18,11 +18,13 @@ M = TypeVar('M')
 class IAuthorizationServerStorage(Protocol):
     __module__: str = 'cbra.ext.oauth2.types'
 
+
     async def persist(
         self,
         obj: Any
     ) -> None:
         ...
 
+    async def destroy(self, obj: Any) -> None: ...
     async def get_state(self, key: str) -> IAuthorizationFlowState | None:
         ...

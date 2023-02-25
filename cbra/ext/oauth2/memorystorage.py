@@ -29,6 +29,9 @@ class MemoryStorage(BaseStorage):
     def __init__(self):
         self.objects = MemoryStorage.objects
 
+    async def destroy(self, obj: AuthorizationServerModel) -> None:
+        self.objects[type(obj).__name__].pop(obj.__key__[0][1], None) # type: ignore
+
     async def get_state(self, key: str) -> AuthorizationState | None:
         return self._get(AuthorizationState, key)
 

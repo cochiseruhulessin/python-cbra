@@ -9,9 +9,14 @@
 from types import NotImplementedType
 
 from .basemodel import BaseModel
+from .modelidentity import ModelIdentity
 from .modelautoassignedidentity import ModelAutoAssignedIdentity
 
 
 class PersistedModel(BaseModel):
     __abstract__: bool = True
     __surrogate__: ModelAutoAssignedIdentity | NotImplementedType | None | int
+    __key__: ModelIdentity | NotImplementedType
+
+    def natural_key(self) -> tuple[str, ...]:
+        raise NotImplementedError

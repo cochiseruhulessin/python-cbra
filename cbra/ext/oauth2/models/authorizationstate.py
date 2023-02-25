@@ -26,7 +26,10 @@ class AuthorizationState(PersistedModel):
     )
     nonce: str
     redirect_uri: str
-    state: str
+    state: str = pydantic.Field(
+        default=...,
+        primary_key=True
+    )
 
     @classmethod
     def new(cls: type[T], redirect_uri: str) -> T:

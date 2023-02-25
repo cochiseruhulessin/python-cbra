@@ -61,6 +61,7 @@ class AuthorizationCodeCallbackEndpoint(AuthorizationServerEndpoint):
             await client.verify_response(at)
             if at.id_token and not await client.verify_oidc(at.id_token, nonce=req.nonce):
                 raise ResponseValidationFailure("Invalid OIDC token in response.")
+            await self.storage.destroy(req)
             await self._on_success(client, at)
         return fastapi.responses.RedirectResponse(
             status_code=303,

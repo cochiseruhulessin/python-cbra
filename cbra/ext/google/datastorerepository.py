@@ -52,7 +52,7 @@ class DatastoreRepository(Runner):
                 )
             )
         ]
-    
+
     async def delete(self, keys: Key | list[Key]) -> None:
         func = self.client.delete if isinstance(keys, Key) else self.client.delete_multi # type: ignore
         return await self.run_in_executor(functools.partial(func, keys)) # type: ignore
@@ -85,10 +85,13 @@ class DatastoreRepository(Runner):
     
     def model_key(self, instance: PersistedModel) -> Key:
         Model: type[PersistedModel] = type(instance)
-        spec = Model.__surrogate__ # type: ignore
-        if spec == NotImplemented: # type: ignore
+        if instance.__surrogate__ != NotImplemented:
+            key = self.key(Model.__name__, instance.__surrogate__)
+        elif len(instance.__key__) == 1:
+            key = self.key(Model.__name__, instance.__key__[0][1]) # type: ignore
+        else:
             raise NotImplementedError
-        return self.key(Model.__name__, getattr(instance, spec.attname)) # type: ignore
+        return key
 
     async def get_entity_by_key(self, key: Key) -> Entity | None:
         return await self.run_in_executor(
@@ -134,14 +137,12 @@ class DatastoreRepository(Runner):
             # Exclude the surrogate key since it is retained in the Google Datastore
             # entities' key.
             exclude.add(field)
-
+        elif len(instance.__key__) != 1:
+            raise NotImplementedError
+        key = self.model_key(instance)
         data = instance.dict(exclude=exclude)
-
-        # Create the entity and persist it to the datastore.
         assert instance.__surrogate__ is not None
-        entity = Entity(
-            key=self.key(Model.__name__, instance.__surrogate__)
-        )
+        entity = Entity(key=key)
         entity.update(data) # type: ignore
         await self.run_in_executor(self.client.put, entity) # type: ignore
         return entity.key # type: ignore
@@ -156,8 +157,14 @@ class DatastoreRepository(Runner):
 
     def restore(self, model: type[Q], entity: dict[str, Any] | Entity) -> Q:
         if model.__surrogate__ != NotImplemented: # type: ignore
-            field_name = model.__surrogate__.attname # type: ignore
+            k = model.__surrogate__.attname # type: ignore
+            v = entity.key.id # type: ignore
+        elif model.__key__ != NotImplemented and len(model.__key__) == 1: # type: ignore
+            k = model.__key__[0][0] # type: ignore
+            v = entity.key.name # type: ignore
+        else:
+            raise NotImplementedError
         return model.parse_obj({
             **entity,
-            field_name: entity.key.id # type: ignore
+            k: v
         })

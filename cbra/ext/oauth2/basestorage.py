@@ -16,6 +16,9 @@ from .models import AuthorizationState
 class BaseStorage(IDependant):
     __module__: str = 'cbra.ext.oauth2'
 
+    async def destroy(self, obj: AuthorizationServerModel) -> None:
+        raise NotImplementedError
+
     async def get_state(self, key: str) -> AuthorizationState | None:
         raise NotImplementedError
 

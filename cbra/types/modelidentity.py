@@ -9,7 +9,7 @@
 import collections
 from typing import overload
 from typing import Any
-from typing import Iterable
+from typing import Sequence
 
 import pydantic
 import pydantic.main
@@ -31,7 +31,7 @@ class ModelIdentity:
         self,
         obj: None,
         cls: None
-    ) -> Iterable[tuple[str, Any]]:
+    ) -> Sequence[tuple[str, Any]]:
         ...
 
     @overload
@@ -39,14 +39,14 @@ class ModelIdentity:
         self,
         obj: pydantic.BaseModel,
         cls: type[pydantic.BaseModel]
-    ) -> Iterable[tuple[str, Any]]:
+    ) -> Sequence[tuple[str, Any]]:
         ...
 
     def __get__(
         self,
         obj: pydantic.BaseModel | None,
         cls: type[pydantic.BaseModel] | None
-    ) -> Iterable[tuple[str, Any]]:
+    ) -> Sequence[tuple[str, Any]]:
         if obj is None:
             return tuple(map(tuple, self.fields.items()))
         return tuple([(k, getattr(obj, k)) for k in self.fields])
