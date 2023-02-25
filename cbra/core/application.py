@@ -109,7 +109,7 @@ class Application(FastAPI):
     ) -> Callable[[DecoratedCallable], DecoratedCallable]:
         def decorator(func: DecoratedCallable) -> DecoratedCallable:
             self.update_requirements(func)
-            return decorator_factory(self, *args, *kwargs)(func)
+            return decorator_factory(self, *args, **kwargs)(func)
         return decorator
 
     def update_requirements(self, func: Callable[..., Any] | Depends | Any) -> None:
