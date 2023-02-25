@@ -20,6 +20,7 @@ from cbra.core.ioc import override
 from cbra.types import IDependant
 from .jarmauthorizeresponse import JARMAuthorizeResponse
 from .queryauthorizeresponse import QueryAuthorizeResponse
+from .responsevalidationfailure import ResponseValidationFailure
 from .unsupportedauthorizationresponse import UnsupportedAuthorizationResponse
 
 
@@ -98,3 +99,8 @@ class RedirectParameters(_RedirectParameters):
         **kwargs: Any
     ) -> oauth2.TokenResponse:
         return await self.__root__.obtain(client, **kwargs)
+    
+    def result(self) -> QueryAuthorizeResponse | JARMAuthorizeResponse:
+        if isinstance(self.__root__, UnsupportedAuthorizationResponse):
+            raise ResponseValidationFailure("Invalid response parameters.")
+        return self.__root__

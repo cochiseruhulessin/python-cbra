@@ -18,14 +18,20 @@ from cbra.core.conf import settings
 from cbra.core.iam import ISubjectRepository
 from cbra.core.iam.types import IUserOnboardingService
 from cbra.core.iam.services import UserOnboardingService
+from .memorystorage import MemoryStorage
+from .types import IAuthorizationServerStorage
 
 
 class AuthorizationServerEndpoint(cbra.Endpoint):
-    subjects: ISubjectRepository = cbra.ioc.instance('SubjectRepository')
     onboard: IUserOnboardingService = cbra.ioc.instance(
         name='SubjectOnboardingService',
         missing=UserOnboardingService
     )
+    storage: IAuthorizationServerStorage = cbra.ioc.instance(
+        name='AuthorizationServerStorage',
+        missing=MemoryStorage
+    )
+    subjects: ISubjectRepository = cbra.ioc.instance('SubjectRepository')
 
     def get_issuer(self) -> str:
         return settings.OAUTH2_ISSUER or\

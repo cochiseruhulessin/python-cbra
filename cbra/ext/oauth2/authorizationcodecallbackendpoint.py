@@ -13,6 +13,7 @@ from cbra.core.conf import settings
 from .endpoint import AuthorizationServerEndpoint
 from .types import RedirectParameters
 from .types import ResponseValidationFailure
+from .types import QueryAuthorizeResponse
 
 
 class AuthorizationCodeCallbackEndpoint(AuthorizationServerEndpoint):
@@ -31,38 +32,6 @@ class AuthorizationCodeCallbackEndpoint(AuthorizationServerEndpoint):
     async def get(
         self,
         client_id: str,
-        state: str | None = fastapi.Cookie(
-            default=None,
-            title='State',
-            alias='oauth2.state',
-            description=(
-                'The state that was sent with the authorization request. '
-                'If provided, then it must match the `state` query '
-                'parameter.'
-            )
-        ),
-        redirect_uri: str | None = fastapi.Cookie(
-            default=None,
-            title='Redirect URI',
-            alias='oauth2.redirect-uri',
-            description=(
-                'The `redirect_uri` parameter from the initial authorization '
-                'request. This value is required if the server does not have '
-                'other mechanisms to determine the original redirect URI.'
-            )
-        ),
-        nonce: str | None = fastapi.Cookie(
-            default=None,
-            title='Nonce',
-            alias='oidc.nonce',
-            description=(
-                'The state that was sent with the authorization request. '
-                'If provided, then it must match the `nonce` claim '
-                'in the ID token. When used with a token endpoint response '
-                'that does not supply an ID token, this parameter is '
-                'ignored.'
-            )
-        ),
         params: RedirectParameters = RedirectParameters.depends()
     ):
         client = await self.get_client(client_id)
@@ -70,6 +39,16 @@ class AuthorizationCodeCallbackEndpoint(AuthorizationServerEndpoint):
             return fastapi.responses.PlainTextResponse(
                 content=f"The client {client_id} is not configured for this server."
             )
+        result = params.result()
+        if not isinstance(result, QueryAuthorizeResponse):
+            raise NotImplementedError
+        if result.state is None:
+            return fastapi.responses.PlainTextResponse(
+                content="This server requires the 'state' parameter."
+            )
+        req = await self.storage.get_state(result.state)
+        if req is None or not req.is_valid(result):
+            return fastapi.responses.PlainTextResponse(content="The request is expired.")
         async with client:
             at = await params.obtain(
                 client,
@@ -77,20 +56,15 @@ class AuthorizationCodeCallbackEndpoint(AuthorizationServerEndpoint):
                     f'{self.request.url.scheme}://'
                     f'{self.request.url.netloc}{self.request.url.path}'
                 ),
-                state=state
+                state=req.state
             )
             await client.verify_response(at)
-            if at.id_token and not await client.verify_oidc(at.id_token, nonce=nonce):
+            if at.id_token and not await client.verify_oidc(at.id_token, nonce=req.nonce):
                 raise ResponseValidationFailure("Invalid OIDC token in response.")
             await self._on_success(client, at)
-
-        # TODO: Test this
-        self.delete_cookie(self.nonce_cookie_name, path=self.request.url.path)
-        self.delete_cookie(self.redirect_cookie_name, path=self.request.url.path)
-        self.delete_cookie(self.state_cookie_name, path=self.request.url.path)
         return fastapi.responses.RedirectResponse(
             status_code=303,
-            url=redirect_uri or '/'
+            url=req.redirect_uri or '/'
         )
 
     async def _on_success(

@@ -8,6 +8,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from .authorizationrequest import AuthorizationRequest
 from .authorizationlifecycle import AuthorizationLifecycle
+from .iauthorizationserverstorage import IAuthorizationServerStorage
 from .jarmauthorizeresponse import JARMAuthorizeResponse
 from .queryauthorizeresponse import QueryAuthorizeResponse
 from .loginresponse import LoginResponse
@@ -21,6 +22,7 @@ from .unsupportedauthorizationresponse import UnsupportedAuthorizationResponse
 __all__: list[str] = [
     'AuthorizationLifecycle',
     'AuthorizationRequest',
+    'IAuthorizationServerStorage',
     'JARMAuthorizeResponse',
     'LoginResponse',
     'QueryAuthorizeResponse',

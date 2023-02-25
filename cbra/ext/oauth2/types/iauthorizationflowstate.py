@@ -6,20 +6,13 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from typing import TypeAlias
-from typing import Union
-
-from .authorizationstate import AuthorizationState
-from .sector import Sector
+from typing import Any
+from typing import Protocol
 
 
-__all__: list[str] = [
-    'AuthorizationState',
-    'Sector'
-]
+class IAuthorizationFlowState(Protocol):
+    nonce: str
+    redirect_uri: str
+    state: str
 
-
-AuthorizationServerModel: TypeAlias = Union[
-    AuthorizationState,
-    Sector
-]
+    def is_valid(self, params: Any) -> bool: ...

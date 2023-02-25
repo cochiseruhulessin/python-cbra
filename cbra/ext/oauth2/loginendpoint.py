@@ -6,7 +6,6 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import secrets
 import urllib.parse
 
 import fastapi
@@ -16,10 +15,12 @@ import cbra.core as cbra
 from cbra.core.conf import settings
 from cbra.types import Forbidden
 from cbra.types import NotFound
+from .endpoint import AuthorizationServerEndpoint
 from .types import LoginResponse
+from .models import AuthorizationState
 
 
-class LoginEndpoint(cbra.Endpoint):
+class LoginEndpoint(AuthorizationServerEndpoint):
     __module__: str = 'cbra.ext.oauth2'
     name: str = 'oauth2.login'
     nonce_cookie_name: str = 'oidc.nonce'
@@ -66,38 +67,19 @@ class LoginEndpoint(cbra.Endpoint):
         client = await self.get_client(client_id)
         if client is None:
             raise NotFound
-        state = secrets.token_urlsafe(96)
-        nonce = secrets.token_urlsafe(96)
+        params = AuthorizationState.new(redirect_uri=success_url)
         redirect_uri = self.request.url_for('oauth2.callback', client_id=client_id)
         async with client:
             url = await client.authorize(
-                state=state,
+                state=params.state,
                 redirect_uri=redirect_uri,
                 scope={'openid', 'email'},
-                nonce=nonce
+                nonce=params.nonce
             )
 
-        # The cookies so that the callback endpoint can find the needed
+        # Persist the state so that the callback endpoint can find the needed
         # information to forward the request.
-        p = urllib.parse.urlparse(redirect_uri)
-        self.set_cookie(
-            key=self.state_cookie_name,
-            value=state,
-            max_age=120,
-            path=p.path
-        )
-        self.set_cookie(
-            key=self.nonce_cookie_name,
-            value=nonce,
-            max_age=120,
-            path=p.path
-        )
-        self.set_cookie(
-            key=self.redirect_cookie_name,
-            value=success_url or '/',
-            max_age=120,
-            path=p.path
-        )
+        await self.storage.persist(params)
         return fastapi.responses.RedirectResponse(
             status_code=self.status_code,
             url=url

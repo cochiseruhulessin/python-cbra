@@ -6,20 +6,8 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from typing import TypeAlias
-from typing import Union
-
-from .authorizationstate import AuthorizationState
-from .sector import Sector
+from cbra.types import PersistedModel
 
 
-__all__: list[str] = [
-    'AuthorizationState',
-    'Sector'
-]
-
-
-AuthorizationServerModel: TypeAlias = Union[
-    AuthorizationState,
-    Sector
-]
+class Sector(PersistedModel):
+    pass
