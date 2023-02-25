@@ -43,8 +43,7 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
             for attname, class_ in annotations.items():
                 field = namespace.get(attname)
                 if isinstance(field, pydantic.main.FieldInfo):
-                    if field.extra.get('read_only'):
-                        response_fields.append((attname, class_, cls.get_field(field, 'response')))
+                    response_fields.append((attname, class_, cls.get_field(field, 'response')))
                     if field.extra.get('primary_key'):
                         key_fields.append((attname, class_, field))
                     continue
