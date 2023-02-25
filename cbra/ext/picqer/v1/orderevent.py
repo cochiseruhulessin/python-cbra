@@ -16,10 +16,10 @@ from .event import Event
 class OrderEvent(Event):
     event: Literal[
         "orders.created",
-        #"orders.allocated",
-        #"orders.closed",
-        #"orders.status_changed",
-        #"orders.completed",
+        "orders.allocated",
+        "orders.closed",
+        "orders.status_changed",
+        "orders.completed",
     ]
 
     data: Order

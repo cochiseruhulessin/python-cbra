@@ -16,10 +16,10 @@ from .event import Event
 class PicklistEvent(Event):
     event: Literal[
         "picklists.created",
-        #"picklists.closed",
-        #"picklists.cancelled",
-        #"picklists.snoozed",
-        #"picklists.unsnoozed",
+        "picklists.closed",
+        "picklists.cancelled",
+        "picklists.snoozed",
+        "picklists.unsnoozed",
     ]
 
     data: Picklist
