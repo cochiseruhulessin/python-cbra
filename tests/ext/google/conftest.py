@@ -29,7 +29,7 @@ def google_id_token() -> str:
 @pytest.fixture(scope='session')
 def client() -> Client:
     if not GOOGLE_SERVICE_PROJECT or not GOOGLE_DATASTORE_NAMESPACE:
-        pytest.skip("Google not configure")
+        pytest.skip("Google not configured")
     return Client(
         project=GOOGLE_SERVICE_PROJECT,
         namespace=GOOGLE_DATASTORE_NAMESPACE

@@ -38,6 +38,7 @@ class IEndpoint:
     name: str | None = None
     logger: logging.Logger = logging.getLogger('uvicorn')
     session: ISessionManager[Any]
+    with_options: bool = True
 
     #: The set of permissions supported by this endpoint. These must be
     #: defined beforehand to limit the number of calls to remote IAM
@@ -84,7 +85,7 @@ class IEndpoint:
         return decorator_factory
 
     @classmethod
-    def configure(cls: type[T], **kwargs: Any) -> type[T]:
+    def configure(cls: type[T], overrides: dict[str, Any]) -> type[T]:
         return type(cls.__name__, (cls,), kwargs) # type: ignore
 
     async def get_allowed_subjects(self) -> set[str]:

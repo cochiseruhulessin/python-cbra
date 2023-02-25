@@ -51,6 +51,7 @@ from .stringpathparameter import StringPathParameter
 from .subjectidentifier import SubjectIdentifier
 from .unauthenticatedauthorizationcontext import UnauthenticatedAuthorizationContext
 from .uuidpathparameter import UUIDPathParameter
+from .verifier import Verifier
 
 
 __all__: list[str] = [
@@ -99,4 +100,5 @@ __all__: list[str] = [
     'StringPathParameter',
     'UnauthenticatedAuthorizationContext',
     'UUIDPathParameter',
+    'Verifier',
 ]

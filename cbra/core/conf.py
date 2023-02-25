@@ -296,6 +296,14 @@ class Settings:
         'TRUSTED_AUTHORIZATION_SERVERS': []
     }
 
+    def register(self, name: str, default: Any = NotImplemented):
+        if name in self.__defaults__:
+            raise ValueError(f'Setting already registered: {name}')
+        if str.upper(name) != name:
+            raise ValueError(f'Settings must be uppercase.')
+        if default != NotImplemented:
+            self.__defaults__[name] = default
+
     def __getattr__(self, __name: str) -> Any:
         try:
             self.user = importlib.import_module(os.environ['PYTHON_SETTINGS_MODULE'])

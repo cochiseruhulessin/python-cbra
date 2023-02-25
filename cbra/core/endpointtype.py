@@ -59,11 +59,6 @@ class EndpointType(type):
                 'allowed_http_methods': [x.method for x in handlers.values()],
                 'handlers': handlers.values()
             })
-            if 'OPTIONS' not in namespace['allowed_http_methods']:
-                # Create an options handler using the default CORS
-                # policy.
-                handlers['options'] = OptionsRequestHandler(name)
-                namespace['allowed_http_methods'].append('OPTIONS')
 
         # Create a concrete Principal subclass. This is to allow
         # thing like principal: RFC9068RequestPrincipal | OIDCRequestPrincipal.
@@ -80,6 +75,13 @@ class EndpointType(type):
 
 
         Endpoint = super().__new__(cls, name, bases, namespace, **params)
+        if not is_abstract:
+            if 'OPTIONS' not in namespace['allowed_http_methods']\
+            and getattr(Endpoint, 'with_options', True):
+                # Create an options handler using the default CORS
+                # policy.
+                handlers['options'] = OptionsRequestHandler(name)
+                namespace['allowed_http_methods'].append('OPTIONS')
         for handler in handlers.values():
             handler.add_to_class(Endpoint) # type: ignore
         return Endpoint # type: ignore

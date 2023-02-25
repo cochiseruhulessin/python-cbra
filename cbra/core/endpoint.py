@@ -9,6 +9,7 @@
 from datetime import datetime
 from datetime import timezone
 from typing import Any
+from typing import TypeVar
 
 import fastapi
 
@@ -18,6 +19,9 @@ from cbra.types import RequestPrincipal
 from .iam import AuthorizationContextFactory
 from .endpointtype import EndpointType
 from .sessions import RequestSession
+
+
+T = TypeVar('T')
 
 
 class Endpoint(IEndpoint, metaclass=EndpointType):
@@ -30,6 +34,13 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
     session: RequestSession = RequestSession.depends()
     timestamp: datetime
+
+    @classmethod
+    def configure(
+        cls: type[T],
+        overrides: dict[str, Any],
+    ) -> type[T]:
+        return type(cls.__name__, (cls,), overrides) # type: ignore
 
     def __init__(self, **kwargs: Any):
         """Constructor. Called in the router; can contain helpful extra

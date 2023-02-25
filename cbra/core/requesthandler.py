@@ -10,11 +10,14 @@ import asyncio
 import collections
 import inspect
 import uuid
+from typing import get_args
+from typing import get_origin
 from typing import Awaitable
 from typing import Any
 from typing import Callable
 from typing import Generic
 from typing import TypeVar
+from typing import Union
 from inspect import Parameter
 
 import fastapi
@@ -313,13 +316,24 @@ class RequestHandler(Generic[E]):
             isinstance(p, Parameter)\
                 and isinstance(p.default, self._injectables),
             isinstance(p, Parameter) and (where=='handler')\
-                and p.annotation in (self._path_types),
+                and p.annotation in (self._path_types),\
+            isinstance(p, Parameter) and (where=='handler')\
+                and self.is_pydantic_union(p.annotation),
             isinstance(p, Parameter) and (where=='handler')\
                 and inspect.isclass(p.annotation)\
                 and issubclass(p.annotation, pydantic.BaseModel),
             not isinstance(p, Parameter)\
                 and isinstance(p, self._injectables),
             not isinstance(p, Parameter) and self.is_injectable(p)
+        ])
+
+    def is_pydantic_union(self, obj: Any):
+        origin = get_origin(obj)
+        if origin != Union:
+            return False
+        return all([
+            isinstance(x, pydantic.main.ModelMetaclass)
+            for x in get_args(obj)
         ])
 
     def preprocess_parameter(self, p: Parameter) -> Parameter | None:
