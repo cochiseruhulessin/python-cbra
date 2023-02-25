@@ -50,6 +50,7 @@ class PrincipalHasher:
         principal: EmailAddress
     ) -> str:
         h = self.create_hasher()
+        h.update(type(principal).__name__)
         h.update(str.encode(principal))
         return self._format(h.hexdigest())
 
@@ -59,6 +60,7 @@ class PrincipalHasher:
         principal: SubjectIdentifier
     ) -> str:
         h = self.create_hasher()
+        h.update(type(principal).__name__)
         h.update(str.encode(principal.iss))
         h.update(str.encode(principal.sub))
         return self._format(h.hexdigest())
@@ -69,6 +71,7 @@ class PrincipalHasher:
         principal: PublicIdentifier
     ) -> str:
         h = self.create_hasher()
+        h.update(type(principal).__name__)
         h.update(str.encode(principal.iss))
         h.update(str.encode(principal.sub))
         return self._format(h.hexdigest())
