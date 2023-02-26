@@ -60,7 +60,7 @@ class DetailAction(ResourceAction):
         self,
         endpoint: IEndpoint,
         response: fastapi.Response | pydantic.BaseModel | None
-    ) -> fastapi.Response | pydantic.BaseModel | None:
+    ) -> fastapi.Response:
         if isinstance(response, pydantic.BaseModel)\
         and not isinstance(response, self.response_model):
             response = self.response_model.parse_obj(response.dict())

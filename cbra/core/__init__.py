@@ -83,3 +83,62 @@ class describe:
             if v is not None
         })
         return func
+
+
+class action:
+    """Like :class:`describe`, but decorates the method to indicate that
+    it exposes an action on a resource.
+    """
+    action: str
+    method: str
+    name: str
+    status_code: int = 200
+    summary: str | None = None
+
+    def __init__(
+        self,
+        summary: str,
+        *,
+        method: str,
+        status_code: int = 200,
+    ) -> None:
+        self.method = method
+        self.status_code = status_code
+        self.summary = summary
+
+    def __call__(
+        self,
+        func: Callable[..., T]
+    ) -> Callable[..., T]:
+        self.action = func.__name__
+        func.action = {} # type: ignore
+        func.action.update({ # type: ignore
+            k: v for k, v in self.__dict__.items()
+            if v is not None
+        })
+        return func
+    
+
+class response:
+    status_code: int
+    description: str
+
+    def __init__(
+        self,
+        status_code: int,
+        description: str
+    ) -> None:
+        self.description = description
+        self.status_code = status_code
+
+    def __call__(
+        self,
+        func: Callable[..., T]
+    ) -> Callable[..., T]:
+        if not hasattr(func, 'responses'):
+            func.responses = {} # type: ignore
+        func.responses[self.status_code] = { # type: ignore
+            k: v for k, v in self.__dict__.items()
+            if v is not None and k != 'status_code'
+        }
+        return func

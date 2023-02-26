@@ -13,6 +13,7 @@ from typing import Any
 import inflect
 
 from .createaction import CreateAction
+from .customaction import CustomAction
 from .deleteaction import DeleteAction
 from .listaction import ListAction
 from .replaceaction import ReplaceAction
@@ -72,6 +73,17 @@ class ResourceType(type):
                 if action.is_detail(): detail_actions.add(action.method)
                 if not action.is_detail(): collection_actions.add(action.method)
                 actions.append(action)
+
+            # Get local non-default actions
+            for func in namespace.values():
+                if not hasattr(func, 'action'):
+                    continue
+                action = CustomAction.fromfunc(name, func)
+                if action.is_detail(): detail_actions.add(action.method)
+                if not action.is_detail(): collection_actions.add(action.method)
+                actions.append(action)
+
+            # Update the namespace with the actions and resource name.
             namespace.update({
                 '__actions__': actions,
                 'resource_name': Model.__name__,

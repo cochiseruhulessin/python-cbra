@@ -125,7 +125,7 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
         self,
         responses: dict[int | str, Any]
     ) -> dict[int | str, Any]:
-        return responses
+        return {**responses, **getattr(self._func, 'responses', {})}
 
     def get_url_pattern(self, prefix: str | None, endpoint: type[IResource] | None = None) -> str:
         endpoint = endpoint or self.endpoint
