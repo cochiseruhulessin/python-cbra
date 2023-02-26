@@ -74,7 +74,8 @@ class LoginEndpoint(AuthorizationServerEndpoint):
                 state=params.state,
                 redirect_uri=redirect_uri,
                 scope={'openid', 'email'},
-                nonce=params.nonce
+                nonce=params.nonce,
+                prompt='select_account'
             )
 
         # Persist the state so that the callback endpoint can find the needed
