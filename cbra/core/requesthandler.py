@@ -63,6 +63,7 @@ class RequestHandler(Generic[E]):
     }
     _signature: inspect.Signature | None
     include_in_schema: bool = True
+    response_model_by_alias: bool = False
     status_code: int = 200
 
     @property
@@ -92,7 +93,8 @@ class RequestHandler(Generic[E]):
         name: str,
         method: str,
         func: Callable[..., Awaitable[Any] | Any],
-        include_in_schema: bool | None = None
+        include_in_schema: bool | None = None,
+        response_model_by_alias: bool = False
     ):
         self._endpoint_name = name
         self._class = None
@@ -104,9 +106,10 @@ class RequestHandler(Generic[E]):
         self._init_params = set()
         self._method = method
         self._func = func
+        self._func, self._handler_sig = self.validate_handler(self._func, self._handler_sig)
         if include_in_schema is not None:
             self.include_in_schema = include_in_schema
-        self._func, self._handler_sig = self.validate_handler(self._func, self._handler_sig)
+        self.response_model_by_alias = response_model_by_alias
         # Check if the asyncio.iscoroutinefunction() call returns
         # True for this object, since it depends on a private
         # symbol.
@@ -300,6 +303,7 @@ class RequestHandler(Generic[E]):
                 'status_code': 204
             })
         kwargs.setdefault('name', cls.name)
+        kwargs.setdefault('response_model_by_alias', cls.response_model_by_alias)
         kwargs.update(getattr(self._func, 'params', {}))
         router.add_api_route(
             endpoint=self,
@@ -364,7 +368,10 @@ class RequestHandler(Generic[E]):
             response = fastapi.responses.Response(
                 headers={'Content-Type': "application/json"},
                 status_code=self.status_code,
-                content=response.json(indent=2)
+                content=response.json(
+                    by_alias=endpoint.response_model_by_alias,
+                    indent=2,
+                )
             )
         elif isinstance(response, dict):
             response = fastapi.responses.JSONResponse(content=response)

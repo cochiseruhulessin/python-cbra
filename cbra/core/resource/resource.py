@@ -34,6 +34,7 @@ class Resource(IResource, metaclass=ResourceType):
     @classmethod
     def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:
         for action in cls.__actions__:
+            kwargs.setdefault('response_model_by_alias', cls.response_model_by_alias)
             action.add_to_router(cls, router, **kwargs)
 
     def adapt(self, obj: Any) -> ResourceModel:

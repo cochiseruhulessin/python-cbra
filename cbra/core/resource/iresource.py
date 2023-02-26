@@ -16,6 +16,7 @@ from .resourcemodel import ResourceModel
 class IResource(IEndpoint, Persister):
     model: type[ResourceModel]
     path_name: str
+    response_model_by_alias: bool = False
     resource_name: str
     resource_id: Any
     verbose_name: str

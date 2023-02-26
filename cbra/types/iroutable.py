@@ -13,6 +13,7 @@ import fastapi
 
 class IRoutable:
     __module__: str = 'cbra.types'
+    response_model_by_alias: bool = False
 
     @classmethod
     def add_to_router(cls, endpoint: Any, router: fastapi.FastAPI, **kwargs: Any) -> None:
