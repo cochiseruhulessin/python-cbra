@@ -15,7 +15,6 @@ from google.cloud.datastore import Query
 from headless.ext.oauth2.models import SubjectIdentifier
 
 from cbra.types import IModelRepository
-from cbra.types import NullSubject
 from cbra.core.iam import ISubjectRepository
 from cbra.core.iam.models import Principal
 from cbra.core.iam.models import Subject
@@ -32,7 +31,7 @@ class DatastoreSubjectRepository(
     @functools.singledispatchmethod # type: ignore
     async def get(self, principal: Any) -> Subject | None:
         if principal is None: return None
-        raise NotImplementedError(type(principal).__name__)
+        raise NotImplementedError(f'{principal.__module__}.{type(principal).__name__}')
 
     @get.register
     async def get_by_email(self, principal: EmailAddress) -> Subject | None:
@@ -72,9 +71,9 @@ class DatastoreSubjectRepository(
         for entity in await self.run_in_executor(query.fetch): # type: ignore
             yield self.restore(Principal, entity)
 
-    async def resolve(self, identity: SubjectIdentifier) -> Subject | NullSubject:
+    async def resolve(self, identity: int | str) -> Subject | None:
         """Resolve a principal to a global subject identifier."""
-        return NullSubject()
+        return await self.get(int(identity))
 
     async def find_by_principals(
         self,

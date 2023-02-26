@@ -87,7 +87,6 @@ class AuthorizationContextFactory(IAuthorizationContextFactory, IDependant):
             providers=providers
         )
         if principal.has_audience():
-            url = request.url
             self.validate_audience(principal, self.allowed_audience(request))
 
         unauthenticated= UnauthenticatedAuthorizationContext(remote_host=remote_host)

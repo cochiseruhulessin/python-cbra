@@ -7,7 +7,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from cbra.core.iam import SubjectResolver
-from cbra.core.iam.models import Subject
+from cbra.core.iam import RequestSubject
 from cbra.core.ioc import instance
 from cbra.core.ioc import override
 from cbra.types import NullSubject
@@ -33,8 +33,15 @@ class DatastoreSubjectResolver(SubjectResolver):
     async def resolve_session(
         self,
         principal: SessionRequestPrincipal
-    ) -> Subject | NullSubject:
+    ) -> RequestSubject | NullSubject:
         if principal.subject is None:
             return NullSubject()
-
-        return await self.repo.resolve(principal.subject)
+        subject = await self.repo.resolve(principal.subject.sub)
+        if subject is None:
+            return NullSubject()
+        assert subject.uid is not None # nosec
+        return RequestSubject(
+            id=str(subject.uid),
+            email=principal.claims.email,
+            principal=principal
+        )
