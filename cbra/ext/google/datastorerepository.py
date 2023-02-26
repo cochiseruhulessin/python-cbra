@@ -85,7 +85,7 @@ class DatastoreRepository(Runner):
         )
         return DatastoreQueryResult(
             token=result.next_page_token, # type: ignore
-            entities=[x for x in result]
+            entities=[self.restore(model, x) for x in result]
         )
 
     def key(
@@ -156,7 +156,9 @@ class DatastoreRepository(Runner):
             # Exclude the surrogate key since it is retained in the Google Datastore
             # entities' key.
             exclude.add(field)
-        elif len(instance.__key__) != 1:
+        elif len(instance.__key__) == 1:
+            exclude.add(instance.__key__[0][0]) # type: ignore
+        else:
             raise NotImplementedError
         key = self.model_key(instance)
         data = instance.dict(exclude=exclude)
@@ -180,7 +182,7 @@ class DatastoreRepository(Runner):
             v = entity.key.id # type: ignore
         elif model.__key__ != NotImplemented and len(model.__key__) == 1: # type: ignore
             k = model.__key__[0][0] # type: ignore
-            v = entity.key.name # type: ignore
+            v = entity.key.id or entity.key.name # type: ignore
         else:
             raise NotImplementedError
         return model.parse_obj({
