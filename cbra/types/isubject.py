@@ -8,6 +8,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
+from canonical import EmailAddress
+
 from .icredentialverifier import ICredentialVerifier
 
 
@@ -16,7 +18,7 @@ class ISubject:
     credential.
     """
     __module__: str = 'cbra.types'
-    email: str | None
+    email: EmailAddress | None
     sub: Any
 
     def is_authenticated(self) -> bool:
