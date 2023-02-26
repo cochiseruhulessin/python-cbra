@@ -116,7 +116,8 @@ class LoginEndpoint(AuthorizationServerEndpoint):
             all([
                 p.netloc == self.request.url.netloc,
                 p.scheme == self.request.url.scheme,
-            ])
+            ]),
+            p.netloc in settings.LOGIN_AUTHORIZED_DOMAINS
         ])
 
     async def get_client(self, client_id: str) -> oauth2.Client | None:

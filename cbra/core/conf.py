@@ -268,6 +268,7 @@ class Settings:
     user: types.ModuleType | None = None
     ASGI_ROOT_PATH: str | None
     DEPLOYMENT_ENV: str
+    LOGIN_AUTHORIZED_DOMAINS: set[str]
     OAUTH2_CLIENTS: list[Any]
     OAUTH2_ISSUER: str
     SECRET_KEY: str
@@ -283,6 +284,7 @@ class Settings:
     __defaults__: dict[str, Any] = {
         'ASGI_ROOT_PATH': os.environ.get('ASGI_ROOT_PATH'),
         'DEPLOYMENT_ENV': os.environ.get('DEPLOYMENT_ENV') or 'production',
+        'LOGIN_AUTHORIZED_DOMAINS': set(),
         'OAUTH2_CLIENTS': [],
         'OAUTH2_ISSUER': None,
         'SECRET_KEY': os.environ.get('SECRET_KEY') or bytes.hex(os.urandom(32)),
