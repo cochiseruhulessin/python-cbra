@@ -19,6 +19,7 @@ from google.cloud.datastore import Query
 
 from cbra.core import ioc
 from cbra.types import PersistedModel
+from .datastorequeryresult import DatastoreQueryResult
 from .runner import Runner
 
 
@@ -68,6 +69,24 @@ class DatastoreRepository(Runner):
                 yield obj
             elif origin == Key:
                 yield obj.key
+
+    async def fetch(
+        self,
+        model: type[Q],
+        query: Query,
+        cursor: str | None = None,
+        limit: int = 100
+    ) -> DatastoreQueryResult[Q]:
+        """Like :meth:`execute()`, but returns a :class:`QueryResult` instance
+        holding the pagination token and the items matching the query.
+        """
+        result = await self.run_in_executor(
+            functools.partial(query.fetch, start_cursor=cursor, limit=limit) # type: ignore
+        )
+        return DatastoreQueryResult(
+            token=result.next_page_token, # type: ignore
+            entities=[x for x in result]
+        )
 
     def key(
         self,

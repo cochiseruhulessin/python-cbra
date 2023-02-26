@@ -15,9 +15,11 @@ from .application import Application
 from .endpoint import Endpoint
 from . import ioc
 from .params import *
+from .resource import Collection
 from .resource import Create
 from .resource import Delete
 from .resource import Mutable
+from .resource import QueryResult
 from .resource import Replace
 from .resource import Resource
 from .resource import ResourceModel
@@ -38,11 +40,13 @@ __all__: list[str] = [
     'permission',
     'Application',
     'ApplicationSecretKey',
+    'Collection',
     'Create',
     'Delete',
     'Endpoint',
     'Field',
     'Mutable',
+    'QueryResult',
     'Replace',
     'Resource',
     'ResourceModel',

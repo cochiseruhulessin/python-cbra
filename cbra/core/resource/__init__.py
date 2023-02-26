@@ -7,10 +7,13 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from .create import Create
+from .collection import Collection
 from .delete import Delete
+from .queryresult import QueryResult
 from .replace import Replace
 from .resource import Resource
 from .resourcemodel import ResourceModel
+from .resourceprotocol import ResourceProtocol
 from .resourcetype import ResourceType
 from .retrieve import Retrieve
 from .update import Update
@@ -18,11 +21,14 @@ from .update import Update
 
 __all__: list[str] = [
     'Create',
+    'Collection',
     'Delete',
     'Mutable',
+    'QueryResult',
     'Replace',
     'Resource',
     'ResourceModel',
+    'ResourceProtocol',
     'ResourceType',
     'Retrieve',
     'Update',

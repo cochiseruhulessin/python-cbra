@@ -76,7 +76,7 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
                     'items': pydantic.Field(
                         default=...,
                         title=f'{name} array',
-                        description=f'Items in the list of {name} resources.'
+                        description=f'Items in the list of **{name}** resources.'
                     ),
                     'kind': pydantic.Field(
                         default=...,

@@ -80,6 +80,7 @@ The following user-defined environment variables are supported.
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from .datastorequeryresult import DatastoreQueryResult
 from .datastorerepository import DatastoreRepository
 from .datastoresubjectrepository import DatastoreSubjectRepository
 from .datastoresubjectresolver import DatastoreSubjectResolver
@@ -92,6 +93,7 @@ from .service import Service
 
 
 __all__: list[str] = [
+    'DatastoreQueryResult',
     'DatastoreRepository',
     'DatastoreSubjectResolver',
     'DatastoreSubjectRepository',

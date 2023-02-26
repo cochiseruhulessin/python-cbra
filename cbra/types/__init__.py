@@ -23,6 +23,7 @@ from .iendpoint import IEndpoint
 from .ihashable import IHashable
 from .imodelrepository import IModelRepository
 from .integerpathparameter import IntegerPathParameter
+from .iqueryresult import IQueryResult
 from .iroutable import IRoutable
 from .irequestprincipal import IRequestPrincipal
 from .irequestprincipalintrospecter import IRequestPrincipalIntrospecter
@@ -78,6 +79,7 @@ __all__: list[str] = [
     'ISessionManager',
     'ISubject',
     'ISubjectResolver',
+    'IQueryResult',
     'JSONWebToken',
     'JSONWebTokenPrincipal',
     'MutableSignature',

@@ -35,3 +35,9 @@ class Resource(IResource, metaclass=ResourceType):
     def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:
         for action in cls.__actions__:
             action.add_to_router(cls, router, **kwargs)
+
+    def adapt(self, obj: Any) -> ResourceModel:
+        """Adapt an object of any kind to a :class:`ResourceModel` instance.
+        The default implementation simply returns the object.
+        """
+        return obj

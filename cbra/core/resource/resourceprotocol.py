@@ -6,15 +6,8 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import pydantic
-
-from .resourcelistmetadata import ResourceListMetadata
+from typing import Protocol
 
 
-class ResourceList(pydantic.BaseModel):
-    api_version: str = pydantic.Field(
-        default=...,
-        alias='apiVersion',
-        title="API Version"
-    )
-    metadata: ResourceListMetadata
+class ResourceProtocol(Protocol):
+    __module__: str = 'cbra.core.resource'
