@@ -107,6 +107,11 @@ cryptographic signing, and should be set to either:
 
 This value may also be provided as an environment variable.
 
+**Note that this key should not be used for long-term storage.
+It may be rotated without the knowledge of the application, so
+any code that uses this setting must gracefully handle verification
+and/or decryption failures.**
+
 .. warning::
 
     **Keep this value secret.**
