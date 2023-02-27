@@ -38,9 +38,6 @@ class Session(SessionModel, ISessionData[SessionClaims]): # type: ignore
         v = base64.urlsafe_b64encode(str.encode(self.json(), encoding='utf-8'))
         return bytes.decode(v, 'ascii')
 
-    def digest(self) -> bytes:
-        return self._hash(self.dict(exclude={'hmac'}, exclude_none=True))
-
     def set(self, key: str, value: Any) -> bool:
         if self.claims is None:
             self.claims = SessionClaims()

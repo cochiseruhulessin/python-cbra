@@ -12,6 +12,7 @@ from typing import Any
 
 from headless.ext.oauth2 import Client
 
+from cbra.types import HMACSignature
 from cbra.types import ICredential
 from cbra.types import ICredentialVerifier
 from cbra.types import IDependant
@@ -20,10 +21,12 @@ from cbra.types import RFC9068RequestPrincipal
 from cbra.types import SessionRequestPrincipal
 from cbra.types import JSONWebToken
 from ..ioc.config import TRUSTED_AUTHORIZATION_SERVERS
+from ..params import ApplicationSecretKey
+from ..secretkey import SecretKey
 
 
 class AuthenticationService(
-    ICredentialVerifier[RFC9068RequestPrincipal|OIDCRequestPrincipal],
+    ICredentialVerifier[RFC9068RequestPrincipal|OIDCRequestPrincipal|SessionRequestPrincipal],
     IDependant
 ):
     __module__: str = 'cbra.core.iam'
@@ -31,9 +34,11 @@ class AuthenticationService(
 
     def __init__(
         self,
-        providers: list[str] = TRUSTED_AUTHORIZATION_SERVERS
+        providers: list[str] = TRUSTED_AUTHORIZATION_SERVERS,
+        secret_key: SecretKey = ApplicationSecretKey
     ):
         self.providers = set(providers)
+        self.secret_key = secret_key
 
     @functools.singledispatchmethod # type: ignore
     async def verify(
@@ -75,9 +80,8 @@ class AuthenticationService(
     async def verify_session(
         self,
         principal: SessionRequestPrincipal,
+        credential: HMACSignature,
         *args: Any,
         **kwargs: Any
     ) -> bool:
-        # TODO: Request is allowed to bypass the authentication check if the
-        # session is not awaited (CRITICAL).
-        return bool(principal.claims)
+        return await credential.verify(self.secret_key)

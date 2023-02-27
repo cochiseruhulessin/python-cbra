@@ -11,6 +11,7 @@ from .basemodel import BaseModel
 from .basemodel import BaseModelMetaclass
 from .conflict import Conflict
 from .forbidden import Forbidden
+from .hmacsignature import HMACSignature
 from .hints import PolymorphicIterable
 from .iauthorizationcontext import IAuthorizationContext
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
@@ -61,6 +62,7 @@ __all__: list[str] = [
     'BaseModelMetaclass',
     'Conflict',
     'Forbidden',
+    'HMACSignature',
     'ICredential',
     'ICredentialVerifier',
     'ICursor',

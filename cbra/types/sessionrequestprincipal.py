@@ -8,15 +8,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import base64
 from typing import Any
+from typing import TypeVar
 
 import fastapi
 import pydantic
+from ckms.utils import b64decode
 
+from .hmacsignature import HMACSignature
 from .icredential import ICredential
 from .irequestprincipal import IRequestPrincipal
 from .sessionclaims import SessionClaims
 from .sessionmodel import SessionModel
 from .subjectidentifier import SubjectIdentifier
+
+
+P = TypeVar('P', bound='IRequestPrincipal')
 
 
 class SessionRequestPrincipal(IRequestPrincipal, ICredential, SessionModel):
@@ -54,4 +60,5 @@ class SessionRequestPrincipal(IRequestPrincipal, ICredential, SessionModel):
         return False
 
     def get_credential(self) -> ICredential | None:
-        return None
+        if self.hmac is not None:
+            return HMACSignature(b64decode(self.hmac), self.digest())

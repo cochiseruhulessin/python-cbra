@@ -66,10 +66,10 @@ class SecretKey(IDependant):
             value = str.encode(value, encoding=encoding)
         return b64encode_str(await self.signing_key.sign(value))
 
-    async def verify(self, value: bytes | str, message: bytes) -> bool:
-        if isinstance(value, str):
-            value = b64decode(value)
-        return await self.signing_key.verify(value, message)
+    async def verify(self, signature: bytes | str, message: bytes) -> bool:
+        if isinstance(signature, str):
+            signature = b64decode(signature)
+        return await self.signing_key.verify(signature, message)
 
     @classmethod
     def __inject__(cls: type[T]) -> Callable[..., Awaitable[T] | T]:

@@ -11,13 +11,14 @@ from typing import TypeVar
 
 import pydantic
 
+from .ihashable import IHashable
 from .sessionclaims import SessionClaims
 
 
 T = TypeVar('T', bound='SessionModel')
 
 
-class SessionModel(pydantic.BaseModel):
+class SessionModel(pydantic.BaseModel, IHashable):
     id: str
     iat: int
     claims: SessionClaims | None = None
@@ -31,3 +32,6 @@ class SessionModel(pydantic.BaseModel):
             return cls.parse_raw(serialized)
         except Exception:
             return None
+
+    def digest(self) -> bytes:
+        return self._hash(self.dict(exclude={'hmac'}, exclude_none=True))

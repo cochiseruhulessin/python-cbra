@@ -12,7 +12,6 @@ from typing import Callable
 from typing import Generic
 from typing import TypeVar
 
-from .ihashable import IHashable
 from .sessionclaims import SessionClaims
 
 
@@ -20,7 +19,7 @@ C = TypeVar('C', bound=SessionClaims)
 T = TypeVar('T', bound='ISessionData[Any]')
 
 
-class ISessionData(Generic[C], IHashable):
+class ISessionData(Generic[C]):
     claims: C | None
 
     @classmethod
