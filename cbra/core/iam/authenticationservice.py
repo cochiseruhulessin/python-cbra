@@ -78,10 +78,6 @@ class AuthenticationService(
         *args: Any,
         **kwargs: Any
     ) -> bool:
-        """A session principal **with clains** is always verified
-        because signature validation happens when parsing it
-        from the cookie (default implementation). Other implementations
-        should likewise assume that if a session object is passed to
-        this method, it has been priorly verified.
-        """
+        # TODO: Request is allowed to bypass the authentication check if the
+        # session is not awaited (CRITICAL).
         return bool(principal.claims)
