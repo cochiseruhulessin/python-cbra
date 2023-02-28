@@ -87,7 +87,7 @@ class IEndpoint:
 
     @classmethod
     def configure(cls: type[T], overrides: dict[str, Any]) -> type[T]:
-        return type(cls.__name__, (cls,), kwargs) # type: ignore
+        return type(cls.__name__, (cls,), overrides) # type: ignore
 
     async def get_allowed_subjects(self) -> set[str]:
         """Return the set of allowed subjects that may access this resource.

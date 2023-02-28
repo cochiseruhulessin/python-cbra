@@ -10,6 +10,7 @@ import inspect
 from typing import Any
 from typing import Callable
 
+import aorta
 import fastapi
 from fastapi import FastAPI
 from fastapi.routing import DecoratedCallable
@@ -21,6 +22,7 @@ from .endpoint import Endpoint
 from .resource import Resource
 from .ioc import Container
 from .ioc import Requirement
+from .messagepublisher import MessagePublisher
 from .utils import parent_signature
 
 
@@ -39,6 +41,8 @@ class Application(FastAPI):
         handlers[Abortable] = self.on_aborted
 
         kwargs.setdefault('root_path', settings.ASGI_ROOT_PATH)
+        self.inject('MessagePublisher', MessagePublisher)
+        self.inject('MessageTransport', aorta.NullTransport())
         super().__init__(*args, **kwargs)
 
     def add(

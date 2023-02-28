@@ -80,6 +80,7 @@ The following user-defined environment variables are supported.
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from .aortaendpoint import AortaEndpoint
 from .datastorequeryresult import DatastoreQueryResult
 from .datastorerepository import DatastoreRepository
 from .datastoresubjectrepository import DatastoreSubjectRepository
@@ -88,11 +89,13 @@ from .eventarcendpoint import EventarcEndpoint
 from .googleendpoint import GoogleEndpoint
 from .googlepubsubtransport import GooglePubsubTransport
 from .googleserviceaccountprincipal import GoogleServiceAccountPrincipal
+from .messagepublished import MessagePublished
 from .pubsubmessage import PubsubMessage
 from .service import Service
 
 
 __all__: list[str] = [
+    'AortaEndpoint',
     'DatastoreQueryResult',
     'DatastoreRepository',
     'DatastoreSubjectResolver',
@@ -101,6 +104,7 @@ __all__: list[str] = [
     'GoogleEndpoint',
     'GooglePubsubTransport',
     'GoogleServiceAccountPrincipal',
+    'MessagePublished',
     'PubsubMessage',
     'Service'
 ]

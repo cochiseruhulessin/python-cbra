@@ -374,7 +374,10 @@ class RequestHandler(Generic[E]):
                 )
             )
         elif isinstance(response, dict):
-            response = fastapi.responses.JSONResponse(content=response)
+            response = fastapi.responses.JSONResponse(
+                status_code=self.status_code,
+                content=response
+            )
         assert isinstance(response, fastapi.Response), type(response) # nosec
         response.headers.update(endpoint.get_success_headers(response))
         return response

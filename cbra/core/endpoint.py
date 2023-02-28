@@ -35,13 +35,6 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     session: RequestSession = RequestSession.depends()
     timestamp: datetime
 
-    @classmethod
-    def configure(
-        cls: type[T],
-        overrides: dict[str, Any],
-    ) -> type[T]:
-        return type(cls.__name__, (cls,), overrides) # type: ignore
-
     def __init__(self, **kwargs: Any):
         """Constructor. Called in the router; can contain helpful extra
         keyword arguments, and other things.

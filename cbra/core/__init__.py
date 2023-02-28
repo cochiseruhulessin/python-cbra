@@ -14,6 +14,7 @@ from pydantic import Field
 from .application import Application
 from .endpoint import Endpoint
 from . import ioc
+from .messagepublisher import MessagePublisher
 from .params import *
 from .resource import Collection
 from .resource import Create
@@ -45,6 +46,7 @@ __all__: list[str] = [
     'Delete',
     'Endpoint',
     'Field',
+    'MessagePublisher',
     'Mutable',
     'QueryResult',
     'Replace',
