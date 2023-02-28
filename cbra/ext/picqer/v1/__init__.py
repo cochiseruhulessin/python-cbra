@@ -11,16 +11,19 @@ from typing import Union
 
 from .orderevent import OrderEvent
 from .picklistevent import PicklistEvent
+from .purchaseorderevent import PurchaseOrderEvent
 
 
 __all__: list[str] = [
     'OrderEvent',
     'PicklistEvent',
     'PicqerWebhookMessage',
+    'PurchaseOrderEvent',
 ]
 
 
 PicqerWebhookMessage: TypeAlias = Union[
     OrderEvent,
     PicklistEvent,
+    PurchaseOrderEvent
 ]
