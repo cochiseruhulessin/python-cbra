@@ -21,7 +21,7 @@
   },
   "extras_require": {
     "all": [
-      "aorta[all]>=2.19.0",
+      "aorta[all]>=3.0.0a2",
       "google-cloud-datastore>=2.13.2",
       "gunicorn",
       "httpx",
@@ -31,8 +31,8 @@
       "unimatrix.ext.kms[all]"
     ],
     "google": [
-      "aorta[google]>=2.19.0",
-      "ckms[google]>=0.59",
+      "aorta[google]>=3.0.0a2",
+      "ckms[google]>=0.60",
       "google-cloud-datastore>=2.13.2"
     ],
     "gunicorn": [
