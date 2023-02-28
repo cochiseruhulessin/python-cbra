@@ -27,7 +27,7 @@ class AortaEndpoint(EventarcEndpoint):
         if envelope is None:
             self.logger.critical("Message is not an Aorta message type.")
             return
-        if not not envelope.is_known():
+        if not envelope.is_known():
             self.logger.critical(
                 "Received an Aorta message of unknown type "
                 "(kind: %s, version: %s, id: %s)",
