@@ -69,7 +69,7 @@ class PubsubMessage(pydantic.BaseModel):
         )
     )
 
-    def get_data(self) -> dict[str, Any] | list[Any] | None:
+    def get_data(self) -> Any:
         """Return a dictionary or a list containing the message
         data as specified by the ``.data`` attribute. The encoding
         is assumed JSON/UTF-8.
