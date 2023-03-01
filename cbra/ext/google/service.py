@@ -8,6 +8,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
+from google.cloud import logging
+
 from cbra.core import Application
 from cbra.core.utils import parent_signature
 from .aortaendpoint import AortaEndpoint
@@ -37,3 +39,20 @@ class Service(Application):
                 'qualname': 'cbra.ext.google.DatastoreSubjectRepository'
             })
         self.add(AortaEndpoint, path="/.well-known/aorta")
+
+    def logging_config(self):
+        client = logging.Client(project=GOOGLE_SERVICE_PROJECT)
+        client.setup_logging() # type: ignore
+        config = super().logging_config()
+        config['formatters']['google-cloud'] = {
+            '()': "cbra.ext.google.logging.JSONFormatter",
+        }
+        config['handlers']['default'] = {
+            'class': 'google.cloud.logging.handlers.CloudLoggingHandler',
+            'client': client,
+            'formatter': 'google-cloud',
+            'labels': {
+                'kind': 'service'
+            }
+        }
+        return config

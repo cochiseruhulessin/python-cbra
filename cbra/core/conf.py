@@ -29,6 +29,17 @@ The root path of the application. Use this setting when running behind
 a proxy and the application is served from something else than ``/``
 e.g. ``/api/v1``.
 
+.. setting:: DEBUG
+
+``DEBUG``
+---------
+
+Default: ``False``
+
+A boolean that turns on/off debug mode.
+
+Never deploy an application into production with :setting:`DEBUG` turned on.
+
 
 .. setting:: DEPENDENCIES
 
@@ -62,6 +73,16 @@ Default: ``'production'``
 The current deployment environment. This defaults to the string
 ``production`` in order to prevent applications being deployed
 with less secure settings from other environments.
+
+
+.. setting:: LOG_CONSOLE
+
+``LOG_CONSOLE``
+---------------
+
+Default: ``False``
+
+Enable logging to ``stdout``.
 
 
 .. setting: OAUTH2_CLIENTS
@@ -273,7 +294,10 @@ class Settings:
     user: types.ModuleType | None = None
     ASGI_ROOT_PATH: str | None
     DEPLOYMENT_ENV: str
+    DEBUG: bool
     LOGIN_AUTHORIZED_DOMAINS: set[str]
+    LOG_CONSOLE: bool
+    LOGGING: dict[str, Any]
     OAUTH2_CLIENTS: list[Any]
     OAUTH2_ISSUER: str
     SECRET_KEY: str
@@ -288,8 +312,48 @@ class Settings:
 
     __defaults__: dict[str, Any] = {
         'ASGI_ROOT_PATH': os.environ.get('ASGI_ROOT_PATH'),
+        'DEBUG': False,
         'DEPLOYMENT_ENV': os.environ.get('DEPLOYMENT_ENV') or 'production',
         'LOGIN_AUTHORIZED_DOMAINS': set(),
+        'LOG_CONSOLE': False,
+        'LOGGING': {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                "uvicorn": {
+                    "()": "uvicorn.logging.DefaultFormatter",
+                    "fmt": "%(levelprefix)s %(message)s",
+                    "use_colors": None,
+                },
+                "stdout": {
+                    "fmt": "%(message)s",
+                },
+            },
+            'handlers': {
+                'default': {
+                    'formatter': "uvicorn",
+                    'class': "logging.StreamHandler",
+                    'stream': "ext://sys.stdout",
+                },
+                'console': {
+                    'class': 'logging.StreamHandler',
+                    'stream': "ext://sys.stdout",
+                    'formatter': 'uvicorn'
+                }
+            },
+            'loggers': {
+                'aorta': {
+                    'handlers': ['console', 'default'],
+                    'propagate': False,
+                    'level': 'INFO'
+                },
+                'cbra': {
+                    'handlers': ['console', 'default'],
+                    'propagate': False,
+                    'level': 'INFO'
+                }
+            }
+        },
         'OAUTH2_CLIENTS': [],
         'OAUTH2_ISSUER': None,
         'SECRET_KEY': os.environ.get('SECRET_KEY') or bytes.hex(os.urandom(32)),

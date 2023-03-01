@@ -23,6 +23,8 @@
     "all": [
       "aorta[all]>=3.0.0a3",
       "google-cloud-datastore>=2.13.2",
+      "google-cloud-logging",
+      "gunicorn",
       "gunicorn",
       "httpx",
       "jwcrypto",
@@ -33,7 +35,8 @@
     "google": [
       "aorta[google]>=3.0.0a3",
       "ckms[google]>=0.60",
-      "google-cloud-datastore>=2.13.2"
+      "google-cloud-datastore>=2.13.2",
+      "google-cloud-logging"
     ],
     "gunicorn": [
       "gunicorn"

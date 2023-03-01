@@ -36,7 +36,7 @@ class IEndpoint:
     handlers: list[IRoutable]
     include_in_schema: bool = True
     name: str | None = None
-    logger: logging.Logger = logging.getLogger('uvicorn')
+    logger: logging.Logger = logging.getLogger('cbra.endpoint')
     response_model_by_alias: bool = False
     session: ISessionManager[Any]
     with_options: bool = True

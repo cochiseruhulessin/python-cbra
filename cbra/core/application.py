@@ -6,7 +6,9 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import copy
 import inspect
+import logging.config
 from typing import Any
 from typing import Callable
 
@@ -44,6 +46,7 @@ class Application(FastAPI):
         self.inject('MessagePublisher', MessagePublisher)
         self.inject('MessageTransport', aorta.NullTransport())
         super().__init__(*args, **kwargs)
+        self.add_event_handler('startup', self.setup_logging) # type: ignore
 
     def add(
         self,
@@ -55,6 +58,17 @@ class Application(FastAPI):
     def inject(self, name: str, value: Any) -> None:
         """Inject a value into the dependencies container."""
         self.container.inject(name, value)
+
+    def logging_config(self):
+        config = copy.deepcopy(settings.LOGGING)
+        if not settings.DEBUG and not settings.LOG_CONSOLE:
+            # Remove console handler when not running in debug mode and its
+            # not explicitely enabled in the settings.
+            config['handlers']['console'] = {'class': 'logging.NullHandler'}
+        return config
+
+    def setup_logging(self) -> None:
+        logging.config.dictConfig(self.logging_config())
 
     async def on_aborted(
         self,
