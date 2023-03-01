@@ -131,6 +131,7 @@ class RequestHandler(Generic[E]):
 
     def is_injectable(self, cls: Any) -> bool:
         """Return a boolean indicating if the class is injectable."""
+        cls = get_origin(cls) or cls
         return any([
             inspect.isclass(cls) and issubclass(cls, self._annotations),
             cls in self._annotations
@@ -324,8 +325,11 @@ class RequestHandler(Generic[E]):
             isinstance(p, Parameter) and (where=='handler')\
                 and self.is_pydantic_union(p.annotation),
             isinstance(p, Parameter) and (where=='handler')\
+                and get_origin(p.annotation) is None\
                 and inspect.isclass(p.annotation)\
                 and issubclass(p.annotation, pydantic.BaseModel),
+            isinstance(p, Parameter) and (where=='handler')\
+                and get_origin(p.annotation) == dict,
             not isinstance(p, Parameter)\
                 and isinstance(p, self._injectables),
             not isinstance(p, Parameter) and self.is_injectable(p)
