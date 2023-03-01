@@ -36,10 +36,22 @@ class MockEndpoint(cbra.Endpoint):
         return {'method': self.request.method}
 
 
+class AnnotationEndpoint(cbra.Endpoint):
+
+    async def post(self, data: dict[str, Any]) -> dict[str, Any]:
+        return {
+            'method': self.request.method,
+            'headers': {str.lower(k): v for k, v in self.request.headers.items()},
+            'data': data
+        }
+
+
 @pytest_asyncio.fixture # type: ignore
 async def client():
     app = cbra.Application()
-    MockEndpoint.add_to_router(app, path='/')
+    app.add(MockEndpoint, path='/')
+    app.add(AnnotationEndpoint, path='/annotations')
+
     async with httpx.Client(base_url='https://cbra', app=app) as client:
         yield client
 
@@ -83,3 +95,42 @@ async def test_options(
 ):
     response = await client.options(url='/')
     assert response.allows(method)
+
+
+# Test that a function can use f(body_json: dict[str, Any])
+@pytest.mark.asyncio
+async def test_dict_from_json_without_content_type(
+    client: httpx.Client
+):
+    response = await client.post(url='/annotations', content='{"foo": 1}')
+    assert response.status_code == 200
+    result = await response.json()
+    assert 'data' in result
+    assert 'headers' in result
+    assert 'content-type' not in result['headers']
+    assert 'foo' in result['data']
+
+
+@pytest.mark.asyncio
+async def test_dict_from_json_with_content_type(
+    client: httpx.Client
+):
+    response = await client.post(
+        url='/annotations',
+        content='{"foo": 1}',
+        headers={'Content-Type': "application/json"}
+    )
+    assert response.status_code == 200
+    result = await response.json()
+    assert 'data' in result
+    assert 'headers' in result
+    assert 'content-type' in result['headers']
+    assert 'foo' in result['data']
+
+
+@pytest.mark.asyncio
+async def test_dict_from_invalid_json(
+    client: httpx.Client
+):
+    response = await client.post(url='/annotations', content='{"foo"}: 1}')
+    assert response.status_code == 422
