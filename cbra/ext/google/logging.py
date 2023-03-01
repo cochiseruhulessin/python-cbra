@@ -6,6 +6,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import collections.abc
 import json
 import logging
 from typing import Any
@@ -19,6 +20,10 @@ class JSONFormatter(logging.Formatter):
         params: dict[str, Any] = {
             'message': record.msg
         }
+        if isinstance(record.msg, collections.abc.Mapping):
+            params.update(record.msg)
+        else:
+            params['message'] = super().formatMessage(record)
         if record.exc_info:
             assert record.exc_info[0] is not None
             params['exception'] = {
