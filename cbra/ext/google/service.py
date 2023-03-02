@@ -14,6 +14,7 @@ from cbra.core import Application
 from cbra.core.utils import parent_signature
 from .aortaendpoint import AortaEndpoint
 from .environ import GOOGLE_DATASTORE_NAMESPACE
+from .environ import GOOGLE_HOST_PROJECT
 from .environ import GOOGLE_SERVICE_PROJECT
 
 
@@ -41,7 +42,7 @@ class Service(Application):
         self.add(AortaEndpoint, path="/.well-known/aorta")
 
     def logging_config(self):
-        client = logging.Client(project=GOOGLE_SERVICE_PROJECT)
+        client = logging.Client(project=GOOGLE_HOST_PROJECT or GOOGLE_SERVICE_PROJECT)
         client.setup_logging() # type: ignore
         config = super().logging_config()
         config['formatters']['google-cloud'] = {
