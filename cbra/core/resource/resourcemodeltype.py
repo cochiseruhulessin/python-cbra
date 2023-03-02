@@ -60,7 +60,7 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
                 **{name: field for name, _, field in update_fields if field is not None},
             })
             ResponseModel = type(name, (pydantic.BaseModel,), {
-                '__annotations__': {attname: cls.ensure_required(class_) for attname, class_, _ in response_fields},
+                '__annotations__': {attname: cls.ensure_required(field, class_) for attname, class_, field in response_fields},
                 **{name: field for name, _, field in response_fields if name in namespace},
             })
             namespace.update({
@@ -87,7 +87,7 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
             if key_fields:
                 namespace.update({
                     '__key_model__': type(f'{name}Identifier', (ResourceIdentifier,), {
-                        '__annotations__': {attname: cls.ensure_required(class_) for attname, class_, _ in key_fields},
+                        '__annotations__': {attname: cls.ensure_required(field, class_) for attname, class_, field in key_fields},
                         **{name: field for name, _, field in key_fields if name in namespace},
                     })
                 })
@@ -99,10 +99,10 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
         return value | None
 
     @staticmethod
-    def ensure_required(value: Any) -> Any:
+    def ensure_required(field: pydantic.fields.FieldInfo | None, value: Any) -> Any:
         origin = get_origin(value)
-        if origin == types.UnionType:
-            args = [x for x in get_args(value) if x != types.NoneType]
+        if origin == types.UnionType and field and field.extra.get('read_only'):
+            args: list[Any] = [x for x in get_args(value) if x != types.NoneType]
             if not args:
                 raise TypeError("Field can not only contain None.")
             value = args[0]
