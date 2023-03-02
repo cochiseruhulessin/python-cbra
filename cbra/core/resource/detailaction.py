@@ -63,7 +63,7 @@ class DetailAction(ResourceAction):
     ) -> fastapi.Response:
         if isinstance(response, pydantic.BaseModel)\
         and not isinstance(response, self.response_model):
-            response = self.response_model.parse_obj(response.dict())
+            response = self.response_model.parse_obj(response.dict(by_alias=endpoint.response_model_by_alias))
         return await super().process_response(endpoint, response)
 
     def parse_resource(self, resource: pydantic.BaseModel) -> pydantic.BaseModel:

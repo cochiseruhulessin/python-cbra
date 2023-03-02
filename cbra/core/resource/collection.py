@@ -19,14 +19,16 @@ class Collection:
 
     async def list(self) -> Any:
         result = await self.filter(None)
-        return self.model.__list_model__.parse_obj({
+        resource =  self.model.__list_model__.parse_obj({
             'apiVersion': 'v1',
             'kind': f'{self.model.__name__}List',
             'metadata': {
                 'nextUrl': self.get_next_url(result.token)
             },
-            'items': [self.adapt(x) for x in result.items] # type: ignore
+            'items': []
         })
+        resource.items = [self.adapt(x) for x in result.items] # type: ignore
+        return resource
 
     async def filter(self, params: Any) -> IQueryResult[Any]:
         raise NotImplementedError
