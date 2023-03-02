@@ -42,3 +42,6 @@ class Resource(IResource, metaclass=ResourceType):
         The default implementation simply returns the object.
         """
         return obj
+    
+    def parse_obj(self, obj: Any) -> Any:
+        return self.model.parse_obj(obj)
