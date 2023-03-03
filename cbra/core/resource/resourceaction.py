@@ -115,14 +115,32 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
                 article=self.article
             )
         })
-        kwargs['responses'] = self.get_openapi_responses(kwargs.get('responses') or {})
+        kwargs['responses'] = self.get_openapi_responses(cls, kwargs.get('responses') or {})
         return super().add_to_router(cls, router, **kwargs)
 
     def get_openapi_responses(
         self,
+        cls: type[IResource],
         responses: dict[int | str, Any]
     ) -> dict[int | str, Any]:
-        return {**responses, **getattr(self._func, 'responses', {})}
+        if getattr(cls, 'versioned', None):
+            responses.setdefault(412, {
+                'description': f"The **{cls.model.__name__}** was changed in between requests",
+                'headers': {
+                    'ETag': {
+                        'schema': {'type': 'string'},
+                        'description': (
+                            "The most recent version of the resource. Use this (opaque) value "
+                            "as the `If-Match` header on subsequent `POST`, `PUT` or `PATCH` "
+                            "requests."
+                        )
+                    }
+                }
+            })
+        return {
+            **responses,
+            **getattr(self._func, 'responses', {})
+        }
 
     def get_url_pattern(self, prefix: str | None, endpoint: type[IResource] | None = None) -> str:
         endpoint = endpoint or self.endpoint
@@ -152,13 +170,13 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
         parameters: dict[str, Parameter],
         return_annotation: Any
     ) -> tuple[list[Parameter], Any]:
-        if self.can_write() and 'resource' not in parameters:
-            self._handler_params.add('resource')
-            parameters['resource'] = Parameter(
-                kind=Parameter.POSITIONAL_ONLY,
-                name='resource',
-                annotation=self.get_write_model(),
-            )
+        #if self.can_write() and 'resource' not in parameters:
+        #    self._handler_params.add('resource')
+        #    parameters['resource'] = Parameter(
+        #        kind=Parameter.POSITIONAL_ONLY,
+        #        name='resource',
+        #        annotation=self.get_write_model(),
+        #    )
         return super().preprocess_signature(parameters, return_annotation)
 
     def validate_handler(
@@ -166,11 +184,11 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
         func: Callable[..., Awaitable[Any] | Any],
         signature: MutableSignature
     ) -> tuple[Callable[..., Awaitable[Any] | Any], MutableSignature]:
-        if not signature.has_param('resource') and self.can_write():
-            raise TypeError(
-                f"{self._endpoint_name}.{self.action} must accept "
-                "the 'resource' positional argument."
-            )
+        #if not signature.has_param('resource') and self.can_write():
+        #    raise TypeError(
+        #        f"{self._endpoint_name}.{self.action} must accept "
+        #        "the 'resource' positional argument."
+        #    )
         return super().validate_handler(func, signature)
 
     async def preprocess_value(self, name: str, value: Any) -> Any:

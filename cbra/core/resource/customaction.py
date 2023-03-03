@@ -50,6 +50,11 @@ class CustomAction(DetailAction):
         self._summary = summary
         super().__init__(*args, **kwargs)
 
+    def can_mutate(self) -> bool:
+        # Custom actions are always detail actions, so POST
+        # requests are considered mutations.
+        return super().can_mutate() or self.method == "POST"
+
     def get_url_pattern(
         self,
         prefix: str | None,
