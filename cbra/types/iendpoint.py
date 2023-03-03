@@ -18,6 +18,7 @@ from typing import TypeVar
 import fastapi
 
 from .abortable import Abortable
+from .etagset import ETagSet
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
 from .irequestprincipal import IRequestPrincipal
 from .iroutable import IRoutable
@@ -41,6 +42,9 @@ class IEndpoint:
     session: ISessionManager[Any]
     with_options: bool = True
 
+    #: The ``If-Match`` value provided by the current request.
+    etag: set[str] = set()
+
     #: The set of permissions supported by this endpoint. These must be
     #: defined beforehand to limit the number of calls to remote IAM
     #: systems.
@@ -57,6 +61,10 @@ class IEndpoint:
     #: setting.
     trusted_providers: set[str] = set()
 
+    #: Indicates if this endpoint uses versioning using the ``ETag``
+    #: and friends headers.
+    versioned: bool
+
     principal: IRequestPrincipal
     request: fastapi.Request
     response: fastapi.Response
@@ -67,6 +75,10 @@ class IEndpoint:
     status_code: int = 200
     summary: str | None = None
     tags: list[str] = []
+
+    #: Indicates that this endpoint is in testing mode and should not catch
+    #: any abortable errors.
+    test: bool = False
 
     @staticmethod
     def require_permission(name: str) -> Callable[..., Any]:

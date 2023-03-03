@@ -10,6 +10,7 @@ from .abortable import Abortable
 from .basemodel import BaseModel
 from .basemodel import BaseModelMetaclass
 from .conflict import Conflict
+from .etagset import ETagSet
 from .forbidden import Forbidden
 from .hmacsignature import HMACSignature
 from .hints import PolymorphicIterable
@@ -62,6 +63,7 @@ __all__: list[str] = [
     'BaseModel',
     'BaseModelMetaclass',
     'Conflict',
+    'ETagSet',
     'Forbidden',
     'HMACSignature',
     'ICredential',

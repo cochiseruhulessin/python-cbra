@@ -27,6 +27,7 @@ from .resource import ResourceModel
 from .resource import ResourceType
 from .resource import Retrieve
 from .resource import Update
+from .resource import Versioned
 from .secretkey import SecretKey
 
 
@@ -55,7 +56,8 @@ __all__: list[str] = [
     'ResourceType',
     'Retrieve',
     'SecretKey',
-    'Update'
+    'Update',
+    'Versioned',
 ]
 
 inject = ioc.inject

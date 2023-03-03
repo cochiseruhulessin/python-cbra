@@ -17,6 +17,7 @@ from .resourceprotocol import ResourceProtocol
 from .resourcetype import ResourceType
 from .retrieve import Retrieve
 from .update import Update
+from .versioned import Versioned
 
 
 __all__: list[str] = [
@@ -32,6 +33,7 @@ __all__: list[str] = [
     'ResourceType',
     'Retrieve',
     'Update',
+    'Versioned',
 ]
 
 

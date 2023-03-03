@@ -25,12 +25,15 @@ import fastapi.params
 import pydantic
 
 from cbra.types import Abortable
+from cbra.types import ETagSet
 from cbra.types import IEndpoint
 from cbra.types import IntegerPathParameter
 from cbra.types import MutableSignature
 from cbra.types import PathParameter
 from cbra.types import StringPathParameter
 from cbra.types import UUIDPathParameter
+from .params import IfMatchDestructive
+from .params import IfMatchRequestHeader
 
 
 E = TypeVar('E', bound='IEndpoint')
@@ -244,6 +247,14 @@ class RequestHandler(Generic[E]):
             name='response',
             annotation=fastapi.Response
         )
+        if getattr(cls, 'versioned', False):
+            dependencies['etag'] = Parameter(
+                kind=Parameter.POSITIONAL_OR_KEYWORD,
+                name='etag',
+                annotation=ETagSet,
+                default=IfMatchDestructive if self.can_mutate() else IfMatchRequestHeader
+            )
+            self._class_params.add('etag')
         self._class_params.add('request')
         self._class_params.add('response')
 
@@ -334,6 +345,12 @@ class RequestHandler(Generic[E]):
                 and isinstance(p, self._injectables),
             not isinstance(p, Parameter) and self.is_injectable(p)
         ])
+    
+    def can_write(self) -> bool:
+        return self.method in {'POST', 'PUT', 'PATCH', 'DELETE'}
+    
+    def can_mutate(self) -> bool:
+        return self.method in {'PUT', 'PATCH'}
 
     def is_pydantic_union(self, obj: Any):
         origin = get_origin(obj)
@@ -359,6 +376,8 @@ class RequestHandler(Generic[E]):
         return list(parameters.values()), return_annotation
 
     async def preprocess_value(self, name: str, value: Any) -> Any:
+        if name == 'etag' and value:
+            value = ETagSet.toset(value)
         return value
 
     async def process_response(
@@ -399,6 +418,7 @@ class RequestHandler(Generic[E]):
         attrs: dict[str, Any] = {}
         init: dict[str, Any] = {}
         kwargs: dict[str, Any] = {}
+
         for param in self._dependencies.values():
             value = await self.preprocess_value(param.name, params.pop(param.name))
 
