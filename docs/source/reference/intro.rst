@@ -11,6 +11,7 @@ Core concepts
 * :doc:`The CBRA settings module <available-settings>`
 * :doc:`Claims <claims>`
 * :doc:`Supported environment variables <environment-variables>`
+* :doc:`Interfaces <interfaces>`
 
 
 Cloud platform integrations

@@ -21,6 +21,7 @@ from .icursor import ICursor
 from .ideferred import IDeferred
 from .idependant import IDependant
 from .iendpoint import IEndpoint
+from .iemailsender import IEmailSender
 from .ihashable import IHashable
 from .imodelrepository import IModelRepository
 from .integerpathparameter import IntegerPathParameter
@@ -70,6 +71,7 @@ __all__: list[str] = [
     'IDeferred',
     'IAuthorizationContext',
     'IAuthorizationContextFactory',
+    'IEmailSender',
     'IEndpoint',
     'IModelRepository',
     'IntegerPathParameter',
