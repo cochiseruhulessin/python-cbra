@@ -50,9 +50,6 @@ class CustomAction(DetailAction):
         self._summary = summary
         super().__init__(*args, **kwargs)
 
-    def can_write(self) -> bool:
-        return False
-
     def get_url_pattern(
         self,
         prefix: str | None,

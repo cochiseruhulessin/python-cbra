@@ -118,9 +118,6 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
         kwargs['responses'] = self.get_openapi_responses(kwargs.get('responses') or {})
         return super().add_to_router(cls, router, **kwargs)
 
-    def can_write(self) -> bool:
-        raise NotImplementedError
-
     def get_openapi_responses(
         self,
         responses: dict[int | str, Any]
