@@ -100,7 +100,7 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
 
     def add_to_router( # type: ignore
         self,
-        cls: IResource,
+        cls: type[IResource],
         router: fastapi.APIRouter, **kwargs: Any
     ) -> None:
         kwargs.setdefault('status_code', self.status_code)
