@@ -25,5 +25,4 @@ class MessagePublisher(aorta.MessagePublisher, IDependant):
         transport: aorta.types.ITransport = inject('MessageTransport')
     ):
         super().__init__(transport=transport)
-        self.local = MessageRunner(request=request, publisher=self)
         self.request = request
