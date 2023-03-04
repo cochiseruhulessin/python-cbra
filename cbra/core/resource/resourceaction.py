@@ -157,6 +157,9 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
     def is_detail(self) -> bool:
         raise NotImplementedError
 
+    def needs_resource(self) -> bool:
+        return False
+
     def parse_resource(self, resource: pydantic.BaseModel) -> pydantic.BaseModel:
         raise NotImplementedError
 
@@ -170,13 +173,13 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
         parameters: dict[str, Parameter],
         return_annotation: Any
     ) -> tuple[list[Parameter], Any]:
-        #if self.can_write() and 'resource' not in parameters:
-        #    self._handler_params.add('resource')
-        #    parameters['resource'] = Parameter(
-        #        kind=Parameter.POSITIONAL_ONLY,
-        #        name='resource',
-        #        annotation=self.get_write_model(),
-        #    )
+        if self.can_write() and self.needs_resource():
+            self._handler_params.add('resource')
+            parameters['resource'] = Parameter(
+                kind=Parameter.POSITIONAL_ONLY,
+                name='resource',
+                annotation=self.get_write_model(),
+            )
         return super().preprocess_signature(parameters, return_annotation)
 
     def validate_handler(
@@ -184,14 +187,14 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
         func: Callable[..., Awaitable[Any] | Any],
         signature: MutableSignature
     ) -> tuple[Callable[..., Awaitable[Any] | Any], MutableSignature]:
-        #if not signature.has_param('resource') and self.can_write():
-        #    raise TypeError(
-        #        f"{self._endpoint_name}.{self.action} must accept "
-        #        "the 'resource' positional argument."
-        #    )
+        if not signature.has_param('resource') and self.can_write():
+            raise TypeError(
+                f"{self._endpoint_name}.{self.action} must accept "
+                "the 'resource' positional argument."
+            )
         return super().validate_handler(func, signature)
 
     async def preprocess_value(self, name: str, value: Any) -> Any:
-        if name == 'resource':
+        if name == 'resource' and self.needs_resource():
             value = self.parse_resource(value)
         return await super().preprocess_value(name, value)

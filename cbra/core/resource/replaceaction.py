@@ -37,3 +37,6 @@ class ReplaceAction(DetailAction):
 
     def get_write_model(self) -> type[pydantic.BaseModel]:
         return self.endpoint.model.__replace_model__
+
+    def needs_resource(self) -> bool:
+        return True

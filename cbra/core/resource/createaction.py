@@ -60,6 +60,9 @@ class CreateAction(ResourceAction):
     def is_detail(self) -> bool:
         return False
 
+    def needs_resource(self) -> bool:
+        return True
+
     def parse_resource(self, resource: pydantic.BaseModel) -> pydantic.BaseModel:
         return self.endpoint.model.parse_obj(resource.dict())
 
