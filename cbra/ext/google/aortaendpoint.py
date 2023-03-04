@@ -11,9 +11,9 @@ from typing import Any
 
 import aorta
 
+from cbra.core import MessageRunner
 from .eventarcendpoint import EventarcEndpoint
 from .messagediscarded import MessageDiscarded
-from .messagerunner import MessageRunner
 from .pubsubmessage import PubsubMessage
 
 

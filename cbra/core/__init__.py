@@ -6,6 +6,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# type: ignore
 from typing import Callable
 from typing import TypeVar
 
@@ -15,6 +16,7 @@ from .application import Application
 from .endpoint import Endpoint
 from . import ioc
 from .messagepublisher import MessagePublisher
+from .messagerunner import MessageRunner
 from .params import *
 from .resource import Collection
 from .resource import Create
@@ -48,6 +50,7 @@ __all__: list[str] = [
     'Endpoint',
     'Field',
     'MessagePublisher',
+    'MessageRunner',
     'Mutable',
     'QueryResult',
     'Replace',

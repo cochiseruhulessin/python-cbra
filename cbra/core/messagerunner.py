@@ -18,8 +18,8 @@ from fastapi.dependencies.utils import get_dependant
 from fastapi.dependencies.utils import get_parameterless_sub_dependant
 from fastapi.dependencies.utils import solve_dependencies
 
-import cbra.core as cbra
 from cbra.types import IDependant
+from .ioc import instance
 
 
 class MessageRunner(aorta.LocalRunner, IDependant):
@@ -29,7 +29,7 @@ class MessageRunner(aorta.LocalRunner, IDependant):
     def __init__(
         self,
         request: fastapi.Request,
-        publisher: aorta.types.IPublisher = cbra.instance('MessagePublisher')
+        publisher: aorta.types.IPublisher = instance('MessagePublisher')
     ):
         super().__init__(publisher=publisher)
         self.request = request
