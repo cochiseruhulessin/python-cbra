@@ -15,6 +15,7 @@ from cbra import types
 from cbra.ext.picqer import PicqerWebhookEndpoint
 from cbra.ext.picqer import WebhookSecret
 
+
 VALID_SIGNATURE: str = '3TMYo2hAFdgQ9bF4MJZ4/dnELdJv5ucJPRAEnoE3Qxk='
 
 VALID_BODY: str = (
