@@ -18,6 +18,7 @@ from .resourceaction import ResourceAction
 
 
 class DetailAction(ResourceAction):
+    use_resource_model: bool = True
 
     def get_url_pattern(
         self,
@@ -62,7 +63,8 @@ class DetailAction(ResourceAction):
         response: fastapi.Response | pydantic.BaseModel | None
     ) -> fastapi.Response:
         if isinstance(response, pydantic.BaseModel)\
-        and not isinstance(response, self.response_model):
+        and not isinstance(response, self.response_model)\
+        and self.use_resource_model:
             response = self.response_model.parse_obj(response.dict(by_alias=endpoint.response_model_by_alias))
         return await super().process_response(endpoint, response)
 

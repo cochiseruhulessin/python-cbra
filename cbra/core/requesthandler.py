@@ -10,6 +10,8 @@ import asyncio
 import collections
 import inspect
 import uuid
+from datetime import datetime
+from datetime import timezone
 from typing import get_args
 from typing import get_origin
 from typing import Awaitable
@@ -442,6 +444,7 @@ class RequestHandler(Generic[E]):
         # Initialize the endpoint and set its attributes, proceed
         # to invoke the handler.
         endpoint: IEndpoint = self._class(**init)
+        endpoint.timestamp = datetime.now(timezone.utc)
         endpoint.__dict__.update(attrs)
         response = await self.process_response(
             endpoint,

@@ -20,6 +20,7 @@ class CustomAction(DetailAction):
     action: str
     status_code: int
     path: str
+    use_resource_model: bool = False
     _summary: str
 
     @property

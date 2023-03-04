@@ -6,6 +6,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from datetime import datetime
 from typing import Any
 
 import fastapi
@@ -27,6 +28,7 @@ class Resource(IResource, metaclass=ResourceType):
     model: type[ResourceModel]
     principal: RequestPrincipal = RequestPrincipal.depends()
     session: RequestSession = RequestSession.depends()
+    timestamp: datetime
 
     def __init_subclass__(cls, model: type[ResourceModel]):
         cls.model = model

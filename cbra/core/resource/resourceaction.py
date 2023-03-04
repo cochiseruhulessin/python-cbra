@@ -116,7 +116,7 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
             )
         })
         kwargs['responses'] = self.get_openapi_responses(cls, kwargs.get('responses') or {})
-        return super().add_to_router(cls, router, **kwargs)
+        return super().add_to_router(cls, router, **kwargs) # type: ignore
 
     def get_openapi_responses(
         self,

@@ -40,6 +40,7 @@ class IEndpoint:
     logger: logging.Logger = logging.getLogger('cbra.endpoint')
     response_model_by_alias: bool = False
     session: ISessionManager[Any]
+    timestamp: datetime
     with_options: bool = True
 
     #: The ``If-Match`` value provided by the current request.
