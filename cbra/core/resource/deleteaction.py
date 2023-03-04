@@ -11,6 +11,7 @@ from typing import TypeVar
 
 from cbra.types import Operation
 from .detailaction import DetailAction
+from .iresource import IResource
 
 
 T = TypeVar('T', bound='DeleteAction')
@@ -34,6 +35,7 @@ class DeleteAction(DetailAction):
 
     def get_openapi_responses(
         self,
+        cls: type[IResource],
         responses: dict[int | str, Any]
     ) -> dict[int | str, Any]:
         responses.update({
@@ -45,7 +47,7 @@ class DeleteAction(DetailAction):
                 'model': Operation
             }
         })
-        return super().get_openapi_responses(responses)
+        return super().get_openapi_responses(cls, responses)
 
     def get_return_annotation(self) -> Any:
         return self.endpoint.model.__response_model__ | Operation

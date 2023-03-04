@@ -13,6 +13,7 @@ import fastapi
 import pydantic
 
 from cbra.types import IEndpoint
+from .iresource import IResource
 from .resourceaction import ResourceAction
 
 
@@ -40,6 +41,7 @@ class CreateAction(ResourceAction):
 
     def get_openapi_responses(
         self,
+        cls: type[IResource],
         responses: dict[int | str, Any]
     ) -> dict[int | str, Any]:
         responses.update({
@@ -50,7 +52,7 @@ class CreateAction(ResourceAction):
                 )
             }
         })
-        return super().get_openapi_responses(responses)
+        return super().get_openapi_responses(cls, responses)
 
     def get_write_model(self) -> type[pydantic.BaseModel]:
         return self.endpoint.model.__create_model__
@@ -65,7 +67,7 @@ class CreateAction(ResourceAction):
         self,
         endpoint: IEndpoint,
         response: fastapi.Response | pydantic.BaseModel | None
-    ) -> fastapi.Response | pydantic.BaseModel | None:
+    ) -> fastapi.Response:
         if isinstance(response, pydantic.BaseModel):
             response = self.response_model.parse_obj(response.dict())
         return await super().process_response(endpoint, response)
