@@ -84,6 +84,11 @@ deploy-docs: public google-authenticate
 #	@make deploy-docs-google-stable
 #endif
 
+update-aorta:
+	@cp -R ~/src/unimatrixone/libraries/python-aorta/aorta/*\
+		$(CURDIR)/.lib/python/runtime/aorta/
+
+
 update-headless:
 	@cp -R ~/src/unimatrixone/libraries/python-unimatrix/headless/headless/*\
 		$(CURDIR)/.lib/python/runtime/headless/
