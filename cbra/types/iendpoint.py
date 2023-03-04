@@ -18,7 +18,6 @@ from typing import TypeVar
 import fastapi
 
 from .abortable import Abortable
-from .etagset import ETagSet
 from .iauthorizationcontextfactory import IAuthorizationContextFactory
 from .irequestprincipal import IRequestPrincipal
 from .iroutable import IRoutable
