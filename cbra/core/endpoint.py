@@ -18,6 +18,7 @@ from cbra.types import IEndpoint
 from cbra.types import RequestPrincipal
 from .iam import AuthorizationContextFactory
 from .endpointtype import EndpointType
+from .messagepublisher import MessagePublisher
 from .sessions import RequestSession
 
 
@@ -32,6 +33,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     principal: RequestPrincipal = RequestPrincipal.depends()
     ctx: IAuthorizationContext
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
+    publisher: MessagePublisher = MessagePublisher.depends()
     session: RequestSession = RequestSession.depends()
     timestamp: datetime
 

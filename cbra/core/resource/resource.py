@@ -14,6 +14,7 @@ import fastapi
 from cbra.types import RequestPrincipal
 from cbra.types import IRoutable
 from ..iam import AuthorizationContextFactory
+from ..messagepublisher import MessagePublisher
 from ..sessions import RequestSession
 from .iresource import IResource
 from .resourcemodel import ResourceModel
@@ -27,6 +28,7 @@ class Resource(IResource, metaclass=ResourceType):
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
     model: type[ResourceModel]
     principal: RequestPrincipal = RequestPrincipal.depends()
+    publisher: MessagePublisher = MessagePublisher.depends()
     session: RequestSession = RequestSession.depends()
     timestamp: datetime
 

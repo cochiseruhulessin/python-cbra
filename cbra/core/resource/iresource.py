@@ -8,6 +8,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
+import aorta
+
 from cbra.types import IEndpoint
 from .persister import Persister
 from .resourcemodel import ResourceModel
@@ -16,6 +18,7 @@ from .resourcemodel import ResourceModel
 class IResource(IEndpoint, Persister):
     model: type[ResourceModel]
     path_name: str
+    publisher: aorta.types.IPublisher
     response_model_by_alias: bool = False
     resource_name: str
     resource_id: Any

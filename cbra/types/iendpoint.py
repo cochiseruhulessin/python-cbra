@@ -15,6 +15,7 @@ from typing import Callable
 from typing import Literal
 from typing import TypeVar
 
+import aorta
 import fastapi
 
 from .abortable import Abortable
@@ -40,6 +41,7 @@ class IEndpoint:
     response_model_by_alias: bool = False
     session: ISessionManager[Any]
     timestamp: datetime
+    publisher: aorta.types.IPublisher
     with_options: bool = True
 
     #: The ``If-Match`` value provided by the current request.
