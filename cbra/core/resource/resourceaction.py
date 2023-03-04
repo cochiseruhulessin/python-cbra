@@ -187,7 +187,7 @@ class ResourceAction(RequestHandler[IResource]): # type: ignore
         func: Callable[..., Awaitable[Any] | Any],
         signature: MutableSignature
     ) -> tuple[Callable[..., Awaitable[Any] | Any], MutableSignature]:
-        if not signature.has_param('resource') and self.can_write():
+        if not signature.has_param('resource') and self.can_write() and self.needs_resource():
             raise TypeError(
                 f"{self._endpoint_name}.{self.action} must accept "
                 "the 'resource' positional argument."

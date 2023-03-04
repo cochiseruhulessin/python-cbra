@@ -65,3 +65,6 @@ class CustomAction(DetailAction):
 
     def is_detail(self) -> bool:
         return True
+
+    def needs_resource(self) -> bool:
+        return False
