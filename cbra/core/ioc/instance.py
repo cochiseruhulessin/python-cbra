@@ -16,7 +16,7 @@ class Instance(Injected):
 
     @property
     def __signature__(self) -> inspect.Signature:
-        assert self.ref is not None
+        assert self.ref is not None, self.name
         return inspect.signature(self.factory)
 
     def callable(self) -> bool:

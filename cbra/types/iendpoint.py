@@ -78,6 +78,9 @@ class IEndpoint:
     summary: str | None = None
     tags: list[str] = []
 
+    #: The current messaging transaction.
+    transaction: aorta.Transaction
+
     #: Indicates that this endpoint is in testing mode and should not catch
     #: any abortable errors.
     test: bool = False
@@ -122,10 +125,12 @@ class IEndpoint:
         **kwargs: Any
     ):
         try:
-            await self.authenticate()
-            if self.require_authentication and not self.ctx.is_authenticated():
-                raise NotAuthorized
-            return await func(self, *args, **kwargs)
+            async with aorta.Transaction(publisher=self.publisher) as tx:
+                self.transaction = tx
+                await self.authenticate()
+                if self.require_authentication and not self.ctx.is_authenticated():
+                    raise NotAuthorized
+                return await func(self, *args, **kwargs)
         except Abortable as exc:
             return await exc.as_response()
 
@@ -174,3 +179,10 @@ class IEndpoint:
 
     def delete_cookie(self, key: str, path: str = "/") -> None:
         return self.set_cookie(key, expires=0, max_age=0, path=path)
+    
+    def publish(
+        self,
+        Message: type[aorta.Command | aorta.Event],
+        **params: Any
+    ) -> None:
+        self.transaction.publish(Message.parse_obj(params))

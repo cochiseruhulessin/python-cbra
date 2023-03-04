@@ -24,6 +24,7 @@ from .endpoint import Endpoint
 from .resource import Resource
 from .ioc import Container
 from .ioc import Requirement
+from .localmessagetransport import LocalMessageTransport
 from .messagepublisher import MessagePublisher
 from .utils import parent_signature
 
@@ -36,7 +37,7 @@ class Application(FastAPI):
     )
 
     @parent_signature(FastAPI.__init__)
-    def __init__(self, *args: Any, **kwargs: Any):
+    def __init__(self, **kwargs: Any):
         self.container = Container.fromsettings()
 
         handlers: dict[type, Any] = kwargs.setdefault('exception_handlers', {})
@@ -44,16 +45,27 @@ class Application(FastAPI):
 
         kwargs.setdefault('root_path', settings.ASGI_ROOT_PATH)
         self.inject('MessagePublisher', MessagePublisher)
-        self.inject('MessageTransport', aorta.NullTransport())
-        super().__init__(*args, **kwargs)
+        if not self.container.has('MessageTransport'):
+            self.inject('MessageTransport', LocalMessageTransport)
+        super().__init__(**kwargs)
         self.add_event_handler('startup', self.setup_logging) # type: ignore
 
     def add(
         self,
-        routable: type[Endpoint | Resource],
+        routable: type[Endpoint | Resource] | type[aorta.EventListener | aorta.CommandHandler],
         *args: Any, **kwargs: Any
     ) -> None:
-        routable.add_to_router(self, *args, **kwargs)
+        if issubclass(routable, (Endpoint, Resource)):
+            routable.add_to_router(self, *args, **kwargs)
+        elif issubclass(routable, aorta.MessageHandler): # type: ignore
+            # Ensure that all members are injected in the container.
+            for _, member in inspect.getmembers(routable):
+                if not isinstance(member, (Depends, Requirement)):
+                    continue
+                self.update_requirements(member)
+            aorta.register(routable)
+        else:
+            raise NotImplementedError
 
     def inject(self, name: str, value: Any) -> None:
         """Inject a value into the dependencies container."""
@@ -137,11 +149,15 @@ class Application(FastAPI):
         # TODO: this will completely mess up if multiple Application instances
         # are spawned.
         if not callable(func): return None
-        if isinstance(func, Depends):
-            return self.update_requirements(func.dependency)
         if isinstance(func, Requirement):
             func.add_to_container(self.container)
-        signature = inspect.signature(func) # type: ignore
+        elif isinstance(func, Depends):
+            return self.update_requirements(func.dependency)
+        try:
+            signature = inspect.signature(func) # type: ignore
+        except ValueError:
+            # No signature to inspect.
+            return None
         for param in signature.parameters.values():
             if not isinstance(param.default, self._injectables):
                 continue

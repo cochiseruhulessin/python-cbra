@@ -290,6 +290,9 @@ from typing import cast
 from typing import Any
 
 
+_LOG_LEVEL: str = os.getenv('LOG_LEVEL') or 'INFO'
+
+
 class Settings:
     user: types.ModuleType | None = None
     ASGI_ROOT_PATH: str | None
@@ -345,12 +348,12 @@ class Settings:
                 'aorta': {
                     'handlers': ['console', 'default'],
                     'propagate': False,
-                    'level': 'INFO'
+                    'level': _LOG_LEVEL
                 },
                 'cbra': {
                     'handlers': ['console', 'default'],
                     'propagate': False,
-                    'level': 'INFO'
+                    'level': _LOG_LEVEL
                 }
             }
         },

@@ -63,12 +63,14 @@ class MessageRunner(aorta.LocalRunner, IDependant):
                 return await dependant.call(**values)
 
     def get_injectors(self, obj: Any) -> Generator[Dependant, None, None]:
-        for attname, member in inspect.getmembers(self):
+        for attname, member in inspect.getmembers(obj):
             if not isinstance(member, fastapi.params.Depends):
                 continue
-            async def f(dep: Any = member):
-                setattr(obj, attname, dep)
+            def setter(attname: str, dep: Any = member):
+                async def f(dep: Any = dep) -> None:
+                    setattr(obj, attname, dep)
+                return f
             yield get_parameterless_sub_dependant(
-                 depends=fastapi.Depends(f),
+                 depends=fastapi.Depends(setter(attname, member)),
                  path='/'
             )

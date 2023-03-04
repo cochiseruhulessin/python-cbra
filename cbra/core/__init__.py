@@ -15,6 +15,7 @@ from pydantic import Field
 from .application import Application
 from .endpoint import Endpoint
 from . import ioc
+from .localmessagetransport import LocalMessageTransport
 from .messagepublisher import MessagePublisher
 from .messagerunner import MessageRunner
 from .params import *
@@ -49,6 +50,7 @@ __all__: list[str] = [
     'Delete',
     'Endpoint',
     'Field',
+    'LocalMessageTransport',
     'MessagePublisher',
     'MessageRunner',
     'Mutable',
