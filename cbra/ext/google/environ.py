@@ -17,5 +17,7 @@ __all__: list[str] = [
 
 
 GOOGLE_DATASTORE_NAMESPACE: str | None = os.environ.get('GOOGLE_DATASTORE_NAMESPACE')
+
 GOOGLE_HOST_PROJECT: str | None = os.environ.get('GOOGLE_HOST_PROJECT')
+
 GOOGLE_SERVICE_PROJECT: str | None = os.environ.get('GOOGLE_SERVICE_PROJECT')
