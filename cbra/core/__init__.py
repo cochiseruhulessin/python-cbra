@@ -9,9 +9,16 @@
 # type: ignore
 import importlib
 import inspect
+import pathlib
+import os
+from typing import cast
+from typing import Any
 from typing import Callable
 from typing import TypeVar
 
+import aorta
+import unimatrix.runtime
+import yaml
 from pydantic import Field
 
 from .application import Application
@@ -155,5 +162,52 @@ class response:
         return func
     
 
-def autodiscover(qualname: str, cls: type[T] | None  = None) -> T:
+def autodiscover(
+    qualname: str, cls: type[T] | None  = None
+) -> T:
+    os.environ.setdefault(
+        'PYTHON_SETTINGS_MODULE',
+        unimatrix.runtime.get_settings_module(__name__)
+    )
+    parent = qualname.rsplit('.', 1)[0]
+    modules: list[str] = [
+        'endpoints',
+        'handlers',
+        'listeners',
+        'resources',
+    ]
+    asgi = importlib.import_module(qualname)
+    params: dict[str, Any] = {
+        'docs_url'  : '/ui',
+        'redoc_url' : '/'
+    }
+    base = pathlib.Path(asgi.__file__).parent
+    meta = base.joinpath('asgi.yml')
+    if meta.exists():
+        params.update(yaml.safe_load(meta.read_text()))
     cls = cls or Application
+    app = cast(Application, cls(**params))
+    addables: tuple[type] = (
+        Resource,
+        aorta.CommandHandler,
+        aorta.Sewer,
+        aorta.EventListener,
+    )
+    for name in modules:
+        try:
+            module = importlib.import_module(f'{parent}.{name}')
+        except ImportError:
+            # Raise the error if the module exists because then it
+            # was something in the module that raised it.
+            if any([
+                base.joinpath(name).exists(),
+                base.joinpath(f'{name}.py').exists()
+            ]):
+                raise
+            continue
+        for _, member in inspect.getmembers(module):
+            if not inspect.isclass(member) or not issubclass(member, addables):
+                continue
+            app.add(member)
+
+    return app
