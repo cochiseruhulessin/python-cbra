@@ -33,12 +33,5 @@ class AortaEndpoint(EventarcEndpoint):
         if envelope is None:
             self.logger.critical("Message is not an Aorta message type.")
             raise MessageDiscarded
-        if not envelope.is_known():
-            self.logger.critical(
-                "Received an Aorta message of unknown type "
-                "(kind: %s, version: %s, id: %s)",
-                envelope.kind, envelope.api_version, envelope.metadata.uid
-            )
-            raise MessageDiscarded
         assert isinstance(envelope, aorta.types.Envelope)
         await self.runner.run(cast(aorta.types.Envelope[Any], envelope))
