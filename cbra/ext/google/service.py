@@ -8,16 +8,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
 
-import aorta
-import fastapi
 from google.cloud import logging
 
 from cbra.core import Application
-from cbra.core import MessagePublisher
 from cbra.core.utils import parent_signature
+from .aortadebugendpoint import AortaDebugEndpoint
 from .aortaendpoint import AortaEndpoint
-from .debugcommand import DebugCommand
-from .debugevent import DebugEvent
 from .environ import GOOGLE_DATASTORE_NAMESPACE
 from .environ import GOOGLE_HOST_PROJECT
 from .environ import GOOGLE_SERVICE_PROJECT
@@ -45,21 +41,7 @@ class Service(Application):
                 'qualname': 'cbra.ext.google.DatastoreSubjectRepository'
             })
         self.add(AortaEndpoint, path="/.well-known/aorta")
-        self.add_api_route(
-            endpoint=self.debug_aorta,
-            path="/.well-known/aorta/debug",
-            methods=['POST']
-        )
-
-    async def debug_aorta(
-        self,
-        publisher: MessagePublisher = fastapi.Depends(MessagePublisher)
-    ) -> fastapi.Response:
-        async with aorta.Transaction(publisher) as tx:
-            tx.publish(DebugCommand())
-            tx.publish(DebugEvent())
-            tx.publish(DebugCommand(), audience={'self'})
-        return fastapi.Response(status_code=204)
+        self.add(AortaDebugEndpoint, path="/.well-known/aorta/debug")
 
     def logging_config(self):
         client = logging.Client(project=GOOGLE_HOST_PROJECT or GOOGLE_SERVICE_PROJECT)

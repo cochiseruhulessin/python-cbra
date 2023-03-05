@@ -11,6 +11,9 @@ from typing import Any
 
 from aorta.types import Envelope
 from aorta.ext.google import PubsubTransport
+import fastapi
+
+from cbra.core.conf import settings
 
 
 class GooglePubsubTransport(PubsubTransport):
@@ -19,9 +22,9 @@ class GooglePubsubTransport(PubsubTransport):
 
     def __init__(
         self,
-        project: str,
-        prefix: str,
-        service_name: str
+        project: str = fastapi.Depends(lambda: settings.GOOGLE_HOST_PROJECT),
+        prefix: str = fastapi.Depends(lambda: settings.PUBLISHER_TOPIC_PREFIX),
+        service_name: str = fastapi.Depends(lambda: settings.APP_NAME)
     ):
         self.prefix = prefix
         self.service_name = service_name

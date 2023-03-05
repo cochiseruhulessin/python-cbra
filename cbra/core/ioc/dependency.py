@@ -22,6 +22,9 @@ class Dependency(pydantic.BaseModel):
     kwargs: dict[str, Any] = {}
     singleton: bool = False
 
+    def get(self):
+        return self.symbol
+
     def init(self, *args: Any, **kwargs: Any) -> Any:
         assert self.symbol is not None
         return self.instance or self.symbol(*args, **kwargs)

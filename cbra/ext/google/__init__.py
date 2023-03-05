@@ -80,6 +80,7 @@ The following user-defined environment variables are supported.
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from .aortadebugendpoint import AortaDebugEndpoint
 from .aortaendpoint import AortaEndpoint
 from .datastorequeryresult import DatastoreQueryResult
 from .datastorerepository import DatastoreRepository
@@ -95,6 +96,7 @@ from .service import Service
 
 
 __all__: list[str] = [
+    'AortaDebugEndpoint',
     'AortaEndpoint',
     'DatastoreQueryResult',
     'DatastoreRepository',

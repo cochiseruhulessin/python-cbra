@@ -32,7 +32,7 @@ class Injected(Requirement, fastapi.params.Depends):
 
     async def resolve(self, *args: Any, **kwargs: Any) -> Any:
         assert self.ref is not None
-        return self.ref.symbol
+        return self.ref.get()
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return await self.resolve(*args, **kwargs)

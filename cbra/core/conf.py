@@ -18,6 +18,15 @@ This document lists the recognized symbol names for use with
 .. module:: cbra.core.conf.settings
 
 
+.. setting:: APP_NAME
+
+``APP_NAME``
+============
+The name of the application. Is inferred from the environment variable
+:envvar:`APP_NAME`. If this is not set, :setting:`APP_NAME` must be
+explicitely defined.
+
+
 .. setting:: ASGI_ROOT_PATH
 
 ``ASGI_ROOT_PATH``
@@ -108,9 +117,16 @@ application. Example:
 ``OAUTH2_ISSUER``
 =================
 
-  Default: ``None``
+Default: ``None``
 
-  The issuer identifier used by this server.
+The issuer identifier used by this server.
+
+  
+.. settings:: PUBLISHER_TOPIC_PREFIX
+
+``PUBLISHER_TOPIC_PREFIX``
+==========================
+The prefix used by the message publisher.
 
 
 .. setting: SECRET_KEY
@@ -314,6 +330,7 @@ class Settings:
     TRUSTED_AUTHORIZATION_SERVERS: list[str]
 
     __defaults__: dict[str, Any] = {
+        'APP_NAME': os.getenv('APP_NAME'),
         'ASGI_ROOT_PATH': os.environ.get('ASGI_ROOT_PATH'),
         'DEBUG': False,
         'DEPLOYMENT_ENV': os.environ.get('DEPLOYMENT_ENV') or 'production',
