@@ -42,8 +42,10 @@ class GooglePubsubTransport(PubsubTransport):
             topics = [f'{self.prefix}.commands.{self.service_name}']
             if envelope.metadata.audience:
                 topics = [
-                    f'{self.prefix}.commands.{x}'
+                    f'{self.prefix}.commands.{x}' if x != 'self'\
+                    else f'{self.prefix}.commands.{self.service_name}'
                     for x in envelope.metadata.audience
+                    if x != 'self'
                 ]
         else:
             raise NotImplementedError
