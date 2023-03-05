@@ -82,6 +82,7 @@ The following user-defined environment variables are supported.
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from .aortadebugendpoint import AortaDebugEndpoint
 from .aortaendpoint import AortaEndpoint
+from .basedatastorerepository import BaseDatastoreRepository
 from .datastorequeryresult import DatastoreQueryResult
 from .datastorerepository import DatastoreRepository
 from .datastoresubjectrepository import DatastoreSubjectRepository
@@ -98,6 +99,7 @@ from .service import Service
 __all__: list[str] = [
     'AortaDebugEndpoint',
     'AortaEndpoint',
+    'BaseDatastoreRepository',
     'DatastoreQueryResult',
     'DatastoreRepository',
     'DatastoreSubjectResolver',

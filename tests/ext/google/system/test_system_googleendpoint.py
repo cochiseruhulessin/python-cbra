@@ -53,7 +53,7 @@ async def test_basic_oidc_authentication(
     google_id_token: str
 ): 
     claims: dict[str, Any] = JSONWebTokenPrincipal.parse_jwt(google_id_token)
-    app.add(GoogleServiceEndpoint.configure(allowed_service_accounts={claims['email']})) # type: ignore
+    app.add(GoogleServiceEndpoint.configure({'allowed_service_accounts': {claims['email']}})) # type: ignore
     response = await client.get(
         url='/',
         headers={'Authorization': f'Bearer {google_id_token}'}
@@ -67,7 +67,7 @@ async def test_basic_oidc_authentication_accepts_only_whitelisted(
     client: httpx.Client,
     google_id_token: str
 ): 
-    app.add(GoogleServiceEndpoint.configure(allowed_service_accounts=set())) # type: ignore
+    app.add(GoogleServiceEndpoint.configure({'allowed_service_accounts': set()})) # type: ignore
     response = await client.get(
         url='/',
         headers={'Authorization': f'Bearer {google_id_token}'}
