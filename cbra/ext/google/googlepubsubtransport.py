@@ -23,19 +23,27 @@ class GooglePubsubTransport(PubsubTransport):
         prefix: str,
         service_name: str
     ):
+        self.prefix = prefix
+        self.service_name = service_name
         super().__init__(
             project=project,
             topic=self.topic_factory,
             retry_topic=f'{self.prefix}.retry.{service_name}'
         )
-        self.prefix = prefix
-        self.service_name = service_name
 
     def topic_factory(self, envelope: Envelope[Any]) -> list[str]:
-        topics: list[str] = [
-            f'{self.prefix}.events',
-            f'{self.prefix}.events.{envelope.kind}'
-        ]
-        if envelope.is_command():
+        if envelope.is_event():
+            topics: list[str] = [
+                f'{self.prefix}.events',
+                f'{self.prefix}.events.{envelope.kind}'
+            ]
+        elif envelope.is_command():
             topics = [f'{self.prefix}.commands.{self.service_name}']
+            if envelope.metadata.audience:
+                topics = [
+                    f'{self.prefix}.commands.{x}'
+                    for x in envelope.metadata.audience
+                ]
+        else:
+            raise NotImplementedError
         return topics
