@@ -5,13 +5,15 @@
   "url": "https://docs.cochise.io/python/cbra/latest",
   "licenses": "Proprietary",
   "install_requires": [
+    "canonical",
     "ckms>=0.60.0",
     "fastapi",
     "headless>=1.12.1",
     "inflect",
     "gunicorn",
     "pydantic",
-    "uvicorn"
+    "uvicorn",
+    "unimatrix"
   ],
   "entry_points": {
     "unimatrix.runtime.init": [

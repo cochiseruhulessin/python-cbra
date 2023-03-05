@@ -7,6 +7,8 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # type: ignore
+import importlib
+import inspect
 from typing import Callable
 from typing import TypeVar
 
@@ -151,3 +153,7 @@ class response:
             if v is not None and k != 'status_code'
         }
         return func
+    
+
+def autodiscover(qualname: str, cls: type[T] | None  = None) -> T:
+    cls = cls or Application

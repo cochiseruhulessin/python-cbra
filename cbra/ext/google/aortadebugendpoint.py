@@ -14,6 +14,7 @@ from .debugevent import DebugEvent
 
 class AortaDebugEndpoint(Endpoint):
     __module__: str = 'cbra.ext.google'
+    include_in_schema: bool = False
 
     async def post(self) -> None:
         self.transaction.publish(DebugCommand())
