@@ -11,6 +11,7 @@ from typing import Any
 from google.cloud import logging
 
 from cbra.core import Application
+from cbra.core.conf import settings
 from cbra.core.utils import parent_signature
 from .aortadebugendpoint import AortaDebugEndpoint
 from .aortaendpoint import AortaEndpoint
@@ -41,7 +42,8 @@ class Service(Application):
                 'qualname': 'cbra.ext.google.DatastoreSubjectRepository'
             })
         self.add(AortaEndpoint, path="/.well-known/aorta")
-        self.add(AortaDebugEndpoint, path="/.well-known/aorta/debug")
+        if settings.DEBUG:
+            self.add(AortaDebugEndpoint, path="/.well-known/aorta/debug")
 
     def logging_config(self):
         client = logging.Client(project=GOOGLE_HOST_PROJECT or GOOGLE_SERVICE_PROJECT)
