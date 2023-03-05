@@ -34,9 +34,10 @@ class GooglePubsubTransport(PubsubTransport):
     def topic_factory(self, envelope: Envelope[Any]) -> list[str]:
         if envelope.is_event():
             topics: list[str] = [
-                f'{self.prefix}.events',
                 f'{self.prefix}.events.{envelope.kind}'
             ]
+            if not envelope.is_private_event():
+                topics.append(f'{self.prefix}.events')
         elif envelope.is_command():
             topics = [f'{self.prefix}.commands.{self.service_name}']
             if envelope.metadata.audience:

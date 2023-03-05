@@ -83,12 +83,13 @@ class BaseModelMetaclass(pydantic.main.ModelMetaclass):
             key_fields.append(field)
         if key_fields:
             new_class.__key__ = ModelIdentity(key_fields)
+
         return new_class # type: ignore
 
 
 class BaseModel(pydantic.BaseModel, metaclass=BaseModelMetaclass):
     __abstract__: bool = True
-    __key__: ModelIdentity
+    __key__: ModelIdentity | NotImplementedType
     __surrogate__: ModelAutoAssignedIdentity | NotImplementedType
     __module__: str = 'cbra.types'
 

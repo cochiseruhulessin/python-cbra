@@ -36,6 +36,7 @@ from .isubject import ISubject
 from .isubjectresolver import ISubjectResolver
 from .jsonwebtoken import JSONWebToken
 from .jsonwebtokenprincipal import JSONWebTokenPrincipal
+from .modelinspector import ModelInspector
 from .mutablesignature import MutableSignature
 from .nullrequestprincipal import NullRequestPrincipal
 from .nullsubject import NullSubject
@@ -88,6 +89,7 @@ __all__: list[str] = [
     'IQueryResult',
     'JSONWebToken',
     'JSONWebTokenPrincipal',
+    'ModelInspector',
     'MutableSignature',
     'NotAuthorized',
     'NotFound',
