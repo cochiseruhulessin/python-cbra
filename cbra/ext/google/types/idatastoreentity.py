@@ -7,6 +7,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from typing import Any
+from typing import Iterable
 from typing import Protocol
 
 from .idatastorekey import IDatastoreKey
@@ -15,4 +16,5 @@ from .idatastorekey import IDatastoreKey
 class IDatastoreEntity(Protocol):
     __module__: str = 'cbra.ext.google.types'
     key: IDatastoreKey
+    def update(self, obj: Iterable[tuple[str, Any]]) -> None: ...
     def __setitem__(self, k: str, v: Any) -> None: ...
