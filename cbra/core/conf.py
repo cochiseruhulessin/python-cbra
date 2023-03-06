@@ -367,11 +367,21 @@ class Settings:
                     'propagate': False,
                     'level': _LOG_LEVEL
                 },
+                'canonical': {
+                    'handlers': ['console', 'default'],
+                    'propagate': False,
+                    'level': _LOG_LEVEL
+                },
                 'cbra': {
                     'handlers': ['console', 'default'],
                     'propagate': False,
                     'level': _LOG_LEVEL
-                }
+                },
+                'headless': {
+                    'handlers': ['console', 'default'],
+                    'propagate': False,
+                    'level': _LOG_LEVEL
+                },
             }
         },
         'OAUTH2_CLIENTS': [],
