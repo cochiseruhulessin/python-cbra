@@ -68,19 +68,19 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
     async def get_verifier(self) -> IVerifier:
         raise NotImplementedError
 
-    async def handle(self, envelope: IWebhookEnvelope) -> fastapi.Response | WebhookResponse:
+    async def handle(self, envelope: IWebhookEnvelope) -> WebhookResponse:
         fn = getattr(self, f'on_{self.get_handler_name(envelope)}', None)
         if fn is None:
             return await self.sink(envelope)
         response = await fn(await self.get_message(envelope))
-        if response and not isinstance(response, (fastapi.Response, WebhookResponse)):
+        if response and not isinstance(response, WebhookResponse):
             raise TypeError(
                 f"The return value of {type(self).__name__}{fn.__name__} "
-                "must be fastapi.Response or cbra.ext.webhooks.WebhookResponse."
+                "must be cbra.ext.webhooks.WebhookResponse."
             )
         return response or self._on_success()
 
-    async def post(self) -> fastapi.Response | WebhookResponse:
+    async def post(self) -> WebhookResponse:
         try:
             if not await self.verify(self.envelope):
                 return self.reject("Signature validation failed.")
