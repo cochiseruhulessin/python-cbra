@@ -17,6 +17,7 @@ from .webhookresponse import WebhookResponse
 class BaseWebhookEndpoint(cbra.Endpoint):
     __module__: str = 'cbra.ext.shopify'
     domain: str
+    with_options: bool = False
 
     @classmethod
     def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:

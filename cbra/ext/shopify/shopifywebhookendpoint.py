@@ -15,6 +15,8 @@ from .shopifywebhookmessage import ShopifyWebhookMessage
 class ShopifyWebhookEndpoint(BaseWebhookEndpoint):
     __module__: str = 'cbra.ext.shopify'
     domain: str = "shopify.com"
+    summary: str = "Shopify"
+    tags: list[str] = ["Webhooks (Incoming)"]
 
     async def post(
         self,
