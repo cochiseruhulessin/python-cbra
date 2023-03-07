@@ -19,7 +19,7 @@ class ShopifyWebhookEndpoint(WebhookEndpoint):
     summary: str = "Shopify"
     tags: list[str] = ["Webhooks (Incoming)"]
 
-    async def on_order_created(
+    async def on_orders_create(
         self,
         envelope: ShopifyWebhookMessage
     ) -> None:
@@ -28,7 +28,7 @@ class ShopifyWebhookEndpoint(WebhookEndpoint):
             envelope.api_version,
             envelope.domain,
             envelope.hmac_sha256,
-            envelope.topic,
+            envelope.event_name,
             envelope.webhook_id,
             envelope.content
         )

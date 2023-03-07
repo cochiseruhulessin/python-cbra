@@ -26,7 +26,7 @@ class ShopifyWebhookMessage(IDependant):
     content: dict[str, Any]
     domain: str | None
     hmac_sha256: bytes | None = None
-    topic: str | None = None
+    event_name: str | None = None
     webhook_id: str | None = None
 
     def __init__(
@@ -56,7 +56,7 @@ class ShopifyWebhookMessage(IDependant):
         self.api_version = api_version or DEFAULT_API_VERSION
         self.content = content
         self.domain = domain
-        self.topic = topic
+        self.event_name = topic
         self.webhook_id = webhook_id
         if signature is not None:
             self.hmac = base64.b64decode(str.encode(signature, 'utf-8'))
