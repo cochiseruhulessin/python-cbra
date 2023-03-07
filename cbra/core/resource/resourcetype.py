@@ -6,12 +6,14 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import inspect
 import itertools
 import re
 from typing import Any
 
 import inflect
 
+from cbra.types import IDependant
 from .createaction import CreateAction
 from .customaction import CustomAction
 from .deleteaction import DeleteAction
@@ -45,7 +47,17 @@ class ResourceType(type):
         **params: Any
     ):
         actions: list[ResourceAction] = []
+        annotations: dict[str, type] = namespace.get('__annotations__') or {}
         is_abstract = namespace.pop('__abstract__', False)
+
+        # Inspect annotations for injectables.
+        for attname, hint in annotations.items():
+            if not inspect.isclass(hint)\
+            or not issubclass(hint, IDependant)\
+            or attname in namespace:
+                continue
+            namespace[attname] = hint.depends()
+
         if not is_abstract:
             Model = params.get('model', None)
             if Model is None:

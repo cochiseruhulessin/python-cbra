@@ -7,10 +7,13 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import collections
+import inspect
 import itertools
 import types
 from typing import Any
 
+import fastapi
+from cbra.types import IDependant
 from cbra.types import IEndpoint
 from cbra.types import IRequestPrincipal
 from cbra.types import RequestPrincipal
@@ -40,6 +43,15 @@ class EndpointType(type):
         annotations = namespace.get('__annotations__') or {}
         is_abstract = namespace.pop('__abstract__', False)
         handlers: dict[str, RequestHandler[Any]] = collections.OrderedDict()
+
+        # Inspect annotations for injectables.
+        for attname, hint in annotations.items():
+            if not inspect.isclass(hint)\
+            or not issubclass(hint, IDependant)\
+            or attname in namespace:
+                continue
+            namespace[attname] = hint.depends()
+
         if not is_abstract:
             for h in itertools.chain(*[getattr(x, 'handlers', {}) for x in bases]):
                 handlers[h.attname] = h.clone() # type: ignore
