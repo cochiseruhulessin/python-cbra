@@ -25,6 +25,7 @@ from .iroutable import IRoutable
 from .isessionmanager import ISessionManager
 from .forbidden import Forbidden
 from .notauthorized import NotAuthorized
+from .request import Request
 
 
 T = TypeVar('T', bound='IEndpoint')
@@ -68,7 +69,7 @@ class IEndpoint:
     versioned: bool
 
     principal: IRequestPrincipal
-    request: fastapi.Request
+    request: Request
     response: fastapi.Response
     router: fastapi.APIRouter
 

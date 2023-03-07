@@ -12,7 +12,6 @@ import itertools
 import types
 from typing import Any
 
-import fastapi
 from cbra.types import IDependant
 from cbra.types import IEndpoint
 from cbra.types import IRequestPrincipal

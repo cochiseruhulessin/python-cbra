@@ -8,7 +8,7 @@
     "canonical",
     "ckms>=0.60.0",
     "fastapi",
-    "headless>=1.12.1",
+    "headless>=2.0.0a5",
     "inflect",
     "gunicorn",
     "pydantic",

@@ -21,8 +21,10 @@ import unimatrix.runtime
 import yaml
 from pydantic import Field
 
+from cbra.types import Request
 from .application import Application
 from .endpoint import Endpoint
+from .endpointtype import EndpointType
 from . import ioc
 from .localmessagetransport import LocalMessageTransport
 from .messagepublisher import MessagePublisher
@@ -58,12 +60,14 @@ __all__: list[str] = [
     'Create',
     'Delete',
     'Endpoint',
+    'EndpointType',
     'Field',
     'LocalMessageTransport',
     'MessagePublisher',
     'MessageRunner',
     'Mutable',
     'QueryResult',
+    'Request',
     'Replace',
     'Resource',
     'ResourceModel',

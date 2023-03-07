@@ -19,6 +19,7 @@ from fastapi.routing import DecoratedCallable
 from fastapi.params import Depends
 
 from cbra.types import Abortable
+from .apiroute import APIRoute
 from .conf import settings
 from .endpoint import Endpoint
 from .resource import Resource
@@ -48,6 +49,7 @@ class Application(FastAPI):
         if not self.container.has('MessageTransport'):
             self.inject('MessageTransport', LocalMessageTransport)
         super().__init__(**kwargs)
+        self.router.route_class = APIRoute
         self.add_event_handler('startup', self.setup_logging) # type: ignore
 
     def add(

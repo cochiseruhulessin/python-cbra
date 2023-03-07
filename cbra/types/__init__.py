@@ -47,6 +47,7 @@ from .operation import Operation
 from .oidcrequestprincipal import OIDCRequestPrincipal
 from .pathparameter import PathParameter
 from .persistedmodel import PersistedModel
+from .request import Request
 from .requestprincipal import RequestPrincipal
 from .rfc9068requestprincipal import RFC9068RequestPrincipal
 from .session import Session
@@ -101,6 +102,7 @@ __all__: list[str] = [
     'PathParameter',
     'PersistedModel',
     'PolymorphicIterable',
+    'Request',
     'RequestPrincipal',
     'RFC9068RequestPrincipal',
     'Session',
