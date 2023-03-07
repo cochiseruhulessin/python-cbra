@@ -19,11 +19,8 @@ class ShopifyWebhookEndpoint(WebhookEndpoint):
     summary: str = "Shopify"
     tags: list[str] = ["Webhooks (Incoming)"]
 
-    async def on_orders_create(
-        self,
-        envelope: ShopifyWebhookMessage
-    ) -> None:
-        print(self.request.sha256)
+    def log_event(self, envelope: ShopifyWebhookMessage) -> None:
+        self.logger.info("Received event %s", envelope.event_name)
         print(
             envelope.api_version,
             envelope.domain,
@@ -32,3 +29,51 @@ class ShopifyWebhookEndpoint(WebhookEndpoint):
             envelope.webhook_id,
             envelope.content
         )
+
+    async def on_orders_cancelled(
+        self,
+        envelope: ShopifyWebhookMessage
+    ) -> None:
+        self.log_event(envelope)
+
+    async def on_orders_create(
+        self,
+        envelope: ShopifyWebhookMessage
+    ) -> None:
+        self.log_event(envelope)
+
+    async def on_orders_delete(
+        self,
+        envelope: ShopifyWebhookMessage
+    ) -> None:
+        self.log_event(envelope)
+
+    async def on_orders_edited(
+        self,
+        envelope: ShopifyWebhookMessage
+    ) -> None:
+        self.log_event(envelope)
+
+    async def on_orders_fulfilled(
+        self,
+        envelope: ShopifyWebhookMessage
+    ) -> None:
+        self.log_event(envelope)
+
+    async def on_orders_paid(
+        self,
+        envelope: ShopifyWebhookMessage
+    ) -> None:
+        self.log_event(envelope)
+
+    async def on_orders_partially_fulfilled(
+        self,
+        envelope: ShopifyWebhookMessage
+    ) -> None:
+        self.log_event(envelope)
+
+    async def on_orders_updated(
+        self,
+        envelope: ShopifyWebhookMessage
+    ) -> None:
+        self.log_event(envelope)
