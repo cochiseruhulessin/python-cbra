@@ -34,6 +34,7 @@ from .isessionfactory import ISessionFactory
 from .isessionmanager import ISessionManager
 from .isubject import ISubject
 from .isubjectresolver import ISubjectResolver
+from .iverifier import IVerifier
 from .jsonwebtoken import JSONWebToken
 from .jsonwebtokenprincipal import JSONWebTokenPrincipal
 from .modelinspector import ModelInspector
@@ -88,6 +89,7 @@ __all__: list[str] = [
     'ISubject',
     'ISubjectResolver',
     'IQueryResult',
+    'IVerifier',
     'JSONWebToken',
     'JSONWebTokenPrincipal',
     'ModelInspector',
