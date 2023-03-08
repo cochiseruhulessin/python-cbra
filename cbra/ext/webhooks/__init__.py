@@ -8,6 +8,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from .basewebhookendpoint import BaseWebhookEndpoint
 from .hmacwebhookverifier import HMACWebhookVerifier
+from .notimplementedenvelope import NotImplementedEnvelope
 from .types import IWebhookEnvelope
 from .webhookendpoint import WebhookEndpoint
 from .webhookendpointtype import WebhookEndpointType
@@ -19,6 +20,7 @@ __all__: list[str] = [
     'BaseWebhookEndpoint',
     'HMACWebhookVerifier',
     'IWebhookEnvelope',
+    'NotImplementedEnvelope',
     'WebhookEndpoint',
     'WebhookEndpointType',
     'WebhookEnvelope',

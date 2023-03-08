@@ -15,6 +15,7 @@ import fastapi
 
 import cbra.core as cbra
 from cbra.types import IVerifier
+from .notimplementedenvelope import NotImplementedEnvelope
 from .types import IWebhookEnvelope
 from .webhookendpointtype import WebhookEndpointType
 from .webhookresponse import WebhookResponse
@@ -23,7 +24,7 @@ from .webhookresponse import WebhookResponse
 class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
     __module__: str = 'cbra.ext.shopify'
     domain: str
-    envelope: Any
+    envelope: IWebhookEnvelope = NotImplementedEnvelope.depends()
     with_options: bool = False
     function_reducers: list[Callable[[str], str]] = [
         lambda x: str.replace(x, '/', '_'),

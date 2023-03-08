@@ -38,4 +38,8 @@ class WebhookEndpointType(EndpointType):
             envelope = cast(TypeAlias, annotations.setdefault('envelope', envelope))
             if envelope is None:
                 raise TypeError("Define a message envelope")
-        return super().__new__(cls, name, bases, namespace, **params)
+        new_class = super().__new__(cls, name, bases, namespace, **params)
+        #if not is_abstract:
+        #    if not hasattr(new_class, 'domain'):
+        #        raise TypeError(f'{name}.domain must be declared.')
+        return new_class
