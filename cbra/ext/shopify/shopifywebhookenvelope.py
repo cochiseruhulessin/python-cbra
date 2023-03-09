@@ -67,6 +67,7 @@ class ShopifyWebhookEnvelope(WebhookEnvelope):
         try:
             self.hmac = base64.b64decode(signature)
         except Exception:
+            self.logger.info("Malformed signature.")
             raise MalformedSignature
 
     def get_message(self) -> pydantic.BaseModel:

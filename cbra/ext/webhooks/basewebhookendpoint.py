@@ -98,6 +98,7 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
                 return self.reject("Signature validation failed.", "INVALID_SIGNATURE")
             return await self.handle(self.envelope)
         except WebhookException:
+            self.logger.critical("Caught WebhookException")
             raise
         except Exception as exc:
             self.logger.exception("Caught fatal %s", type(exc).__name__)
