@@ -95,6 +95,10 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
     async def post(self) -> WebhookResponse:
         try:
             if not await self.verify(self.envelope):
+                self.logger.critical(
+                    "Signature validation failed for message received by %s",
+                    type(self).__name__
+                )
                 return self.reject("Signature validation failed.", "INVALID_SIGNATURE")
             return await self.handle(self.envelope)
         except WebhookException:
