@@ -83,6 +83,7 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
         try:
             message = await self.get_message(envelope)
         except pydantic.ValidationError:
+            self.logger.critical("Unable to parse webhook message.")
             return self.reject("Unknown message format.", "UNKNOWN_MESSAGE_FORMAT")
         response = await fn(message)
         if response and not isinstance(response, WebhookResponse):
