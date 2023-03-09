@@ -16,7 +16,6 @@ from headless.ext.shopify import v2023_1
 from cbra.types import IVerifier
 from cbra.types import Request
 from cbra.ext.webhooks import WebhookEnvelope
-from cbra.ext.webhooks.types import MalformedSignature
 
 
 DEFAULT_API_VERSION: str = '2023-01'
@@ -44,7 +43,7 @@ class ShopifyWebhookEnvelope(WebhookEnvelope):
             default=None,
             alias='X-Shopify-Shop-Domain',
         ),
-        signature: bytes = fastapi.Header(
+        signature: str = fastapi.Header(
             default=None,
             alias='X-Shopify-Hmac-Sha256',
         ),
@@ -61,14 +60,10 @@ class ShopifyWebhookEnvelope(WebhookEnvelope):
         self.api_version = api_version or DEFAULT_API_VERSION
         self.content = content
         self.domain = domain
+        self.hmac = signature.encode('utf-8')
         self.event_name = topic
         self.resource, self.event = str.split(topic, '/')
         self.webhook_id = webhook_id
-        try:
-            self.hmac = base64.b64decode(signature)
-        except Exception:
-            self.logger.info("Malformed signature.")
-            raise MalformedSignature
 
     def get_message(self) -> pydantic.BaseModel:
         return MODELS[(self.api_version, self.resource)].parse_obj(self.content)
@@ -76,4 +71,8 @@ class ShopifyWebhookEnvelope(WebhookEnvelope):
     async def verify(self, request: Request, verifier: IVerifier) -> bool:
         if self.hmac is None:
             return False
-        return await verifier.verify(self.hmac, await request.body())
+        return await verifier.verify(
+            signature=self.hmac,
+            message=await request.body(),
+            encoder=base64.b64encode
+        )
