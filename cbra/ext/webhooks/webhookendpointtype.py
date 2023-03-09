@@ -32,11 +32,11 @@ class WebhookEndpointType(EndpointType):
             for b in reversed(bases):
                 if not isinstance(b, WebhookEndpointType):
                     continue
-                if not b.__annotations__.get('envelope'):
+                if not b.__annotations__.get('envelope'): # pragma: no cover
                     continue
                 envelope = b.__annotations__.get('envelope')
             envelope = cast(TypeAlias, annotations.setdefault('envelope', envelope))
-            if envelope is None:
+            if envelope is None: # pragma: no cover
                 raise TypeError("Define a message envelope")
         new_class = super().__new__(cls, name, bases, namespace, **params)
         #if not is_abstract:

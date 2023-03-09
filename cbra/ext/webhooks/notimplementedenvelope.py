@@ -6,8 +6,11 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from types import NotImplementedType
+
 from .webhookenvelope import WebhookEnvelope
 
 
 class NotImplementedEnvelope(WebhookEnvelope):
     __module__: str = 'cbra.ext.webhooks'
+    event_name: str | NotImplementedType = NotImplementedType

@@ -21,6 +21,12 @@ class WebhookResponse(pydantic.BaseModel):
         description='Indicates if the server succesfully processed the message.'
     )
 
+    code: str | None = pydantic.Field(
+        default=None,
+        title='Code',
+        description="A code describing the error condition."
+    )
+
     reason: str | None = pydantic.Field(
         default=None,
         title="Reason",

@@ -8,25 +8,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import base64
 from typing import Any
-from typing import Awaitable
 
 import fastapi
+import pydantic
+from headless.ext.shopify import v2023_1
 
-from cbra.types import IDependant
 from cbra.types import IVerifier
 from cbra.types import Request
+from cbra.ext.webhooks import WebhookEnvelope
+from cbra.ext.webhooks.types import MalformedSignature
 
 
 DEFAULT_API_VERSION: str = '2023-01'
+MODELS: dict[tuple[str, str], type[pydantic.BaseModel]] = {
+    ('2023-01', 'orders'): v2023_1.Order
+}
 
 
-class ShopifyWebhookMessage(IDependant):
+class ShopifyWebhookEnvelope(WebhookEnvelope):
     __module__: str = 'cbra.ext.shopify'
     api_version: str
     content: dict[str, Any]
-    domain: str | None
-    hmac_sha256: bytes | None = None
-    event_name: str | None = None
+    domain: str
+    hmac: bytes | None = None
+    event_name: str
     webhook_id: str | None = None
 
     def __init__(
@@ -35,15 +40,15 @@ class ShopifyWebhookMessage(IDependant):
             default=None,
             alias='X-Shopify-API-Version',
         ),
-        domain: str | None = fastapi.Header(
+        domain: str = fastapi.Header(
             default=None,
             alias='X-Shopify-Shop-Domain',
         ),
-        signature: str | None = fastapi.Header(
+        signature: bytes = fastapi.Header(
             default=None,
             alias='X-Shopify-Hmac-Sha256',
         ),
-        topic: str | None = fastapi.Header(
+        topic: str = fastapi.Header(
             default=None,
             alias='X-Shopify-Topic'
         ),
@@ -57,9 +62,17 @@ class ShopifyWebhookMessage(IDependant):
         self.content = content
         self.domain = domain
         self.event_name = topic
+        self.resource, self.event = str.split(topic, '/')
         self.webhook_id = webhook_id
-        if signature is not None:
-            self.hmac = base64.b64decode(str.encode(signature, 'utf-8'))
+        try:
+            self.hmac = base64.b64decode(signature)
+        except Exception:
+            raise MalformedSignature
 
-    def verify(self, request: Request, verifier: IVerifier) -> bool | Awaitable[bool]:
-        return verifier.verify(self.hmac, request.sha256)
+    def get_message(self) -> pydantic.BaseModel:
+        return MODELS[(self.api_version, self.resource)].parse_obj(self.content)
+
+    async def verify(self, request: Request, verifier: IVerifier) -> bool:
+        if self.hmac is None:
+            return False
+        return await verifier.verify(self.hmac, await request.body())

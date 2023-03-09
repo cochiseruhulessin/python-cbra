@@ -12,19 +12,23 @@ from typing import Any
 from typing import Callable
 
 import fastapi
+import pydantic
 
 import cbra.core as cbra
 from cbra.types import IVerifier
 from .notimplementedenvelope import NotImplementedEnvelope
 from .types import IWebhookEnvelope
+from .types import WebhookException
+from .types import WebhookResponse
 from .webhookendpointtype import WebhookEndpointType
-from .webhookresponse import WebhookResponse
 
 
 class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
     __module__: str = 'cbra.ext.shopify'
     domain: str
     envelope: IWebhookEnvelope = NotImplementedEnvelope.depends()
+    require_authentication: bool = False
+    signed: bool = False
     with_options: bool = False
     function_reducers: list[Callable[[str], str]] = [
         lambda x: str.replace(x, '/', '_'),
@@ -41,17 +45,20 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
         return super().add_to_router(router, **kwargs)
 
     def get_handler_name(self, envelope: IWebhookEnvelope) -> str:
+        if envelope.event_name == NotImplemented:
+            raise NotImplementedError
         return functools.reduce(
             lambda v, f: f(v),
             self.function_reducers,
             envelope.event_name
         )
 
-    def reject(self, reason: str) -> WebhookResponse:
+    def reject(self, reason: str, code: str | None = None) -> WebhookResponse:
         return WebhookResponse(
             accepted=False,
             success=False,
-            reason=reason
+            reason=reason,
+            code=code
         )
 
     def _on_success(self) -> WebhookResponse:
@@ -64,7 +71,7 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
         """Return the message enclosed in the envelope. The default
         implementation simply returns the envelope.
         """
-        return envelope
+        return envelope.get_message()
 
     async def get_verifier(self) -> IVerifier:
         raise NotImplementedError
@@ -73,7 +80,11 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
         fn = getattr(self, f'on_{self.get_handler_name(envelope)}', None)
         if fn is None:
             return await self.sink(envelope)
-        response = await fn(await self.get_message(envelope))
+        try:
+            message = await self.get_message(envelope)
+        except pydantic.ValidationError:
+            return self.reject("Unknown message format.", "UNKNOWN_MESSAGE_FORMAT")
+        response = await fn(message)
         if response and not isinstance(response, WebhookResponse):
             raise TypeError(
                 f"The return value of {type(self).__name__}{fn.__name__} "
@@ -84,11 +95,16 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
     async def post(self) -> WebhookResponse:
         try:
             if not await self.verify(self.envelope):
-                return self.reject("Signature validation failed.")
+                return self.reject("Signature validation failed.", "INVALID_SIGNATURE")
             return await self.handle(self.envelope)
+        except WebhookException:
+            raise
         except Exception as exc:
             self.logger.exception("Caught fatal %s", type(exc).__name__)
-            return self.reject("Caught fatal exception during message handling.")
+            return self.reject(
+                "Caught fatal exception during message handling.",
+                'FATAL_EXCEPTION'
+            )
 
     async def sink(self, envelope: IWebhookEnvelope) -> WebhookResponse:
         msg = f"No handler for event {envelope.event_name}"
@@ -96,7 +112,7 @@ class BaseWebhookEndpoint(cbra.Endpoint, metaclass=WebhookEndpointType):
         return self.reject(msg)
 
     async def verify(self, envelope: IWebhookEnvelope) -> bool:
-        return not self.require_authentication or await envelope.verify(
+        return not self.signed or await envelope.verify(
             request=self.request,
             verifier=await self.get_verifier()
         )
