@@ -35,7 +35,7 @@ class AccountRegistration(PersistedModel):
 
     Registration of a new account is done by verifying an email address
     using a shared secret (verification code). If the email adres is not
-    whitelist per its domain, then a fallback email address must be
+    whitelisted per its domain, then a fallback email address must be
     provided. The :class:`AccountRegistration` model must then resolve
     either of three cases:
 
@@ -45,6 +45,12 @@ class AccountRegistration(PersistedModel):
       then also added to the account.
     - The email addresses are linked to different accounts. This is an
       error state.
+
+    Attributes:
+      id (int): a numeric identifier for this :class:`AccountRegistration`.
+        This will also be the global subject identifier.
+        requested (datetime.datetime): the date/time at which registration
+          of the account was requested.
     """
     id: int | None = pydantic.Field(
         default=None,
@@ -59,4 +65,5 @@ class AccountRegistration(PersistedModel):
         default=...,
         primary_key=True
     )
+
     fallback: EmailAddress | None = None
