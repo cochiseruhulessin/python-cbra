@@ -131,6 +131,7 @@ from .authenticatedcontext import AuthenticatedContext
 from .authenticationservice import AuthenticationService
 from .authorizationcontextfactory import AuthorizationContextFactory
 from .isubjectrepository import ISubjectRepository
+from .memorysubjectrepository import MemorySubjectRepository
 from .subject import Subject as RequestSubject
 from .subjectresolver import SubjectResolver
 from .types import IUserOnboardingService
@@ -142,6 +143,7 @@ __all__: list[str] = [
     'AuthorizationContextFactory',
     'ISubjectRepository',
     'IUserOnboardingService',
+    'MemorySubjectRepository',
     'RequestSubject',
     'SubjectResolver',
 ]

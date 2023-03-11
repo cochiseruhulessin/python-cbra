@@ -12,6 +12,7 @@ from cbra.types import Abortable
 
 
 class InvalidAuthorizeResponse(Abortable):
+    __module__: str = 'cbra.ext.oauth2.types'
     status_code: int = 400
     reason: str = (
         "The authorization server returned an unsupported or "

@@ -5,13 +5,14 @@
   "url": "https://docs.cochise.io/python/cbra/latest",
   "licenses": "Proprietary",
   "install_requires": [
-    "canonical",
-    "ckms>=0.60.0",
-    "fastapi",
-    "headless>=2.0.0a5",
+    "canonical>=0.29.0",
+    "ckms>=0.61.0",
+    "fastapi>=0.94.0",
+    "headless>=2.0.0a11",
     "inflect",
     "gunicorn",
     "pydantic>=1.10.6",
+    "python-multipart",
     "uvicorn",
     "unimatrix"
   ],
@@ -36,7 +37,7 @@
     ],
     "google": [
       "aorta[google]>=3.0.0a9",
-      "ckms[google]>=0.60",
+      "ckms[google]>=0.61",
       "google-cloud-datastore>=2.13.2",
       "google-cloud-logging"
     ],

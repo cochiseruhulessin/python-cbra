@@ -9,5 +9,7 @@
 import pydantic
 
 
-class AuthorizationRequestReference(pydantic.BaseModel):
-    request_uri: str
+class BeginOnboardRequest(pydantic.BaseModel):
+    ctx: str
+    next: str
+    request: str

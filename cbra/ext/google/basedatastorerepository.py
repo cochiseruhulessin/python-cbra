@@ -10,7 +10,6 @@ import functools
 from typing import Any
 
 from google.cloud.datastore import Client
-from google.cloud.datastore import Entity
 
 from .runner import Runner
 from .types import IDatastoreCursor
@@ -28,6 +27,17 @@ class BaseDatastoreRepository(Runner):
     ) -> None:
         self.client = client
 
+    async def allocate(self, name: str) -> int:
+        base = self.key(kind=name)
+        result = await self.run_in_executor(
+            functools.partial( # type: ignore
+                self.client.allocate_ids, # type: ignore
+                incomplete_key=base,
+                num_ids=1
+            )
+        )
+        return [x for x in result][0].id
+
     def key(
         self,
         kind: str,
@@ -38,7 +48,10 @@ class BaseDatastoreRepository(Runner):
         if identifier is not None:
             args.append(identifier)
         return self.client.key(*args, parent=parent) # type: ignore
-    
+
+    def entity_factory(self, key: IDatastoreKey) -> IDatastoreEntity:
+        return self.client.entity(key) # type: ignore
+
     def entity(
         self,
         kind: str,
@@ -52,17 +65,22 @@ class BaseDatastoreRepository(Runner):
     def query(self, *args: Any, **kwargs: Any) -> IDatastoreQuery:
         return self.client.query(*args, **kwargs) # type: ignore
 
-    async def execute(self, query: IDatastoreQuery) -> IDatastoreCursor:
-        cursor = await self.run_in_executor(functools.partial(query.fetch))
+    async def execute(self, query: IDatastoreQuery, **kwargs: Any) -> IDatastoreCursor:
+        cursor = await self.run_in_executor(functools.partial(query.fetch, **kwargs))
         return cursor
 
-    async def get_entity_by_key(self, key: IDatastoreKey) -> Entity | None:
+    async def get_entity_by_key(self, key: IDatastoreKey) -> IDatastoreEntity | None:
         return await self.run_in_executor(
             functools.partial(
                 self.client.get, # type: ignore
                 key=key
             )
         )
+    
+    async def first(self, query: IDatastoreQuery) -> IDatastoreEntity | None:
+        """Return the first object in the query, or none."""
+        for entity in await self.execute(query, limit=1):
+            return entity
 
     async def put(self, entity: IDatastoreEntity) -> IDatastoreKey:
         await self.run_in_executor(self.client.put, entity) # type: ignore

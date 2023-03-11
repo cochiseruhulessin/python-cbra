@@ -30,9 +30,10 @@ class Dependency(pydantic.BaseModel):
         return self.instance or self.symbol(*args, **kwargs)
 
     def resolve(self) -> None:
-        try:
-            self.symbol = import_symbol(self.qualname)
-        except ImportError:
-            raise
+        if self.symbol is None:
+            try:
+                self.symbol = import_symbol(self.qualname)
+            except ImportError:
+                raise
         if self.singleton:
             self.instance = self.symbol(*self.args, **self.kwargs)

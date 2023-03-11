@@ -11,7 +11,9 @@ from canonical import EmailAddress
 
 
 class SessionClaims(pydantic.BaseModel):
+    ctx: str | None = None
+    uid: int | None = None
     iss: str | None = None
     sub: str | None = None
     email: EmailAddress | None = None
-    email_verified: bool = False
+    auth_time: int | None = None

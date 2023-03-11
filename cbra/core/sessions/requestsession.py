@@ -6,15 +6,21 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from datetime import datetime
+from datetime import timezone
+from typing import Any
+
 import fastapi
 import logging
 
 from cbra.core.conf import settings
+from cbra.core.iam.types import Subject
 from cbra.types import IDeferred
 from cbra.types import IDependant
 from cbra.types import ISessionFactory
 from cbra.types import ISessionManager
 from cbra.types import Session
+from cbra.types import SessionClaims
 from ..params import ApplicationSecretKey
 from ..secretkey import SecretKey
 
@@ -27,6 +33,22 @@ class RequestSession(IDeferred, IDependant, ISessionFactory[Session], ISessionMa
     logger: logging.Logger = logging.getLogger('uvicorn')
     request: fastapi.Request
 
+    @property
+    def id(self) -> str:
+        return self.data.id
+
+    @property
+    def sub(self) -> str:
+        assert self.data.claims is not None
+        assert self.data.claims.sub is not None
+        return self.data.claims.sub
+
+    @property
+    def uid(self) -> int:
+        assert self.data.claims is not None
+        assert self.data.claims.uid is not None
+        return self.data.claims.uid
+
     def __init__(
         self,
         request: fastapi.Request,
@@ -36,6 +58,18 @@ class RequestSession(IDeferred, IDependant, ISessionFactory[Session], ISessionMa
         self.key = key
         self.request = request
         self.data = IDeferred.defer(self, 'data')
+
+    def authenticate(self, subject: Subject) -> None:
+        self.dirty = True
+        if not self.data.claims:
+            self.data.claims = SessionClaims()
+        self.data.claims.uid = subject.uid
+        self.data.claims.auth_time = int(datetime.now(timezone.utc).timestamp())
+
+    def logout(self) -> None:
+        self.dirty = True
+        if self.data.claims is not None:
+            self.data.claims.uid = None
 
     async def add_to_response(self, response: fastapi.Response) -> None:
         await self.data.sign(self.key.sign)
@@ -61,6 +95,16 @@ class RequestSession(IDeferred, IDependant, ISessionFactory[Session], ISessionMa
     async def create(self) -> Session:
         self.dirty = True
         return Session.new()
+    
+    def get(self, key: str) -> Any:
+        return self.data.get(key)
+    
+    def pop(self, key: str) -> Any:
+        value = self.data.get(key)
+        if self.data.claims is not None:
+            self.dirty = True
+            setattr(self.data.claims, key, None)
+        return value
 
     async def initialize(self) -> None:
         if settings.SESSION_COOKIE_NAME not in self.request.cookies:

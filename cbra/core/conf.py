@@ -94,6 +94,17 @@ Default: ``False``
 Enable logging to ``stdout``.
 
 
+.. setting:: LOGIN_URL
+
+``LOGIN_URL``
+-------------
+
+Default: ``'/login'``
+
+Points to the URL of a web page where a user can establish
+an authenticated session.
+
+
 .. setting: OAUTH2_CLIENTS
 
 ``OAUTH2_CLIENTS``
@@ -121,8 +132,19 @@ Default: ``None``
 
 The issuer identifier used by this server.
 
+
+.. setting: OAUTH2_STORAGE
+
+``OAUTH2_STORAGE``
+==================
+
+Default: ``cbra.ext.oauth2.MemoryStorage``
+
+The storage implementation used by the :mod:`cbra.ext.oauth2`
+package.
+
   
-.. settings:: PUBLISHER_TOPIC_PREFIX
+.. setting:: PUBLISHER_TOPIC_PREFIX
 
 ``PUBLISHER_TOPIC_PREFIX``
 ==========================
@@ -311,14 +333,22 @@ _LOG_LEVEL: str = os.getenv('LOG_LEVEL') or 'INFO'
 
 class Settings:
     user: types.ModuleType | None = None
+    APP_CLIENT_ID: str | None
+    APP_CLIENT_SECRET: str | None
+    APP_ISSUER: str | None
     ASGI_ROOT_PATH: str | None
     DEPLOYMENT_ENV: str
     DEBUG: bool
     LOGIN_AUTHORIZED_DOMAINS: set[str]
     LOG_CONSOLE: bool
     LOGGING: dict[str, Any]
+    LOGIN_URL: str
     OAUTH2_CLIENTS: list[Any]
     OAUTH2_ISSUER: str
+    OAUTH2_ERROR_URL: str
+    OAUTH2_RECOVERY_EMAIL_URL: str
+    OAUTH2_SIGNING_KEY: str | None
+    OAUTH2_STORAGE: str
     SECRET_KEY: str
     SESSION_COOKIE_AGE: int
     SESSION_COOKIE_DOMAIN: str | None
@@ -330,11 +360,15 @@ class Settings:
     TRUSTED_AUTHORIZATION_SERVERS: list[str]
 
     __defaults__: dict[str, Any] = {
+        'APP_CLIENT_ID': os.getenv('APP_CLIENT_ID'),
+        'APP_CLIENT_SECRET': os.getenv('APP_CLIENT_SECRET'),
+        'APP_ISSUER': os.getenv('APP_ISSUER'),
         'APP_NAME': os.getenv('APP_NAME'),
         'ASGI_ROOT_PATH': os.environ.get('ASGI_ROOT_PATH'),
         'DEBUG': False,
         'DEPLOYMENT_ENV': os.environ.get('DEPLOYMENT_ENV') or 'production',
         'LOGIN_AUTHORIZED_DOMAINS': set(),
+        'LOGIN_URL': '/login',
         'LOG_CONSOLE': False,
         'LOGGING': {
             'version': 1,
@@ -386,6 +420,10 @@ class Settings:
         },
         'OAUTH2_CLIENTS': [],
         'OAUTH2_ISSUER': None,
+        'OAUTH2_ERROR_URL': '/error',
+        'OAUTH2_RECOVERY_EMAIL_URL': '/recovery-email',
+        'OAUTH2_SIGNING_KEY': os.getenv('OAUTH2_SIGNING_KEY'),
+        'OAUTH2_STORAGE': 'cbra.ext.oauth2.MemoryStorage',
         'PUBLISHER_TOPIC_PREFIX': os.getenv('APP_NAME'),
         'SECRET_KEY': os.environ.get('SECRET_KEY') or bytes.hex(os.urandom(32)),
         'SESSION_COOKIE_AGE': 1209600,

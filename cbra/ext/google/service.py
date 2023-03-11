@@ -60,4 +60,5 @@ class Service(Application):
                 'kind': 'service'
             }
         }
+    
         return config

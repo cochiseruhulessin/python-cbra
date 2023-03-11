@@ -11,11 +11,14 @@ from typing import Any
 from typing import Literal
 
 import pydantic
+from canonical import DomainName
 
 from cbra.types import ISessionManager
 from cbra.types import PersistedModel
 from ..types import PrincipalType
+from ..types import SubjectLifecycleType
 from .principal import Principal
+from .subjectclaimset import SubjectClaimSet
 
 
 class Subject(PersistedModel):
@@ -24,16 +27,21 @@ class Subject(PersistedModel):
         default=None,
         auto_assign=True
     )
-
+    claims: SubjectClaimSet = pydantic.Field(
+        default_factory=SubjectClaimSet
+    )
     created: datetime
     seen: datetime
     active: bool = True
-
+    status: SubjectLifecycleType = SubjectLifecycleType.pending
     principals: set[Principal] = set()
 
     #: TODO: The PeristedModel must be refactored to register attribute mutations
     #: so that the storage backend can detect if it needs to delete something.
     _removed_principals: list[Principal] = pydantic.PrivateAttr([])
+
+    def activate(self) -> None:
+        self.status = SubjectLifecycleType.active
 
     def add_principal(
         self,
@@ -62,6 +70,9 @@ class Subject(PersistedModel):
     def add_to_session(self, session: ISessionManager[Any]) -> None:
         raise NotImplementedError
     
+    def can_destroy(self) -> bool:
+        return self.status == SubjectLifecycleType.pending
+
     def has_principal(self, principal: PrincipalType) -> bool:
         p = Principal.new(
             0,
@@ -71,3 +82,24 @@ class Subject(PersistedModel):
             trust=False
         )
         return p in self.principals
+
+    def is_active(self) -> bool:
+        return self.status == SubjectLifecycleType.active
+
+    def merge(self, other: 'Subject') -> None:
+        raise NotImplementedError
+
+    def needs_fallback_email(self, allow: set[DomainName]) -> bool:
+        return not any([
+            p.spec.email.domain in allow
+            for p in self.principals
+            if p.spec.kind == 'EmailAddress'
+        ])
+    
+    def dict(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        # TODO: A very ugly solution for serialization failure.
+        try:
+            self.principals = list(self.principals) # type: ignore
+            return super().dict(*args, **kwargs)
+        finally:
+            self.principals = set(self.principals)

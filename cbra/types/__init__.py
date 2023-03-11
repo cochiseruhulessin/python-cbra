@@ -52,6 +52,7 @@ from .request import Request
 from .requestprincipal import RequestPrincipal
 from .rfc9068requestprincipal import RFC9068RequestPrincipal
 from .session import Session
+from .sessionclaims import SessionClaims
 from .sessionmodel import SessionModel
 from .sessionrequestprincipal import SessionRequestPrincipal
 from .stringpathparameter import StringPathParameter
@@ -108,6 +109,7 @@ __all__: list[str] = [
     'RequestPrincipal',
     'RFC9068RequestPrincipal',
     'Session',
+    'SessionClaims',
     'SessionModel',
     'SessionRequestPrincipal',
     'SubjectIdentifier',

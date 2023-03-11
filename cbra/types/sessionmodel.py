@@ -7,6 +7,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import base64
+from typing import Any
 from typing import TypeVar
 
 import pydantic
@@ -35,3 +36,10 @@ class SessionModel(pydantic.BaseModel, IHashable):
 
     def digest(self) -> bytes:
         return self._hash(self.dict(exclude={'hmac'}, exclude_none=True))
+
+    def get(self, key: str) -> Any:
+        if not self.claims:
+            return None
+        if key not in self.claims.__fields__:
+            raise AttributeError(f'No such claim: {key}')
+        return getattr(self.claims, key)

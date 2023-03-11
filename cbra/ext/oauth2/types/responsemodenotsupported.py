@@ -12,6 +12,7 @@ from cbra.types import Abortable
 
 
 class ResponseModeNotSupported(Abortable):
+    __module__: str = 'cbra.ext.oauth2.types'
     status_code: int = 400
 
     def __init__(self, mode: str):

@@ -11,6 +11,7 @@ from .isubjectrepository import ISubjectRepository
 from .principaltype import PrincipalType
 from .publicidentifier import PublicIdentifier
 from .subject import Subject
+from .subjectlifecycletype import SubjectLifecycleType
 
 
 __all__: list[str] = [
@@ -19,4 +20,5 @@ __all__: list[str] = [
     'PrincipalType',
     'PublicIdentifier',
     'Subject',
+    'SubjectLifecycleType',
 ]

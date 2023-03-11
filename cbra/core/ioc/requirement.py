@@ -17,15 +17,16 @@ from .dependencynotsatisfied import DependencyNotSatisfied
 class Requirement:
     __module__: str = 'cbra.core.ioc'
     ref: Dependency | None = None
-    missing: str
+    missing: Any
     name: str
 
     @property
     def factory(self) -> Callable[..., Any]:
-        assert self.ref is not None
-        return self.ref.symbol
+        dep = self.ref or self.missing
+        assert dep is not None, self.name
+        return dep.symbol
 
-    def __init__(self, name: str, missing: Any = None) -> None:
+    def __init__(self, name: str, missing: Any = NotImplemented) -> None:
         self.missing = missing
         self.name = name
 
@@ -38,7 +39,7 @@ class Requirement:
         try:
             self.ref = container.require(self.name)
         except DependencyNotSatisfied:
-            if self.missing == NotImplemented:
+            if self.missing in {NotImplemented, None}:
                 raise
             self.ref = Dependency(
                 name=self.name,

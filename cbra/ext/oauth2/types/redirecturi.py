@@ -26,7 +26,6 @@ OOB_URLS: set[str] = {
 
 class RedirectURI(str):
     __module__: str = 'cbra.ext.oauth2.types'
-    value: urllib.parse.ParseResult
     params: dict[str, str]
 
     @classmethod
@@ -78,11 +77,12 @@ class RedirectURI(str):
                 # (OAuth 2.1 draft).
                 raise ValueError('local redirect URIs must use loopback IP literals.')
 
-        return cls(p)
+        return cls(urllib.parse.urlunparse(p))
 
-    def redirect(self, **params: str) -> str:
+    def redirect(self, **params: Any) -> str:
         """Create a redirect URI with the given params."""
-        p = list(urllib.parse.urlparse(self))
+        params = {k: v for k, v in params.items() if v is not None}
+        p: list[str] = list(urllib.parse.urlparse(self)) # type: ignore
         p[4] = urllib.parse.urlencode(params, quote_via=urllib.parse.quote)
         return urllib.parse.urlunparse(p)
 

@@ -57,5 +57,5 @@ class Container:
 
     def require(self, name: str) -> Dependency:
         if name not in self.injected:
-            raise DependencyNotSatisfied
+            raise DependencyNotSatisfied(name)
         return self.injected[name]

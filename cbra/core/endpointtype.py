@@ -73,7 +73,7 @@ class EndpointType(type):
 
         # Create a concrete Principal subclass. This is to allow
         # thing like principal: RFC9068RequestPrincipal | OIDCRequestPrincipal.
-        if annotations.get('principal'):
+        if annotations.get('principal') and not namespace.get('principal'):
             EndpointPrincipal: type[RequestPrincipal]
             principal: types.UnionType | IRequestPrincipal = annotations['principal']
             if isinstance(principal, types.UnionType):

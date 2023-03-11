@@ -7,30 +7,25 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import copy
-import inspect
 import logging.config
 from typing import Any
 from typing import Callable
 
-import aorta
 import fastapi
 from fastapi import FastAPI
-from fastapi.routing import DecoratedCallable
 from fastapi.params import Depends
 
 from cbra.types import Abortable
 from .apiroute import APIRoute
 from .conf import settings
-from .endpoint import Endpoint
-from .resource import Resource
-from .ioc import Container
+from .endpointprovider import EndpointProvider
 from .ioc import Requirement
 from .localmessagetransport import LocalMessageTransport
 from .messagepublisher import MessagePublisher
 from .utils import parent_signature
 
 
-class Application(FastAPI):
+class Application(FastAPI, EndpointProvider):
     __module__: str = 'cbra'
     _injectables: tuple[type, ...] = (
         Depends,
@@ -39,8 +34,7 @@ class Application(FastAPI):
 
     @parent_signature(FastAPI.__init__)
     def __init__(self, **kwargs: Any):
-        self.container = Container.fromsettings()
-
+        EndpointProvider.__init__(self)
         handlers: dict[type, Any] = kwargs.setdefault('exception_handlers', {})
         handlers[Abortable] = self.on_aborted
 
@@ -48,26 +42,9 @@ class Application(FastAPI):
         self.inject('MessagePublisher', MessagePublisher)
         if not self.container.has('MessageTransport'):
             self.inject('MessageTransport', LocalMessageTransport)
-        super().__init__(**kwargs)
+        FastAPI.__init__(self, **kwargs)
         self.router.route_class = APIRoute
         self.add_event_handler('startup', self.setup_logging) # type: ignore
-
-    def add(
-        self,
-        routable: type[Endpoint | Resource] | type[aorta.EventListener | aorta.CommandHandler],
-        *args: Any, **kwargs: Any
-    ) -> None:
-        if issubclass(routable, (Endpoint, Resource)):
-            routable.add_to_router(self, *args, **kwargs)
-        elif issubclass(routable, aorta.MessageHandler): # type: ignore
-            # Ensure that all members are injected in the container.
-            for _, member in inspect.getmembers(routable):
-                if not isinstance(member, (Depends, Requirement)):
-                    continue
-                self.update_requirements(member)
-            aorta.register(routable)
-        else:
-            raise NotImplementedError
 
     def inject(self, name: str, value: Any) -> None:
         """Inject a value into the dependencies container."""
@@ -75,7 +52,7 @@ class Application(FastAPI):
 
     def logging_config(self):
         config = copy.deepcopy(settings.LOGGING)
-        if not settings.DEBUG and not settings.LOG_CONSOLE:
+        if not settings.DEBUG:
             # Remove console handler when not running in debug mode and its
             # not explicitely enabled in the settings.
             config['handlers']['console'] = {'class': 'logging.NullHandler'}
@@ -132,46 +109,3 @@ class Application(FastAPI):
     @parent_signature(FastAPI.delete)
     def delete(self, *a: Any, **k: Any):
         return self.discover_requirements(FastAPI.delete, *a, **k)
-
-    def discover_requirements(
-        self,
-        decorator_factory: Callable[..., DecoratedCallable],
-        *args: Any,
-        **kwargs: Any
-    ) -> Callable[[DecoratedCallable], DecoratedCallable]:
-        def decorator(func: DecoratedCallable) -> DecoratedCallable:
-            self.update_requirements(func)
-            return decorator_factory(self, *args, **kwargs)(func)
-        return decorator
-
-    def update_requirements(self, func: Callable[..., Any] | Depends | Any) -> None:
-        """Traverse the signature tree of the given function to find
-        all :class:`Requirement` instances.
-        """
-        # TODO: this will completely mess up if multiple Application instances
-        # are spawned.
-        if not callable(func): return None
-        if isinstance(func, Requirement):
-            func.add_to_container(self.container)
-        elif isinstance(func, Depends):
-            return self.update_requirements(func.dependency)
-        try:
-            signature = inspect.signature(func) # type: ignore
-        except ValueError:
-            # No signature to inspect.
-            return None
-        for param in signature.parameters.values():
-            if not isinstance(param.default, self._injectables):
-                continue
-            if isinstance(param.default, Requirement):
-                param.default.add_to_container(self.container)
-                if param.default.callable():
-                    self.update_requirements(param.default.factory) # type: ignore
-                continue
-
-            if isinstance(param.default, Depends):
-                injectable = param.default.dependency
-                if injectable is None:
-                    # Was declared as f(dependency: Callable = fastapi.Depends())
-                    injectable = param.annotation
-                self.update_requirements(injectable)

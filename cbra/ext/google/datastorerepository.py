@@ -7,6 +7,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import functools
+import json
 from typing import get_origin
 from typing import Any
 from typing import AsyncGenerator
@@ -161,7 +162,7 @@ class DatastoreRepository(Runner):
         else:
             raise NotImplementedError
         key = self.model_key(instance)
-        data = instance.dict(exclude=exclude)
+        data = json.loads(instance.json(exclude=exclude))
         assert instance.__surrogate__ is not None
         entity = Entity(key=key)
         entity.update(data) # type: ignore

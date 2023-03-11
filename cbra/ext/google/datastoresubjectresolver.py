@@ -34,9 +34,9 @@ class DatastoreSubjectResolver(SubjectResolver):
         self,
         principal: SessionRequestPrincipal
     ) -> RequestSubject | NullSubject:
-        if principal.subject is None:
+        if principal.claims.uid is None:
             return NullSubject()
-        subject = await self.repo.resolve(principal.subject.sub)
+        subject = await self.repo.resolve(principal.claims.uid)
         if subject is None:
             return NullSubject()
         assert subject.uid is not None # nosec

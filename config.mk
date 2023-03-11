@@ -48,6 +48,7 @@ GOOGLE_SERVICE_PROJECT=unimatrixdev
 MINOR_VERSION=$(shell cut -d '.' -f 1,2 <<< "$$(cat VERSION)")
 OAUTH_SERVER = https://oauth2.webidentityapis.com
 OAUTH_SERVICE_CLIENT = cbra
+OAUTH2_SIGNING_KEY ?= local:///pki/p384.key?alg=ES384&use=sig
 SECRET_KEY=0000000000000000000000000000000000000000000000000000000000000000
 export
 
@@ -92,3 +93,12 @@ update-aorta:
 update-headless:
 	@cp -R ~/src/unimatrixone/libraries/python-unimatrix/headless/headless/*\
 		$(CURDIR)/.lib/python/runtime/headless/
+
+
+update-canonical:
+	@cp -R ~/src/unimatrixone/libraries/python-unimatrix/canonical/canonical/*\
+		$(CURDIR)/.lib/python/runtime/canonical/
+
+update-ckms:
+	@cp -R ~/src/unimatrixone/libraries/python-unimatrix/ckms/ckms/*\
+		$(CURDIR)/.lib/python/runtime/ckms/

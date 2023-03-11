@@ -355,7 +355,7 @@ class RequestHandler(Generic[E]):
         return self.method in {'PUT', 'PATCH'}
 
     def is_pydantic_union(self, obj: Any):
-        origin = get_origin(obj)
+        origin = get_origin(obj) # type: ignore
         if origin != Union:
             return False
         return all([
@@ -451,9 +451,18 @@ class RequestHandler(Generic[E]):
             await endpoint.run_handler(self._func, **kwargs)
         )
 
-        # Persist the session only if there is a successful response.
-        if (200 <= response.status_code < 400) \
-        and endpoint.session.is_dirty():
+        # TODO: Make this configurable on the endpoint/resource.
+        response.headers.setdefault('Cache-Control', 'no-cache, no-store, must-revalidate')
+        response.headers.setdefault('Expires', '0')
+        response.headers.setdefault('Permissions-Policy', 'interest-cohort=()')
+        response.headers.setdefault('Pragma', 'no-cache')
+        response.headers.setdefault('Referrer-Policy', 'no-referrer')
+        response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+        response.headers.setdefault('X-Frame-Options', 'DENY')
+        response.headers.setdefault('X-DNS-Prefetch-Control', 'off')
+        response.headers.setdefault('X-XSS-Protection', '0')
+
+        if endpoint.session.is_dirty():
             await endpoint.session.add_to_response(response)
 
         # Copy the headers from the endpoint response.

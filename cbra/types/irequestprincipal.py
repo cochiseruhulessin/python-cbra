@@ -30,15 +30,18 @@ class IRequestPrincipal:
     @classmethod
     async def fromrequest(cls: type[P], request: fastapi.Request) -> P:
         """Create a new principal from the request object."""
+        # TODO: A very ugly hack
+        body = None
+        if 'Content-Type' in request.headers:
+            if hasattr(request, '_body'):
+                body = request._body # type: ignore
+            else:
+                body = await request.body()
         return cls.parse_obj({ # type: ignore
             'request': request,
             'headers': request.headers,
             'cookies': request.cookies,
-            'content': (
-                await request.body()
-                if 'Content-Type' in request.headers
-                else None
-            )
+            'content': body
         })
 
     def get_audience(self) -> set[str]:

@@ -13,20 +13,10 @@ import pydantic
 from canonical import EmailAddress
 
 from cbra.types import PersistedModel
+from ..const import ALLOWED_DOMAINS
+from .emailchallenge import EmailChallenge
 
 
-ALLOWED_DOMAINS: set[str] = {
-    'gmail.com',
-    'outlook.com',
-    'hotmail.com',
-    'live.com',
-    'myyahoo.com',
-    'yahoo.com',
-    'rocketmail.com',
-    'icloud.com',
-    'pm.me',
-    'protonmail.com'
-}
 
 
 class AccountRegistration(PersistedModel):
@@ -48,8 +38,7 @@ class AccountRegistration(PersistedModel):
 
     Attributes:
       id (int): a numeric identifier for this :class:`AccountRegistration`.
-        This will also be the global subject identifier.
-        requested (datetime.datetime): the date/time at which registration
+      requested (datetime.datetime): the date/time at which registration
           of the account was requested.
     """
     id: int | None = pydantic.Field(
@@ -61,9 +50,21 @@ class AccountRegistration(PersistedModel):
         default_factory=lambda: datetime.now(timezone.utc)
     )
 
-    register: EmailAddress = pydantic.Field(
+    register: EmailChallenge = pydantic.Field(
         default=...,
         primary_key=True
     )
 
-    fallback: EmailAddress | None = None
+    fallback: EmailChallenge | None = None
+
+    def add_fallback(self, email: EmailAddress) -> None:
+        """Register a fallback email address."""
+        if email.domain not in ALLOWED_DOMAINS:
+            raise ValueError("Must be on a whitelisted domain.")
+        self.fallback = EmailChallenge(email=email)
+
+    def needs_backup(self) -> bool:
+        """Return a boolean indicating if a backup email address must be
+        provided to register an account.
+        """
+        return self.register.email.domain in ALLOWED_DOMAINS

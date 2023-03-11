@@ -9,17 +9,41 @@
 from typing import TypeAlias
 from typing import Union
 
+from .applicationclient import ApplicationClient
+from .authorizationcodegrant import AuthorizationCodeGrant
+from .authorizationrequest import AuthorizationRequest
+from .authorizationrequestclient import AuthorizationRequestClient
+from .authorizationrequestparameters import AuthorizationRequestParameters
 from .authorizationstate import AuthorizationState
+from .beginonboardrequest import BeginOnboardRequest
+from .beginonboardresponse import BeginOnboardResponse
+from .client import Client
+from .grant import Grant
+from .resourceowner import ResourceOwner
+from .refreshtoken import RefreshToken
 from .sector import Sector
 
 
 __all__: list[str] = [
+    'ApplicationClient',
+    'AuthorizationCodeGrant',
+    'AuthorizationRequest',
+    'AuthorizationRequestClient',
+    'AuthorizationRequestParameters',
     'AuthorizationState',
+    'BeginOnboardRequest',
+    'BeginOnboardResponse',
+    'Grant',
+    'RefreshToken',
+    'ResourceOwner',
     'Sector'
 ]
 
 
 AuthorizationServerModel: TypeAlias = Union[
+    AuthorizationRequest,
+    AuthorizationRequestParameters,
     AuthorizationState,
+    Client,
     Sector
 ]

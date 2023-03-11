@@ -24,6 +24,7 @@ class LoginEndpoint(AuthorizationServerEndpoint):
     __module__: str = 'cbra.ext.oauth2'
     name: str = 'oauth2.login'
     nonce_cookie_name: str = 'oidc.nonce'
+    path: str = '/login'
     redirect_cookie_name: str = 'oauth2.redirect-uri'
     state_cookie_name: str = 'oauth2.state'
     status_code: int = 303
@@ -72,7 +73,7 @@ class LoginEndpoint(AuthorizationServerEndpoint):
         async with client:
             url = await client.authorize(
                 state=params.state,
-                redirect_uri=redirect_uri,
+                redirect_uri=str(redirect_uri),
                 scope={'openid', 'email'},
                 nonce=params.nonce,
                 prompt='select_account'

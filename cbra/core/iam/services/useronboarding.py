@@ -8,13 +8,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from datetime import datetime
 from datetime import timezone
+import functools
 from typing import Any
 
 from canonical import EmailAddress
 from headless.ext.oauth2.models import OIDCToken
+from headless.ext.oauth2.models import SubjectIdentifier
 
 from cbra.core.ioc import instance
 from cbra.core.params import CurrentIssuer
+from ..memorysubjectrepository import MemorySubjectRepository
 from ..models import Subject
 from .. import types
 
@@ -28,17 +31,21 @@ class UserOnboardingService:
     def __init__(
         self,
         issuer: str = CurrentIssuer,
-        subjects: types.ISubjectRepository = instance('SubjectRepository')
+        subjects: types.ISubjectRepository = instance(
+            name='SubjectRepository',
+            missing=MemorySubjectRepository
+        )
     ):
         self.issuer = issuer
         self.subjects = subjects
         self.timestamp = datetime.now(timezone.utc)
 
-    def initialize(self) -> Subject:
+    def initialize(self, claims: OIDCToken | None = None) -> Subject:
         return Subject(
             kind='User',
             created=self.timestamp,
-            seen=self.timestamp
+            seen=self.timestamp,
+            claims=claims.dict() if claims else {}
         )
     
     async def sync(
@@ -54,14 +61,6 @@ class UserOnboardingService:
             subject = self.initialize()
             await self.subjects.persist(subject)
             assert subject.uid is not None
-            subject.add_principal(
-                issuer=self.issuer,
-                value=types.PublicIdentifier(
-                    iss=self.issuer,
-                    sub=str(subject.uid)
-                ),
-                asserted=self.timestamp
-            )
             await self.update(subject, issuer, [principal])
         else:
             onboarded = False
@@ -90,17 +89,9 @@ class UserOnboardingService:
             raise NotImplementedError(found)
         if not found:
             onboarded = True
-            subject = self.initialize()
+            subject = self.initialize(token)
             await self.subjects.persist(subject)
             assert subject.uid is not None
-            subject.add_principal(
-                issuer=self.issuer,
-                value=types.PublicIdentifier(
-                    iss=self.issuer,
-                    sub=str(subject.uid)
-                ),
-                asserted=self.timestamp
-            )
         else:
             assert len(found) == 1
             subject = await self.subjects.get(found.pop())
@@ -118,10 +109,27 @@ class UserOnboardingService:
             subject.add_principal(token.iss, token.email, self.timestamp, trust=True)
             subject.seen = self.timestamp
             principals.remove(token.email)
-        await self.update(subject, token.iss, principals)
+        await self.update_oidc(subject, token)
         return subject, onboarded
 
+    @functools.singledispatchmethod
     async def can_use(
+        self,
+        obj: OIDCToken | Subject,
+        *args: Any,
+        **kwargs: Any
+    ) -> bool:
+        raise NotImplementedError(type(obj).__name__)
+
+    @can_use.register
+    async def can_use_oidc_token(
+        self,
+        token: OIDCToken
+    ) -> bool:
+        return len(await self.subjects.find_by_principals(token.principals)) <= 1
+
+    @can_use.register
+    async def can_use_for_subject(
         self,
         subject: Subject,
         principals: list[types.PrincipalType]
@@ -135,11 +143,42 @@ class UserOnboardingService:
             can_use = (len(found) == 1) and (found.pop() == subject.uid)
         return can_use
 
-    async def update(self, subject: types.Subject, iss: str, principals: Any, trust: bool = False) -> None:
+    async def get(self, oidc: OIDCToken) -> Subject | None:
+        found = await self.subjects.find_by_principals(oidc.principals)
+        if len(found) > 1:
+            raise RuntimeError("Principals resolve to multiple Subjects.")
+        if not found:
+            return None
+        return await self.subjects.get(found.pop()) # type: ignore
+
+    async def update_oidc(
+        self,
+        subject: types.Subject,
+        oidc: OIDCToken
+    ) -> None:
+        assert subject.uid is not None
+        subject.seen = self.timestamp
+        if oidc.email and not subject.has_principal(oidc.email):
+            subject.add_principal(oidc.iss, oidc.email, self.timestamp, oidc.email_verified)
+        identifier = SubjectIdentifier(iss=oidc.iss, sub=oidc.sub)
+        if not subject.has_principal(identifier):
+            subject.add_principal(oidc.iss, identifier, self.timestamp, True)
+        await self.subjects.persist(subject)
+
+    async def update(
+        self,
+        subject: types.Subject,
+        iss: str,
+        principals: Any,
+        trust: bool = False
+    ) -> None:
         assert subject.uid is not None
         subject.seen = self.timestamp
         for principal in principals:
             if subject.has_principal(principal):
                 continue
             subject.add_principal(iss, principal, self.timestamp, trust=trust)
+        await self.subjects.persist(subject)
+
+    async def persist(self, subject: Subject) -> None:
         await self.subjects.persist(subject)

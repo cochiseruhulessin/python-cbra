@@ -149,10 +149,14 @@ class IEndpoint:
         """
         await self.ctx.authorize()
         return self.has_permission(name)
-
+    
     def has_permission(self, name: str) -> bool:
         """Return a boolean if the request has the given permission."""
         return self.ctx.has_permission(name)
+
+    def is_authenticated(self) -> bool:
+        """Return a boolean indicating if the request is authenticated."""
+        return self.ctx.is_authenticated()
 
     def set_cookie(
         self,

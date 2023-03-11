@@ -16,6 +16,7 @@ import fastapi
 from cbra.types import IAuthorizationContext
 from cbra.types import IEndpoint
 from cbra.types import RequestPrincipal
+from cbra.types import NullRequestPrincipal
 from .iam import AuthorizationContextFactory
 from .ioc import instance
 from .endpointtype import EndpointType
@@ -31,7 +32,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
     __module__: str = 'cbra'
     allowed_http_methods: list[str]
     include_in_schema: bool = True
-    principal: RequestPrincipal = RequestPrincipal.depends()
+    principal: RequestPrincipal | NullRequestPrincipal = RequestPrincipal.depends()
     ctx: IAuthorizationContext
     context_factory: AuthorizationContextFactory = AuthorizationContextFactory.depends()
     publisher: MessagePublisher = instance('MessagePublisher')
@@ -49,7 +50,7 @@ class Endpoint(IEndpoint, metaclass=EndpointType):
         self.timestamp = datetime.now(timezone.utc)
 
     @classmethod
-    def add_to_router(cls, router: fastapi.FastAPI, **kwargs: Any) -> None:
+    def add_to_router(cls, router: fastapi.FastAPI | fastapi.APIRouter, **kwargs: Any) -> None:
         kwargs.setdefault('path', '/')
         kwargs.setdefault('response_model_by_alias', cls.response_model_by_alias)
         kwargs.setdefault('status_code', cls.status_code)

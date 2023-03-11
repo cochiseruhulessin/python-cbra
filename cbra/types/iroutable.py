@@ -16,5 +16,5 @@ class IRoutable:
     response_model_by_alias: bool = False
 
     @classmethod
-    def add_to_router(cls, endpoint: Any, router: fastapi.FastAPI, **kwargs: Any) -> None:
+    def add_to_router(cls, endpoint: Any, router: fastapi.FastAPI | fastapi.APIRouter, **kwargs: Any) -> None:
         raise NotImplementedError

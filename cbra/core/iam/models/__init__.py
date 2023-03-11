@@ -9,10 +9,12 @@
 from .externalprincipal import ExternalPrincipal
 from .principal import Principal
 from .subject import Subject
+from .subjectclaimset import SubjectClaimSet
 
 
 __all__: list[str] = [
     'ExternalPrincipal',
     'Principal',
-    'Subject'
+    'Subject',
+    'SubjectClaimSet',
 ]

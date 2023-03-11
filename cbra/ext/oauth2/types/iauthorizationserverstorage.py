@@ -10,6 +10,8 @@ from typing import Any
 from typing import Protocol
 from typing import TypeVar
 
+from cbra.core.iam.types import Subject
+from .authorizationrequestidentifier import AuthorizationRequestIdentifier
 from .iauthorizationflowstate import IAuthorizationFlowState
 
 M = TypeVar('M')
@@ -18,6 +20,15 @@ M = TypeVar('M')
 class IAuthorizationServerStorage(Protocol):
     __module__: str = 'cbra.ext.oauth2.types'
 
+    async def get_subject(self, *args: Any, **kwargs: Any) -> Subject | None: ...
+
+    async def get(
+        self,
+        cls: AuthorizationRequestIdentifier | type[M],
+        *args: Any,
+        **kwargs: Any
+    ) -> M | None:
+        raise NotImplementedError
 
     async def persist(
         self,

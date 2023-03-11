@@ -58,7 +58,7 @@ class SecretKey(IDependant):
         return self
 
     def __init__(self):
-        self.keychain = SecretKey.keychain
+        self.keychain = type(self).keychain
 
     async def sign(self, value: bytes | str, encoding: str = 'utf-8') -> str:
         """Sign the given value."""
