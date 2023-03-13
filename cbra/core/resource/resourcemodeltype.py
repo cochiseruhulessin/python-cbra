@@ -36,13 +36,13 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
         if not is_abstract:
             # Collect readonly fields to create the CreateResourceRequest
             # ReplaceResourceRequest and UpdateResourceRequest models.
-            create_fields: list[tuple[str, type, pydantic.main.FieldInfo | None]] = []
-            key_fields: list[tuple[str, type, pydantic.main.FieldInfo]] = []
-            update_fields: list[tuple[str, type, pydantic.main.FieldInfo | None]] = []
-            response_fields: list[tuple[str, type, pydantic.main.FieldInfo | None]] = []
+            create_fields: list[tuple[str, type, pydantic.fields.FieldInfo | None]] = []
+            key_fields: list[tuple[str, type, pydantic.fields.FieldInfo]] = []
+            update_fields: list[tuple[str, type, pydantic.fields.FieldInfo | None]] = []
+            response_fields: list[tuple[str, type, pydantic.fields.FieldInfo | None]] = []
             for attname, class_ in annotations.items():
                 field = namespace.get(attname)
-                if isinstance(field, pydantic.main.FieldInfo):
+                if isinstance(field, pydantic.fields.FieldInfo):
                     response_fields.append((attname, class_, cls.get_field(field, 'response')))
                     if field.extra.get('primary_key'):
                         key_fields.append((attname, class_, field))
@@ -112,17 +112,17 @@ class ResourceModelType(pydantic.main.ModelMetaclass):
 
     @staticmethod
     def get_field(
-        field: pydantic.main.FieldInfo | None,
+        field: pydantic.fields.FieldInfo | None,
         action: str
-    ) -> pydantic.main.FieldInfo | None:
+    ) -> pydantic.fields.FieldInfo | None:
         field = copy.deepcopy(field)
-        if isinstance(field, pydantic.main.FieldInfo) and field.extra.get('read_only'):
+        if isinstance(field, pydantic.fields.FieldInfo) and field.extra.get('read_only'):
             if action not in {'response', 'key'}:
                 return
             field.update_from_config({
                 'default': ...,
             })
-        elif isinstance(field, pydantic.main.FieldInfo) and action == 'update':
+        elif isinstance(field, pydantic.fields.FieldInfo) and action == 'update':
             field.update_from_config({'default': None})
         return field
 

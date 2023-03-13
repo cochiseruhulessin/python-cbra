@@ -21,10 +21,10 @@ class ModelAutoAssignedIdentity:
     that is an auto assigned integer.
     """
     __module__: str = 'cbra.types'
-    field: pydantic.main.FieldInfo
+    field: pydantic.fields.FieldInfo
     attname: str
 
-    def __init__(self, attname: str, field: pydantic.main.FieldInfo):
+    def __init__(self, attname: str, field: pydantic.fields.FieldInfo):
         self.attname = attname
         self.field = field
 

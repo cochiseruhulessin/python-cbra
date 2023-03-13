@@ -18,9 +18,9 @@ import pydantic.main
 class ModelIdentity:
     """A set of fields that identify a model instance."""
     __module__: str = 'cbra.types'
-    fields: dict[str, pydantic.main.FieldInfo]
+    fields: dict[str, pydantic.fields.FieldInfo]
 
-    def __init__(self, fields: list[pydantic.main.FieldInfo]):
+    def __init__(self, fields: list[pydantic.fields.FieldInfo]):
         self.fields = collections.OrderedDict()
         for field in fields:
             assert 'name' in field.extra

@@ -11,7 +11,7 @@
     "headless>=2.0.0a5",
     "inflect",
     "gunicorn",
-    "pydantic",
+    "pydantic>=1.10.6",
     "uvicorn",
     "unimatrix"
   ],
