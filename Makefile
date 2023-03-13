@@ -1,3 +1,9 @@
+###############################################################################
+#
+#		UNIMAKE MASTER MAKEFILE (PYTHON)
+#
+#
+###############################################################################
 ifneq ($(wildcard config.mk),)
 include config.mk
 endif
@@ -6,9 +12,6 @@ include local.mk
 endif
 APP_RUNDIR ?= .
 APP_SECDIR ?= var/run/secrets
-APP_PKIDIR ?= pki
-APP_PKIDIR_SERVER ?= $(APP_PKIDIR)/server
-APP_PKIDIR_PKCS ?= $(APP_PKIDIR)/pkcs
 COVERAGE_CONFIG=.coveragerc
 COVERAGE_FILE = .coverage-$(TEST_STAGE)
 ifdef CI_JOB_ID
@@ -72,6 +75,9 @@ endif
 PYTHON ?= python3
 OS_RELEASE_ID ?= alpine
 OS_RELEASE_VERSION ?= 3.12
+ifeq ($(MAKECMDGOALS),runhttp)
+SSL_CERT_FILE=.lib/python/runtime/certifi/cacert.pem
+endif
 TEST_STAGE ?= any
 export
 build.alpine.packages += curl gcc g++ git libc-dev libffi-dev libressl-dev make
@@ -317,7 +323,7 @@ run: screen.conf killinfra
 # it to a well-known local port. If the application also exposes a
 # websocket, then it is assumed that during development it is served
 # by the same process as the main application.
-runhttp: $(APP_PKIDIR_SERVER)/tls.crt
+runhttp:
 	@$(cmd.runhttp)
 
 
@@ -390,6 +396,13 @@ update:
 	@$(cmd.git.add) -u && $(cmd.git) commit -m "Update GNU Make includes"
 
 
+update-ca-certificates:
+ifdef LOCALHOST_SSL_CRT
+	@echo "Updating CA certificates"
+	@cat $(LOCALHOST_SSL_CRT) >> .lib/python/runtime/certifi/cacert.pem
+endif
+
+
 # Watch source code for changes and run tests.
 watch:
 	@$(or $(cmd.watch), $(shell echo "make watch is not implemented."))
@@ -405,39 +418,6 @@ watch:
 	@$(cmd.curl) $(or $(seed.git.ignore), $(error Set seed.git.ignore))\
 		> .gitignore
 	@$(cmd.git.add) .gitignore && $(cmd.git) commit -m "Add Git ignore rules"
-
-
-$(APP_PKIDIR):
-	@mkdir -p $(APP_PKIDIR)
-
-
-$(APP_PKIDIR_SERVER): $(APP_PKIDIR)
-	@mkdir -p $(APP_PKIDIR_SERVER)
-
-
-$(APP_PKIDIR_PKCS): $(APP_PKIDIR)
-	@mkdir -p $(APP_PKIDIR_PKCS)
-
-
-$(APP_PKIDIR_SERVER)/tls.crt: $(APP_PKIDIR_SERVER)
-	@$(cmd.openssl) req -new -newkey rsa:2048 -days 365 -nodes -x509\
-		-keyout $(APP_PKIDIR_SERVER)/tls.key -out $(APP_PKIDIR_SERVER)/tls.crt\
-		-subj "/C=NL/ST=Zuid-Holland/L=Den Haag/O=Unimatrix One/CN=localhost"
-	@$(cmd.git) add $(APP_PKIDIR_SERVER)/*\
-		&& $(cmd.git) commit -m "Add local development TLS certificate and key"
-
-
-$(APP_PKIDIR_PKCS)/noop.rsa: $(APP_PKIDIR_PKCS)
-	@$(cmd.openssl) genrsa -out $(APP_PKIDIR_PKCS)/noop.rsa
-	@$(cmd.git) add $(APP_PKIDIR_PKCS)/*\
-		&& $(cmd.git) commit -m "Add local development private key"
-
-
-$(APP_PKIDIR_PKCS)/noop.pub: $(APP_PKIDIR_PKCS)/noop.rsa
-	@$(cmd.openssl) rsa -pubout -in $(APP_PKIDIR_PKCS)/noop.rsa\
-		> $(APP_PKIDIR_PKCS)/noop.pub
-	@$(cmd.git) add $(APP_PKIDIR_PKCS)/*\
-		&& $(cmd.git) commit -m "Add local development public key"
 
 
 # Provide the bump-major, bump-minor and bump-patch targets if
@@ -473,3 +453,10 @@ configure:
 lint: lint-unused lint-security lint-line-length lint-import-order lint-trailing-whitespace
 prepush: lint testall
 run: env
+
+
+reboot:
+	@rm -rf MANIFEST.in setup.py $(PYTHON_PKG_NAME)
+	@make bootstrap PYTHON_PKG_NAME=$(python.reboot)
+	@rm -rf $(PYTHON_PKG_NAME)/app/tests
+	@rm -rf $(PYTHON_PKG_NAME)/runtime/tests
